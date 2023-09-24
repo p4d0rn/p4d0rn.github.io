@@ -1,0 +1,707 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Chap3. Dictionaries and SetsThe dict type is a fundamental part of Python’s implementation.Class and instance attributes, module namespaces, and function keyword arguments are some of the core Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="流畅的Python-3">
+<meta property="og:url" content="http://example.com/2023/07/04/fluent-py-03/index.html">
+<meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
+<meta property="og:description" content="Chap3. Dictionaries and SetsThe dict type is a fundamental part of Python’s implementation.Class and instance attributes, module namespaces, and function keyword arguments are some of the core Python">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-04T04:56:36.000Z">
+<meta property="article:modified_time" content="2023-07-08T06:39:36.000Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="code">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>流畅的Python-3 - p4d0rn&#39;s Labyrinth</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5-a","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>p4d0rn&#39;s labyrinth</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="流畅的Python-3"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-04 12:56" pubdate>
+          2023年7月4日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          59 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">流畅的Python-3</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Chap3-Dictionaries-and-Sets"><a href="#Chap3-Dictionaries-and-Sets" class="headerlink" title="Chap3. Dictionaries and Sets"></a>Chap3. Dictionaries and Sets</h1><p>The <strong>dict</strong> type is a fundamental part of Python’s implementation.Class and instance attributes, module namespaces, and function keyword arguments are some of the core Python constructs represented by dictionaries in memory. The<code> __builtins__.__dict__</code> stores all built-in types, objects, and functions.</p>
+<p>Because of their crucial role, Python dicts are highly optimized.Hash tables are the engines behind Python’s high-performance dicts.Other built-in types based on hash tables are <strong>set</strong> and <strong>frozenset</strong>.</p>
+<h2 id="0x01-Modern-dict-Syntax"><a href="#0x01-Modern-dict-Syntax" class="headerlink" title="0x01 Modern dict Syntax"></a>0x01 Modern dict Syntax</h2><h3 id="Dict-Comprehension"><a href="#Dict-Comprehension" class="headerlink" title="Dict Comprehension"></a>Dict Comprehension</h3><p>A <em>dictcomp</em> (dict comprehension) builds a <strong>dict</strong> instance by taking <strong>key:value</strong> pairs from any iterable.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python">dial_codes = [<br>    (<span class="hljs-number">880</span>, <span class="hljs-string">&#x27;Bangladesh&#x27;</span>),<br>    (<span class="hljs-number">55</span>, <span class="hljs-string">&#x27;Brazil&#x27;</span>),<br>    (<span class="hljs-number">86</span>, <span class="hljs-string">&#x27;China&#x27;</span>),<br>    (<span class="hljs-number">91</span>, <span class="hljs-string">&#x27;India&#x27;</span>),<br>    (<span class="hljs-number">62</span>, <span class="hljs-string">&#x27;Indonesia&#x27;</span>),<br>    (<span class="hljs-number">81</span>, <span class="hljs-string">&#x27;Japan&#x27;</span>),<br>    (<span class="hljs-number">234</span>, <span class="hljs-string">&#x27;Nigeria&#x27;</span>),<br>    (<span class="hljs-number">92</span>, <span class="hljs-string">&#x27;Pakistan&#x27;</span>),<br>    (<span class="hljs-number">7</span>, <span class="hljs-string">&#x27;Russia&#x27;</span>),<br>    (<span class="hljs-number">1</span>, <span class="hljs-string">&#x27;United States&#x27;</span>),<br>]<br>country_dial = &#123;country: code <span class="hljs-keyword">for</span> code, country <span class="hljs-keyword">in</span> dial_codes&#125;<br><span class="hljs-built_in">print</span>(country_dial)<br><span class="hljs-comment"># &#123;&#x27;Bangladesh&#x27;: 880, &#x27;Brazil&#x27;: 55, &#x27;China&#x27;: 86, &#x27;India&#x27;: 91, &#x27;Indonesia&#x27;: 62, &#x27;Japan&#x27;: 81, &#x27;Nigeria&#x27;: 234, &#x27;Pakistan&#x27;: 92, &#x27;Russia&#x27;: 7, &#x27;United States&#x27;: 1&#125;</span><br><span class="hljs-built_in">print</span>(&#123;code: country.upper() <span class="hljs-keyword">for</span> country, code <span class="hljs-keyword">in</span> <span class="hljs-built_in">sorted</span>(country_dial.items()) <span class="hljs-keyword">if</span> code &lt; <span class="hljs-number">70</span>&#125;)<br><span class="hljs-comment"># &#123;55: &#x27;BRAZIL&#x27;, 62: &#x27;INDONESIA&#x27;, 7: &#x27;RUSSIA&#x27;, 1: &#x27;UNITED STATES&#x27;&#125;</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>country_dial.items()</p>
+<p>-&gt; [(k1,v1),(k2,v2)….]</p>
+</blockquote>
+<h3 id="Unpacking-Mappings"><a href="#Unpacking-Mappings" class="headerlink" title="Unpacking Mappings"></a>Unpacking Mappings</h3><p>函数形参前缀<code>**</code>表示以字典的形式接收，实参前缀<code>**</code>表示解包</p>
+<p> This works when keys are all strings and unique across all arguments.要求键均为字符串且不重复</p>
+<blockquote>
+<p>TypeError: keywords must be strings</p>
+<p>TypeError: <code>__main__.dump()</code> got multiple values for keyword argument ‘x’</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">dump</span>(<span class="hljs-params">**kwargs</span>):<br>    <span class="hljs-built_in">print</span>(kwargs)<br><br>dump(**&#123;<span class="hljs-string">&#x27;x&#x27;</span>: <span class="hljs-number">1</span>&#125;, y=<span class="hljs-number">2</span>, **&#123;<span class="hljs-string">&#x27;z&#x27;</span>: <span class="hljs-number">3</span>&#125;) <span class="hljs-comment"># dump(x=1, y=2, z=3)</span><br><span class="hljs-comment"># &#123;&#x27;x&#x27;: 1, &#x27;y&#x27;: 2, &#x27;z&#x27;: 3&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p><code>**</code>也可以用在字典字面量内部</p>
+<p>Later occurrences overwrite previous ones 允许键重复，但后面的键值会覆盖前面的键值</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(&#123;<span class="hljs-string">&#x27;a&#x27;</span>: <span class="hljs-number">0</span>, **&#123;<span class="hljs-string">&#x27;x&#x27;</span>: <span class="hljs-number">1</span>&#125;, <span class="hljs-string">&#x27;y&#x27;</span>: <span class="hljs-number">2</span>, **&#123;<span class="hljs-string">&#x27;z&#x27;</span>: <span class="hljs-number">3</span>, <span class="hljs-string">&#x27;x&#x27;</span>: <span class="hljs-number">4</span>&#125;&#125;)<br><span class="hljs-comment"># &#123;&#x27;a&#x27;: 0, &#x27;x&#x27;: 4, &#x27;y&#x27;: 2, &#x27;z&#x27;: 3&#125;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="Merging-Mappings-with"><a href="#Merging-Mappings-with" class="headerlink" title="Merging Mappings with |"></a>Merging Mappings with <code>|</code></h3><p>Python 3.9 supports using <code>|</code> and <code>|=</code> to merge mappings.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">&gt;&gt;&gt; </span>d1 = &#123;<span class="hljs-string">&#x27;a&#x27;</span>:<span class="hljs-number">1</span>, <span class="hljs-string">&#x27;b&#x27;</span>:<span class="hljs-number">3</span>&#125;<br><span class="hljs-meta">&gt;&gt;&gt; </span>d2 = &#123;<span class="hljs-string">&#x27;a&#x27;</span>:<span class="hljs-number">2</span>, <span class="hljs-string">&#x27;b&#x27;</span>:<span class="hljs-number">4</span>, <span class="hljs-string">&#x27;c&#x27;</span>:<span class="hljs-number">6</span>&#125;<br><span class="hljs-meta">&gt;&gt;&gt; </span>d1 | d2<br>&#123;<span class="hljs-string">&#x27;a&#x27;</span>: <span class="hljs-number">2</span>, <span class="hljs-string">&#x27;b&#x27;</span>: <span class="hljs-number">4</span>, <span class="hljs-string">&#x27;c&#x27;</span>: <span class="hljs-number">6</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="0x02-Pattern-Matching-with-Mappings"><a href="#0x02-Pattern-Matching-with-Mappings" class="headerlink" title="0x02 Pattern Matching with Mappings"></a>0x02 Pattern Matching with Mappings</h2><p>Thanks to destructuring, pattern matching is a powerful tool to process records structured like nested mappings and sequences, which we often need to read from JSON APIs and databases with semi-structured schemas, like MongoDB, EdgeDB, or PostgreSQL.</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_creators</span>(<span class="hljs-params">record: <span class="hljs-built_in">dict</span></span>) -&gt; <span class="hljs-built_in">list</span>:<br>    <span class="hljs-keyword">match</span> record:<br>        <span class="hljs-keyword">case</span> &#123;<span class="hljs-string">&#x27;type&#x27;</span>: <span class="hljs-string">&#x27;book&#x27;</span>, <span class="hljs-string">&#x27;api&#x27;</span>: <span class="hljs-number">2</span>, <span class="hljs-string">&#x27;authors&#x27;</span>: [*names]&#125;:<br>            <span class="hljs-keyword">return</span> names<br>        <span class="hljs-keyword">case</span> &#123;<span class="hljs-string">&#x27;type&#x27;</span>: <span class="hljs-string">&#x27;book&#x27;</span>, <span class="hljs-string">&#x27;api&#x27;</span>: <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;author&#x27;</span>: name&#125;:<br>            <span class="hljs-keyword">return</span> [name]<br>        <span class="hljs-keyword">case</span> &#123;<span class="hljs-string">&#x27;type&#x27;</span>: <span class="hljs-string">&#x27;book&#x27;</span>&#125;:<br>            <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">f&quot;Invalid &#x27;book&#x27; record: <span class="hljs-subst">&#123;record!r&#125;</span>&quot;</span>)<br>        <span class="hljs-keyword">case</span> &#123;<span class="hljs-string">&#x27;type&#x27;</span>: <span class="hljs-string">&#x27;movie&#x27;</span>, <span class="hljs-string">&#x27;director&#x27;</span>: name&#125;:<br>            <span class="hljs-keyword">return</span> [name]<br>        <span class="hljs-keyword">case</span> _:<br>            <span class="hljs-keyword">raise</span> ValueError(<span class="hljs-string">f&#x27;Invalid record: <span class="hljs-subst">&#123;record!r&#125;</span>&#x27;</span>)<br>            <br>b1 = <span class="hljs-built_in">dict</span>(api=<span class="hljs-number">1</span>, author=<span class="hljs-string">&#x27;Douglas Hofstadter&#x27;</span>, <span class="hljs-built_in">type</span>=<span class="hljs-string">&#x27;book&#x27;</span>, title=<span class="hljs-string">&#x27;Gödel, Escher, Bach&#x27;</span>)<br><span class="hljs-built_in">print</span>(get_creators(b1))<br>[<span class="hljs-string">&#x27;Douglas Hofstadter&#x27;</span>]<br><br><span class="hljs-keyword">from</span> collections <span class="hljs-keyword">import</span> OrderedDict<br>b2 = OrderedDict(api=<span class="hljs-number">2</span>, <span class="hljs-built_in">type</span>=<span class="hljs-string">&#x27;book&#x27;</span>, title=<span class="hljs-string">&#x27;Python in a Nutshell&#x27;</span>, authors=<span class="hljs-string">&#x27;Martelli Ravenscroft Holden&#x27;</span>.split())<br><span class="hljs-built_in">print</span>(get_creators(b2))<br>[<span class="hljs-string">&#x27;Martelli&#x27;</span>, <span class="hljs-string">&#x27;Ravenscroft&#x27;</span>, <span class="hljs-string">&#x27;Holden&#x27;</span>]<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>The order of the keys in the patterns is irrelevant, even if the subject is an OrderedDict as b2. 键的顺序无关</li>
+<li>In contrast with sequence patterns, mapping patterns succeed on partial matches. 支持部分匹配（case中没有title字段）</li>
+<li>There is no need to use <code>**extra</code> to match extra key-value pairs. 由于支持部分匹配，就不需要<code>**extra</code>来接收多余的键值对，当然也可以这么做</li>
+</ul>
+<h2 id="0x03-Standard-API-of-Mapping-Types"><a href="#0x03-Standard-API-of-Mapping-Types" class="headerlink" title="0x03 Standard API of Mapping Types"></a>0x03 Standard API of Mapping Types</h2><h3 id="What-Is-Hashable"><a href="#What-Is-Hashable" class="headerlink" title="What Is Hashable"></a>What Is Hashable</h3><blockquote>
+<p>An object is hashable if it has a hash code which never changes during its lifetime (it needs a <code>__hash__()</code> method), and can be compared to other objects (it needs an <code>__eq__()</code> method). Hashable objects which compare equal must have the same hash code.</p>
+</blockquote>
+<ul>
+<li>Numeric types and flat immutable types <code>str</code> and <code>bytes</code> are all hashable</li>
+<li>Container types are hashable if they are immutable and all contained objects are also hashable.</li>
+<li>A <code>frozenset</code> is always hashable because every element it contains must be hashable</li>
+<li>User-defined types are hashable by default<ul>
+<li>their hash code is their <code>id()</code></li>
+<li><code>__eq__()</code> method inherited from the object class simply compares the object IDs</li>
+</ul>
+</li>
+</ul>
+<h3 id="Inserting-or-Updating-Mutable-Values"><a href="#Inserting-or-Updating-Mutable-Values" class="headerlink" title="Inserting or Updating Mutable Values"></a>Inserting or Updating Mutable Values</h3><p>dict access with <code>d[k]</code> raises an error when k is not an existing key</p>
+<p>以中括号形式访问，若key不存在会抛出异常</p>
+<p><code>d.get(k, default)</code>可以避免这个问题，找不到key时返回默认值</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> re<br><br>WORD_RE = re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">r&#x27;\w+&#x27;</span>)<br>index = &#123;&#125;<br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;zen.txt&#x27;</span>, <span class="hljs-string">&#x27;r&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>    <span class="hljs-keyword">for</span> line_no, line <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(fp, <span class="hljs-number">1</span>):<br>        <span class="hljs-keyword">for</span> <span class="hljs-keyword">match</span> <span class="hljs-keyword">in</span> WORD_RE.finditer(line):<br>            word = <span class="hljs-keyword">match</span>.group()<br>            column_no = <span class="hljs-keyword">match</span>.start() + <span class="hljs-number">1</span><br>            location = (line_no, column_no)<br>            occurrences = index.get(word, [])<br>            occurrences.append(location)<br>            index[word] = occurrences<br><br><span class="hljs-keyword">for</span> word <span class="hljs-keyword">in</span> <span class="hljs-built_in">sorted</span>(index, key=<span class="hljs-built_in">str</span>.upper):<br>    <span class="hljs-built_in">print</span>(word, index[word])<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>输出</p>
+<p>a [(19, 48), (20, 53)]<br>Although [(11, 1), (16, 1), (18, 1)]<br>ambiguity [(14, 16)]<br>and [(15, 23)]<br>are [(21, 12)]<br>aren [(10, 15)]<br>at [(16, 38)]<br>bad [(19, 50)]<br>be [(15, 14), (16, 27), (20, 50)] …</p>
+</blockquote>
+<p>上面的代码统计了<code>Zen of Python</code>中每个单词出现的位置，列表中的每个元组表示(行号，列号)</p>
+<p>可以看到每次循环搜索了两次字典。对于更新字典中的可变类型的值，有更优雅的写法——<code>setdefault</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> re<br><br>WORD_RE = re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">r&#x27;\w+&#x27;</span>)<br>index = &#123;&#125;<br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;zen.txt&#x27;</span>, <span class="hljs-string">&#x27;r&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>    <span class="hljs-keyword">for</span> line_no, line <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(fp, <span class="hljs-number">1</span>):<br>        <span class="hljs-keyword">for</span> <span class="hljs-keyword">match</span> <span class="hljs-keyword">in</span> WORD_RE.finditer(line):<br>            word = <span class="hljs-keyword">match</span>.group()<br>            column_no = <span class="hljs-keyword">match</span>.start() + <span class="hljs-number">1</span><br>            location = (line_no, column_no)<br>            index.setdefault(word, []).append(location)<br><br><span class="hljs-keyword">for</span> word <span class="hljs-keyword">in</span> <span class="hljs-built_in">sorted</span>(index, key=<span class="hljs-built_in">str</span>.upper):<br>    <span class="hljs-built_in">print</span>(word, index[word])<br></code></pre></td></tr></table></figure>
+
+<p><code>setdefault</code> returns the value, so it can be updated without requiring a second search.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">my_dict.setdefault(key, []).append(new_value)<br>等价于<br><span class="hljs-keyword">if</span> key <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> my_dict:<br> my_dict[key] = []<br>my_dict[key].append(new_value)<br></code></pre></td></tr></table></figure>
+
+<h2 id="0x04-Automatic-Handling-of-Missing-Keys"><a href="#0x04-Automatic-Handling-of-Missing-Keys" class="headerlink" title="0x04 Automatic Handling of Missing Keys"></a>0x04 Automatic Handling of Missing Keys</h2><p>Sometimes it is convenient to have mappings that return some made-up value when a missing key is searched.</p>
+<p>two approaches to this:</p>
+<ul>
+<li>use <code>defaultdict</code> instead of a plain <code>dict</code></li>
+<li>subclass <code>dict</code> and add a <code>__missing__</code> method</li>
+</ul>
+<h3 id="defaultdict"><a href="#defaultdict" class="headerlink" title="defaultdict"></a>defaultdict</h3><p>A <code>collections.defaultdict</code> instance creates items with a default value on demand whenever a missing key is searched using <code>d[k]</code> syntax.</p>
+<blockquote>
+<p>when instantiating a defaultdict, you provide a callable to produce a default value whenever <code>__getitem__</code> is passed a nonexistent key argument.</p>
+<p>given a defaultdict created as <code>dd = defaultdict(list)</code>, if ‘new-key’ is not in dd, the expression <code>dd[&#39;new-key&#39;]</code> does the following steps: </p>
+<ol>
+<li>Calls list() to create a new list.</li>
+<li>Inserts the list into dd using ‘new-key’ as key.</li>
+<li>Returns a reference to that list.</li>
+</ol>
+</blockquote>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs py"><span class="hljs-keyword">import</span> collections<br><span class="hljs-keyword">import</span> re<br><br>WORD_RE = re.<span class="hljs-built_in">compile</span>(<span class="hljs-string">r&#x27;\w+&#x27;</span>)<br>index = collections.defaultdict(<span class="hljs-built_in">list</span>)<br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&#x27;zen.txt&#x27;</span>, <span class="hljs-string">&#x27;r&#x27;</span>) <span class="hljs-keyword">as</span> fp:<br>    <span class="hljs-keyword">for</span> line_no, line <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(fp, <span class="hljs-number">1</span>):<br>        <span class="hljs-keyword">for</span> <span class="hljs-keyword">match</span> <span class="hljs-keyword">in</span> WORD_RE.finditer(line):<br>            word = <span class="hljs-keyword">match</span>.group()<br>            column_no = <span class="hljs-keyword">match</span>.start() + <span class="hljs-number">1</span><br>            location = (line_no, column_no)<br>            index[word].append(location)<br><br><span class="hljs-keyword">for</span> word <span class="hljs-keyword">in</span> <span class="hljs-built_in">sorted</span>(index, key=<span class="hljs-built_in">str</span>.upper):<br>    <span class="hljs-built_in">print</span>(word, index[word])<br></code></pre></td></tr></table></figure>
+
+<h3 id="missing-method"><a href="#missing-method" class="headerlink" title="__missing__ method"></a><code>__missing__</code> method</h3><p>if you subclass dict and provide a <code>__missing__</code> method, the standard dict.<code>__getitem__</code> will call it whenever a key is not found, instead of raising KeyError.</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/python/" class="print-no-link">#python</a>
+      
+        <a href="/tags/code/" class="print-no-link">#code</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>流畅的Python-3</div>
+      <div>http://example.com/2023/07/04/fluent-py-03/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/07/31/ysomap-1/" title="YSOMAP取经之路-1">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">YSOMAP取经之路-1</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/07/01/fluent-py-02/" title="流畅的Python-2">
+                        <span class="hidden-mobile">流畅的Python-2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

