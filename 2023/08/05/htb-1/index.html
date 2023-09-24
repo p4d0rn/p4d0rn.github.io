@@ -23,15 +23,15 @@
 <meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
 <meta property="og:description" content="14&#x2F;16 active web challenge in total🤠 Nice Quality👍 Templated Can you exploit this simple mistake?   Bet on SSTI. Use Arjun to discover query parameters which may exit. Nothing come out  however">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805152815470.png">
-<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805152731692.png">
-<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805152917748.png">
-<meta property="og:image" content="e:\MyBook\MyBlog\source\img\image-20230805153545717.png">
-<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805160039287.png">
-<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805160606713.png">
-<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805160924968.png">
-<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805184256728.png">
-<meta property="og:image" content="http://example.com/..%5Cimg%5Cimage-20230805184425063.png">
+<meta property="og:image" content="http://example.com/img/image-20230805152815470.png">
+<meta property="og:image" content="http://example.com/img/image-20230805152731692.png">
+<meta property="og:image" content="http://example.com/img/image-20230805152917748.png">
+<meta property="og:image" content="e:\MyBook\MyBlog\source/img/image-20230805153545717.png">
+<meta property="og:image" content="http://example.com/img/image-20230805160039287.png">
+<meta property="og:image" content="http://example.com/img/image-20230805160606713.png">
+<meta property="og:image" content="http://example.com/img/image-20230805160924968.png">
+<meta property="og:image" content="http://example.com/img/image-20230805184256728.png">
+<meta property="og:image" content="http://example.com/img/image-20230805184425063.png">
 <meta property="og:image" content="http://example.com/img/image-20230807214545751.png">
 <meta property="og:image" content="http://example.com/img/image-20230807215931380.png">
 <meta property="og:image" content="http://example.com/img/image-20230811152803863.png">
@@ -53,12 +53,12 @@
 <meta property="og:image" content="http://example.com/img/image-20230830111531362.png">
 <meta property="og:image" content="http://example.com/img/image-20230830111549427.png">
 <meta property="article:published_time" content="2023-08-05T06:35:57.000Z">
-<meta property="article:modified_time" content="2023-09-21T08:15:41.980Z">
+<meta property="article:modified_time" content="2023-09-24T09:16:33.325Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="security">
 <meta property="article:tag" content="ctf">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/..%5Cimg%5Cimage-20230805152815470.png">
+<meta name="twitter:image" content="http://example.com/img/image-20230805152815470.png">
   
   
   
@@ -309,30 +309,30 @@
 <h1 id="Templated"><a href="#Templated" class="headerlink" title="Templated"></a>Templated</h1><blockquote>
 <p>Can you exploit this simple mistake?</p>
 </blockquote>
-<p><img src="/..%5Cimg%5Cimage-20230805152815470.png" srcset="/img/loading.gif" lazyload alt="image-20230805152815470"></p>
+<p><img src="/../img/image-20230805152815470.png" srcset="/img/loading.gif" lazyload alt="image-20230805152815470"></p>
 <p>Bet on SSTI.</p>
 <p>Use <em>Arjun</em> to discover query parameters which may exit. Nothing come out  however. </p>
-<p><img src="/..%5Cimg%5Cimage-20230805152731692.png" srcset="/img/loading.gif" lazyload alt="image-20230805152731692"></p>
+<p><img src="/../img/image-20230805152731692.png" srcset="/img/loading.gif" lazyload alt="image-20230805152731692"></p>
 <p>Try to access nonexistent paths hoping it will return some useful error echo.</p>
-<p><img src="/..%5Cimg%5Cimage-20230805152917748.png" srcset="/img/loading.gif" lazyload alt="image-20230805152917748"></p>
+<p><img src="/../img/image-20230805152917748.png" srcset="/img/loading.gif" lazyload alt="image-20230805152917748"></p>
 <p>Chances are that this is a SSR 404 Page using templates to render</p>
 <p>Send the common Jinja2 SSTI payload</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs jinja2">&#123;% for c in &#x27;&#x27;.__class__.__mro__[-1].__subclasses__() %&#125;&#123;% if c.__name__ == &#x27;_wrap_close&#x27; %&#125; &#123;&#123;c.__init__.__globals__[&#x27;popen&#x27;](&#x27;cat flag.txt&#x27;).read()&#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;<br></code></pre></td></tr></table></figure>
 
-<p><img src="E:\MyBook\MyBlog\source\img\image-20230805153545717.png" srcset="/img/loading.gif" lazyload alt="image-20230805153545717"></p>
+<p><img src="E:\MyBook\MyBlog\source/img/image-20230805153545717.png" srcset="/img/loading.gif" lazyload alt="image-20230805153545717"></p>
 <h1 id="Phonebook"><a href="#Phonebook" class="headerlink" title="Phonebook"></a>Phonebook</h1><blockquote>
 <p>Who is lucky enough to be included in the phonebook?</p>
 </blockquote>
 <p>A classic Login Page.</p>
-<p><img src="/..%5Cimg%5Cimage-20230805160039287.png" srcset="/img/loading.gif" lazyload alt="image-20230805160039287"></p>
+<p><img src="/../img/image-20230805160039287.png" srcset="/img/loading.gif" lazyload alt="image-20230805160039287"></p>
 <p>Try some weak password to login as an admin</p>
 <p>It return the <em>302 Found</em> redirecting to <code>/login?message=Authentication failed</code> for my form submission</p>
 <p>Then I get a message in login page (message from <em>message parameter</em> in URL)</p>
-<p><img src="/..%5Cimg%5Cimage-20230805160606713.png" srcset="/img/loading.gif" lazyload alt="image-20230805160606713"></p>
+<p><img src="/../img/image-20230805160606713.png" srcset="/img/loading.gif" lazyload alt="image-20230805160606713"></p>
 <p>Oh, Good! I can try to XSS myself (It’s a DOM XSS)</p>
 <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">x</span> <span class="hljs-attr">onerror</span>=<span class="hljs-string">alert(1)</span>&gt;</span><br></code></pre></td></tr></table></figure>
 
-<p><img src="/..%5Cimg%5Cimage-20230805160924968.png" srcset="/img/loading.gif" lazyload alt="image-20230805160924968"></p>
+<p><img src="/../img/image-20230805160924968.png" srcset="/img/loading.gif" lazyload alt="image-20230805160924968"></p>
 <p>Some SQLi attempts also failed.</p>
 <p>After doing some searching, it turns out there is a LDAP injection.</p>
 <p>The Lightweight Directory Access Protocol, or LDAP, is an open  application protocol for accessing and maintaining directory services in an IP network.</p>
@@ -397,9 +397,9 @@
 <p>Now back to the challenge</p>
 <p>we can try to inject with <code>username=*&amp;password=*</code></p>
 <p>After login, there is a <em>search</em> function</p>
-<p><img src="/..%5Cimg%5Cimage-20230805184256728.png" srcset="/img/loading.gif" lazyload alt="image-20230805184256728"></p>
+<p><img src="/../img/image-20230805184256728.png" srcset="/img/loading.gif" lazyload alt="image-20230805184256728"></p>
 <p>we post <code>&#123;&quot;term&quot;:&quot;2&quot;&#125;</code> and it returns below</p>
-<p><img src="/..%5Cimg%5Cimage-20230805184425063.png" srcset="/img/loading.gif" lazyload alt="image-20230805184425063"></p>
+<p><img src="/../img/image-20230805184425063.png" srcset="/img/loading.gif" lazyload alt="image-20230805184425063"></p>
 <p>After some fuzzing, I find that the LDAP query structure might be like below(x is your input)</p>
 <figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">(<span class="hljs-attribute">mail</span>=*x*)<br></code></pre></td></tr></table></figure>
 
