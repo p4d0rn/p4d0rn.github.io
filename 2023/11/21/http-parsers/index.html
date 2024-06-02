@@ -1,0 +1,792 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="HTTP 协议在 Web 应用程序的无缝运行中起着至关重要的作用，然而不同的语言、模块、中间件，其对HTTP协议的解析存在细微的差异，这些差异可能导致潜在的安全漏洞。  实际尝试Windows和Linux有出入，不一定准确，谨慎观看  路径名绕过规则Trim Inconsistencies在HTTP解析中，路径名的规范化（canonicalization）是躲不过的一步，包括从URL中移除不必要的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP解析差异利用">
+<meta property="og:url" content="http://example.com/2023/11/21/http-parsers/index.html">
+<meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
+<meta property="og:description" content="HTTP 协议在 Web 应用程序的无缝运行中起着至关重要的作用，然而不同的语言、模块、中间件，其对HTTP协议的解析存在细微的差异，这些差异可能导致潜在的安全漏洞。  实际尝试Windows和Linux有出入，不一定准确，谨慎观看  路径名绕过规则Trim Inconsistencies在HTTP解析中，路径名的规范化（canonicalization）是躲不过的一步，包括从URL中移除不必要的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/image-20231121151839810.png">
+<meta property="og:image" content="http://example.com/img/image-20231121151814388.png">
+<meta property="og:image" content="http://example.com/img/image-20231121154036238.png">
+<meta property="og:image" content="http://example.com/img/image-20231121160732208.png">
+<meta property="og:image" content="http://example.com/img/image-20231121191827679.png">
+<meta property="og:image" content="http://example.com/img/image-20231121192342039.png">
+<meta property="og:image" content="http://example.com/img/image-20231121201158960.png">
+<meta property="article:published_time" content="2023-11-21T05:16:29.000Z">
+<meta property="article:modified_time" content="2023-12-12T03:59:10.639Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="securit">
+<meta property="article:tag" content="trick">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/image-20231121151839810.png">
+  
+  
+  
+  <title>HTTP解析差异利用 - p4d0rn&#39;s Labyrinth</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5-a","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>p4d0rn&#39;s labyrinth</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="HTTP解析差异利用"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-21 13:16" pubdate>
+          2023年11月21日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          44 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">HTTP解析差异利用</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>HTTP 协议在 Web 应用程序的无缝运行中起着至关重要的作用，然而不同的语言、模块、中间件，其对HTTP协议的解析存在细微的差异，这些差异可能导致潜在的安全漏洞。</p>
+<blockquote>
+<p>实际尝试Windows和Linux有出入，不一定准确，谨慎观看</p>
+</blockquote>
+<h1 id="路径名绕过规则"><a href="#路径名绕过规则" class="headerlink" title="路径名绕过规则"></a>路径名绕过规则</h1><h2 id="Trim-Inconsistencies"><a href="#Trim-Inconsistencies" class="headerlink" title="Trim Inconsistencies"></a>Trim Inconsistencies</h2><p>在HTTP解析中，路径名的规范化（canonicalization）是躲不过的一步，包括从URL中移除不必要的元素，如多余的斜线（<code>/</code>）、点号（<code>.</code>）、空白符（<code>\n \r \t \x00</code>）等，以及对路径穿越（path traversal）的处理，URL编码字符串的解码。</p>
+<p>我们现在把关注点移到不同语言对字符移除的处理上来。对比Python和NodeJS</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">&gt;&gt;&gt; </span>string = <span class="hljs-string">&quot;\xa0 1234 \x85&quot;</span><br><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-built_in">bytes</span>(string.encode())<br><span class="hljs-string">b&#x27;\xc2\xa0 1234 \xc2\x85&#x27;</span><br><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-built_in">bytes</span>(string.strip().encode())<br><span class="hljs-string">b&#x27;1234</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs js">&gt; string = <span class="hljs-string">&quot;\xa0 1234 \x85&quot;</span><br><span class="hljs-string">&#x27;  1234 \x85&#x27;</span><br>&gt; string.<span class="hljs-title function_">trim</span>()<br><span class="hljs-string">&#x27;1234 \x85&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>可以看到Python和NodeJS中对字符的支持不同，Python会移除<code>\x85</code>，NodeJS则不会，但他们都会移除<code>\xa0</code></p>
+<p>Nginx是用C编写的，它当然也不能涵盖所有语言支持的字符。</p>
+<h2 id="Nginx-ACL-Rules-×-Express"><a href="#Nginx-ACL-Rules-×-Express" class="headerlink" title="Nginx ACL Rules × Express"></a>Nginx ACL Rules × Express</h2><p>ACL（Access Control List访问控制列表）</p>
+<p>Nginx中<code>location</code>用于定义请求的URL匹配规则，以便确定如何处理特定的请求。</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-section">server</span> &#123;<br>    <span class="hljs-attribute">listen</span>        <span class="hljs-number">80</span>;<br>    <span class="hljs-attribute">server_name</span>  localhost;<br>    <span class="hljs-attribute">root</span>   <span class="hljs-string">&quot;/path/to/resources&quot;</span>;<br>    <span class="hljs-section">location</span> / &#123;<br>        <span class="hljs-attribute">proxy_pass</span> http://localhost:3000;<br>        <span class="hljs-attribute">proxy_set_header</span> Host <span class="hljs-variable">$host</span>;<br>        <span class="hljs-attribute">proxy_set_header</span> X-Real-IP <span class="hljs-variable">$remote_addr</span>;<br>    &#125;<br>    <span class="hljs-section">location</span> = /error/<span class="hljs-number">403</span>.html &#123;<br>        internal;<br>    &#125;<br>    <span class="hljs-section">location</span> = /admin &#123;<br>        <span class="hljs-attribute">deny</span> all;<br>    &#125;<br><br>    <span class="hljs-section">location</span> = /admin/ &#123;<br>        <span class="hljs-attribute">deny</span> all;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>上面的配置表明<code>/admin</code>路径不可被访问</p>
+<p>本地起了一个NodeJS的web服务</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;express&#x27;</span>)<br><span class="hljs-keyword">const</span> app = <span class="hljs-title function_">express</span>()<br><span class="hljs-keyword">const</span> port = <span class="hljs-number">3000</span><br><br>app.<span class="hljs-title function_">get</span>(<span class="hljs-string">&#x27;/admin&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> &#123;<br>    res.<span class="hljs-title function_">send</span>(<span class="hljs-string">&quot;Admin!!!&quot;</span>)<br>&#125;)<br><br>app.<span class="hljs-title function_">listen</span>(port, <span class="hljs-function">() =&gt;</span> &#123;<br>    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Example app listening on port <span class="hljs-subst">$&#123;port&#125;</span>`</span>)<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+<p>对于<code>NodeJS</code>，它处理路径名时会忽略<code>\x09</code>、<code>\xa0</code>、<code>\x0c</code>，但<code>Nginx</code>会把这些字符作为路径名的一部分</p>
+<p>因此可以在<code>/admin</code>后面加上这些字符来绕过</p>
+<p><img src="/./../img/image-20231121151839810.png" srcset="/img/loading.gif" lazyload alt="image-20231121151839810"></p>
+<p><img src="/./../img/image-20231121151814388.png" srcset="/img/loading.gif" lazyload alt="image-20231121151814388"></p>
+<p>附上歪果仁研究的结果</p>
+<table>
+<thead>
+<tr>
+<th>Nginx Version</th>
+<th><strong>Node.js Bypass Characters</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1.22.0</td>
+<td><code>\xA0</code></td>
+</tr>
+<tr>
+<td>1.21.6</td>
+<td><code>\xA0</code></td>
+</tr>
+<tr>
+<td>1.20.2</td>
+<td><code>\xA0</code>, <code>\x09</code>, <code>\x0C</code></td>
+</tr>
+<tr>
+<td>1.18.0</td>
+<td><code>\xA0</code>, <code>\x09</code>, <code>\x0C</code></td>
+</tr>
+<tr>
+<td>1.16.1</td>
+<td><code>\xA0</code>, <code>\x09</code>, <code>\x0C</code></td>
+</tr>
+</tbody></table>
+<h2 id="Nginx-ACL-Rules-×-Flask"><a href="#Nginx-ACL-Rules-×-Flask" class="headerlink" title="Nginx ACL Rules × Flask"></a>Nginx ACL Rules × Flask</h2><p>同样也是找出Flask会移除但Nginx不会移除的字符</p>
+<table>
+<thead>
+<tr>
+<th>Nginx Version</th>
+<th><strong>Flask Bypass Characters</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1.22.0</td>
+<td><code>\x85</code>, <code>\xA0</code></td>
+</tr>
+<tr>
+<td>1.21.6</td>
+<td><code>\x85</code>, <code>\xA0</code></td>
+</tr>
+<tr>
+<td>1.20.2</td>
+<td><code>\x85</code>, <code>\xA0</code>, <code>\x1F</code>, <code>\x1E</code>, <code>\x1D</code>, <code>\x1C</code>, <code>\x0C</code>, <code>\x0B</code></td>
+</tr>
+<tr>
+<td>1.18.0</td>
+<td><code>\x85</code>, <code>\xA0</code>, <code>\x1F</code>, <code>\x1E</code>, <code>\x1D</code>, <code>\x1C</code>, <code>\x0C</code>, <code>\x0B</code></td>
+</tr>
+<tr>
+<td>1.16.1</td>
+<td><code>\x85</code>, <code>\xA0</code>, <code>\x1F</code>, <code>\x1E</code>, <code>\x1D</code>, <code>\x1C</code>, <code>\x0C</code>, <code>\x0B</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Flask<br><br>app = Flask(__name__)<br><br><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/admin&#x27;</span>, methods=[<span class="hljs-string">&#x27;GET&#x27;</span>]</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">admin</span>():<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;flask admin&quot;</span><br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    app.run(<span class="hljs-string">&#x27;0.0.0.0&#x27;</span>, <span class="hljs-number">3000</span>)<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20231121154036238.png" srcset="/img/loading.gif" lazyload alt="image-20231121154036238"></p>
+<h2 id="Nginx-ACL-Rules-×-Spring-Boot"><a href="#Nginx-ACL-Rules-×-Spring-Boot" class="headerlink" title="Nginx ACL Rules × Spring Boot"></a>Nginx ACL Rules × Spring Boot</h2><table>
+<thead>
+<tr>
+<th>Nginx Version</th>
+<th><strong>Spring Boot Bypass Characters</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1.22.0</td>
+<td><code>;</code></td>
+</tr>
+<tr>
+<td>1.21.6</td>
+<td><code>;</code></td>
+</tr>
+<tr>
+<td>1.20.2</td>
+<td><code>\x09</code>, <code>;</code></td>
+</tr>
+<tr>
+<td>1.18.0</td>
+<td><code>\x09</code>, <code>;</code></td>
+</tr>
+<tr>
+<td>1.16.1</td>
+<td><code>\x09</code>, <code>;</code></td>
+</tr>
+</tbody></table>
+<p><code>\x09</code>就是<code>\t</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@RestController</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">HelloController</span> &#123;<br>    <span class="hljs-meta">@GetMapping(&quot;/admin&quot;)</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">admin</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Spring Boot Admin&quot;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20231121160732208.png" srcset="/img/loading.gif" lazyload alt="image-20231121160732208"></p>
+<h2 id="Nginx-ACL-Rules-×-PHP-FPM"><a href="#Nginx-ACL-Rules-×-PHP-FPM" class="headerlink" title="Nginx ACL Rules × PHP-FPM"></a>Nginx ACL Rules × PHP-FPM</h2><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-section">location</span> = /admin.php &#123;<br>    <span class="hljs-attribute">deny</span> all;<br>&#125;<br><br><span class="hljs-section">location</span> <span class="hljs-regexp">~ \.php$</span> &#123;<br>    <span class="hljs-attribute">include</span> snippets/fastcgi-php.conf;<br>    <span class="hljs-attribute">fastcgi_pass</span> unix:/run/php/php8.1-fpm.sock;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>当路径中存在两个<code>.php</code>，PHP会匹配第一个，忽略斜线后面的内容</p>
+<p>访问<code>/admin.php/index.php</code></p>
+<p>（本地没复现出来。。。）</p>
+<p>修复的话把<code>=</code>换成<code>~</code>，<code>~</code>会匹配路径名任何位置</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-section">location</span> <span class="hljs-regexp">~* ^/admin</span> &#123;<br>    <span class="hljs-attribute">deny</span> all;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="路径名造成SSRF"><a href="#路径名造成SSRF" class="headerlink" title="路径名造成SSRF"></a>路径名造成SSRF</h1><h2 id="SSRF-on-Flask"><a href="#SSRF-on-Flask" class="headerlink" title="SSRF on Flask"></a>SSRF on Flask</h2><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">GET</span> <span class="hljs-string">@/</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>host<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/&#x27;</span>, defaults=&#123;<span class="hljs-string">&#x27;path&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span>&#125;</span>)</span><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/&lt;path:path&gt;&#x27;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">proxy</span>(<span class="hljs-params">path</span>):<br>    <span class="hljs-built_in">print</span>(path)<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Hello&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>打印路径为<code>@/</code></p>
+<p><code>@app.route(&#39;/&lt;path:path&gt;&#39;)</code>处理除根路径以外的所有路径的请求，它将匹配任何非空路径，并将该路径作为参数传递给被装饰的函数。</p>
+<p>不加斜杠也可以</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/@&#x27;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">at</span>():<br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;@.@&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="/./../img/image-20231121191827679.png" srcset="/img/loading.gif" lazyload alt="image-20231121191827679"></p>
+<p>也就是flask处理路径时，会自动处理请求路径前的<code>/</code></p>
+<p>在Express上试了，直接<code>400 Bad Request</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs js">app.<span class="hljs-title function_">get</span>(<span class="hljs-string">&#x27;/*&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> &#123;<br>    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(req.<span class="hljs-property">path</span>);<br>    res.<span class="hljs-title function_">send</span>(<span class="hljs-string">&quot;Hello&quot;</span>)<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+<p>在下面这种情况下就会造成SSRF</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Flask<br><span class="hljs-keyword">from</span> requests <span class="hljs-keyword">import</span> get<br><br>app = Flask(<span class="hljs-string">&#x27;__main__&#x27;</span>)<br>SITE_NAME = <span class="hljs-string">&#x27;https://google.com&#x27;</span><br><br><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/&#x27;</span>, defaults=&#123;<span class="hljs-string">&#x27;path&#x27;</span>: <span class="hljs-string">&#x27;&#x27;</span>&#125;</span>)</span><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/&lt;path:path&gt;&#x27;</span></span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">proxy</span>(<span class="hljs-params">path</span>):<br>    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;SITE_NAME&#125;</span><span class="hljs-subst">&#123;path&#125;</span>&#x27;</span>)<br>    <span class="hljs-keyword">return</span> get(<span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;SITE_NAME&#125;</span><span class="hljs-subst">&#123;path&#125;</span>&#x27;</span>).content<br><br><br>app.run(host=<span class="hljs-string">&#x27;0.0.0.0&#x27;</span>, port=<span class="hljs-number">3000</span>)<br></code></pre></td></tr></table></figure>
+
+<p>上面这个flask应用就充当了一个代理的功能，所有的请求路径都转到<code>google.com</code>去。</p>
+<p>利用这种特性，<code>@</code>前面的内容会被当成用户名和密码 <code>http://username:password@example.com/path</code></p>
+<p><img src="/./../img/image-20231121192342039.png" srcset="/img/loading.gif" lazyload alt="image-20231121192342039"></p>
+<h2 id="SSRF-on-Spring-Boot"><a href="#SSRF-on-Spring-Boot" class="headerlink" title="SSRF on Spring Boot"></a>SSRF on Spring Boot</h2><p>在Servlet中，Matrix Parameters（矩阵参数）是一种在URL路径中传递参数的方式。矩阵参数是位于路径中的一组键值对，用于传递附加的请求参数。与常见的查询参数（Query Parameters）不同，矩阵参数是直接嵌入在路径中的，而不是作为查询字符串的一部分。查询字符串使用<code>?</code>分隔，用<code>&amp;</code>连接，而矩阵参数使用<code>;</code>分割和连接</p>
+<p><code>http://example.com/resource;param1=value1;param2=value2</code></p>
+<p>处理矩阵参数的逻辑大概如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doGet</span><span class="hljs-params">(HttpServletRequest request, HttpServletResponse response)</span> <span class="hljs-keyword">throws</span> ServletException, IOException &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">pathInfo</span> <span class="hljs-operator">=</span> request.getPathInfo();<br>    String[] pathSegments = pathInfo.split(<span class="hljs-string">&quot;;&quot;</span>); <span class="hljs-comment">// 将路径按分号拆分为多个片段</span><br><br>    <span class="hljs-keyword">for</span> (String segment : pathSegments) &#123;<br>        <span class="hljs-keyword">if</span> (segment.contains(<span class="hljs-string">&quot;=&quot;</span>)) &#123;<br>            String[] keyValue = segment.split(<span class="hljs-string">&quot;=&quot;</span>);<br>            <span class="hljs-type">String</span> <span class="hljs-variable">key</span> <span class="hljs-operator">=</span> keyValue[<span class="hljs-number">0</span>];<br>            <span class="hljs-type">String</span> <span class="hljs-variable">value</span> <span class="hljs-operator">=</span> keyValue[<span class="hljs-number">1</span>];<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>SpringBoot支持在第一个斜线之前有矩阵参数</p>
+<p><img src="/./../img/image-20231121201158960.png" srcset="/img/loading.gif" lazyload alt="image-20231121201158960"></p>
+<p>试了一下，SpringBoot<code>2.4</code>可以，<code>2.7</code>就不行了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@GetMapping(&quot;/url&quot;)</span><br><span class="hljs-keyword">public</span> String <span class="hljs-title function_">getURLValue</span><span class="hljs-params">(HttpServletRequest request)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">site</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;http://ifconfig.me&quot;</span>;<br>    <span class="hljs-type">String</span> <span class="hljs-variable">uri</span> <span class="hljs-operator">=</span> request.getRequestURI();<br>    System.out.println(uri);<br>    <span class="hljs-type">URL</span> <span class="hljs-variable">url</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">URL</span>(site + uri);<br>    <span class="hljs-keyword">return</span> getSource(url);<br>&#125;<br><br><span class="hljs-keyword">private</span> String <span class="hljs-title function_">getSource</span><span class="hljs-params">(URL url)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>    System.out.println(url);<br>    <span class="hljs-type">URLConnection</span> <span class="hljs-variable">connection</span> <span class="hljs-operator">=</span> url.openConnection();<br>    <span class="hljs-type">StringBuilder</span> <span class="hljs-variable">sb</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuilder</span>();<br>    <span class="hljs-type">BufferedReader</span> <span class="hljs-variable">in</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">BufferedReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">InputStreamReader</span>(connection.getInputStream()));<br>    <span class="hljs-type">String</span> <span class="hljs-variable">strLine</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;<br>    <span class="hljs-keyword">while</span> ((strLine = in.readLine()) != <span class="hljs-literal">null</span>) &#123;<br>        sb.append(strLine);<br>    &#125;<br>    <span class="hljs-keyword">return</span> sb.toString();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>同样也是修改路径为<code>;@ssrf.com/url</code></p>
+<h1 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h1><p>👍 <a target="_blank" rel="noopener" href="https://rafa.hashnode.dev/exploiting-http-parsers-inconsistencies">https://rafa.hashnode.dev/exploiting-http-parsers-inconsistencies</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/securit/" class="print-no-link">#securit</a>
+      
+        <a href="/tags/trick/" class="print-no-link">#trick</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>HTTP解析差异利用</div>
+      <div>http://example.com/2023/11/21/http-parsers/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月21日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/10/sbTemplate/" title="Spring Boot 模板引擎初探">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Spring Boot 模板引擎初探</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/12/HuaWeiCup/" title="华为杯ADWP赛后复现部分wp">
+                        <span class="hidden-mobile">华为杯ADWP赛后复现部分wp</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

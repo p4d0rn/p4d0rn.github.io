@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/img/image-20230806090437692.png">
 <meta property="article:published_time" content="2023-08-05T14:00:57.000Z">
-<meta property="article:modified_time" content="2023-09-24T09:17:05.445Z">
+<meta property="article:modified_time" content="2024-02-16T02:29:34.023Z">
 <meta property="article:author" content="John Doe">
 <meta property="article:tag" content="security">
 <meta property="article:tag" content="sqli">
@@ -373,8 +373,6 @@
 
 <p>当然也不一定得转为ascii，只是转为数字可以避免一些特殊符号(单引号、反斜线)干扰SQL语法（拼接时加个反斜线转义即可），也方便二分注入</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"># 字符也不是不能二分<br><span class="hljs-keyword">SELECT</span> SUBSTR(<span class="hljs-string">&#x27;a&#x27;</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-operator">&gt;</span> <span class="hljs-string">&#x27;_&#x27;</span>;   # 输出<span class="hljs-number">0</span><br># ord(<span class="hljs-string">&#x27;_&#x27;</span>) <span class="hljs-operator">=</span> <span class="hljs-number">95</span>   ord(<span class="hljs-string">&#x27;a&#x27;</span>) <span class="hljs-operator">=</span> <span class="hljs-number">97</span> 上面的结果显然是错的<br># 得在字符前面加<span class="hljs-type">BINARY</span><br><span class="hljs-keyword">SELECT</span> SUBSTR(<span class="hljs-string">&#x27;a&#x27;</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>) <span class="hljs-operator">&gt;</span> <span class="hljs-type">BINARY</span> <span class="hljs-string">&#x27;_&#x27;</span>   # 输出<span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
-
-
 
 <h2 id="逗号过滤"><a href="#逗号过滤" class="headerlink" title="逗号过滤"></a>逗号过滤</h2><p>在使用盲注时需要用到<code>substr()</code>、<code>mid()</code>、<code>limit</code>，这些方法或字句都需要用到逗号。</p>
 <ul>

