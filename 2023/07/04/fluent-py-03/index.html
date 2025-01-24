@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en" color-mode="light">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="author" content="John Doe" />
+  <!-- Open Graph Description 简短摘要-->
+  
+  <!-- 用于搜索引擎的文章摘要 -->
+  
+  
+  
+  <title>
+    
+      流畅的Python-3 
+      
+      
+      |
+    
+     Hexo
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+    <link rel="icon" href="/images/favicon.png">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="//at.alicdn.com/t/font_1886449_67xjft27j1l.css" />
+  <!-- 代码块风格 -->
+  
+
+  <!-- jquery3.3.1 -->
+  
+    <script defer type="text/javascript" src="/plugins/jquery.min.js"></script>
+  
+
+  <!-- fancybox -->
+  
+    <link href="/plugins/jquery.fancybox.min.css" rel="stylesheet">
+    <script defer type="text/javascript" src="/plugins/jquery.fancybox.min.js"></script>
+  
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+  
+
+  <script>
+    var html = document.documentElement
+    const colorMode = localStorage.getItem('color-mode')
+    if (colorMode) {
+      document.documentElement.setAttribute('color-mode', colorMode)
+    }
+  </script>
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img no-lazy src="/images/avatar.png" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">Oranges</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">Home</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">Archives</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">Tags</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">Friends</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">About</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+
+  <!-- LaTex Display -->
+
+  
+    <script async type="text/javascript" src="/plugins/mathjax/tex-chtml.js"></script>
+  
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    }
+  </script>
+
+
+
+
+
+  <!-- clipboard -->
+
+  
+    <script async type="text/javascript" src="/plugins/clipboard.min.js"></script>
+  
+  
+<script src="/js/codeCopy.js"></script>
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">流畅的Python-3</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+          2023-07-08 14:39:36
+        </span>
+        
+              <span class="post-tags">
+                <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/python/" title="python">
+                    #python
+                  </a>
+                </span>
+                
+                <span class="span--tag mr-8">
+                  <a href="/tags/code/" title="code">
+                    #code
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h1 id="Chap3-Dictionaries-and-Sets"><a href="#Chap3-Dictionaries-and-Sets" class="headerlink" title="Chap3. Dictionaries and Sets"></a>Chap3. Dictionaries and Sets</h1><p>The <strong>dict</strong> type is a fundamental part of Python’s implementation.Class and instance attributes, module namespaces, and function keyword arguments are some of the core Python constructs represented by dictionaries in memory. The<code> __builtins__.__dict__</code> stores all built-in types, objects, and functions.</p>
+<p>Because of their crucial role, Python dicts are highly optimized.Hash tables are the engines behind Python’s high-performance dicts.Other built-in types based on hash tables are <strong>set</strong> and <strong>frozenset</strong>.</p>
+<h2 id="0x01-Modern-dict-Syntax"><a href="#0x01-Modern-dict-Syntax" class="headerlink" title="0x01 Modern dict Syntax"></a>0x01 Modern dict Syntax</h2><h3 id="Dict-Comprehension"><a href="#Dict-Comprehension" class="headerlink" title="Dict Comprehension"></a>Dict Comprehension</h3><p>A <em>dictcomp</em> (dict comprehension) builds a <strong>dict</strong> instance by taking <strong>key:value</strong> pairs from any iterable.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">dial_codes = [</span><br><span class="line">    (<span class="number">880</span>, <span class="string">&#x27;Bangladesh&#x27;</span>),</span><br><span class="line">    (<span class="number">55</span>, <span class="string">&#x27;Brazil&#x27;</span>),</span><br><span class="line">    (<span class="number">86</span>, <span class="string">&#x27;China&#x27;</span>),</span><br><span class="line">    (<span class="number">91</span>, <span class="string">&#x27;India&#x27;</span>),</span><br><span class="line">    (<span class="number">62</span>, <span class="string">&#x27;Indonesia&#x27;</span>),</span><br><span class="line">    (<span class="number">81</span>, <span class="string">&#x27;Japan&#x27;</span>),</span><br><span class="line">    (<span class="number">234</span>, <span class="string">&#x27;Nigeria&#x27;</span>),</span><br><span class="line">    (<span class="number">92</span>, <span class="string">&#x27;Pakistan&#x27;</span>),</span><br><span class="line">    (<span class="number">7</span>, <span class="string">&#x27;Russia&#x27;</span>),</span><br><span class="line">    (<span class="number">1</span>, <span class="string">&#x27;United States&#x27;</span>),</span><br><span class="line">]</span><br><span class="line">country_dial = &#123;country: code <span class="keyword">for</span> code, country <span class="keyword">in</span> dial_codes&#125;</span><br><span class="line"><span class="built_in">print</span>(country_dial)</span><br><span class="line"><span class="comment"># &#123;&#x27;Bangladesh&#x27;: 880, &#x27;Brazil&#x27;: 55, &#x27;China&#x27;: 86, &#x27;India&#x27;: 91, &#x27;Indonesia&#x27;: 62, &#x27;Japan&#x27;: 81, &#x27;Nigeria&#x27;: 234, &#x27;Pakistan&#x27;: 92, &#x27;Russia&#x27;: 7, &#x27;United States&#x27;: 1&#125;</span></span><br><span class="line"><span class="built_in">print</span>(&#123;code: country.upper() <span class="keyword">for</span> country, code <span class="keyword">in</span> <span class="built_in">sorted</span>(country_dial.items()) <span class="keyword">if</span> code &lt; <span class="number">70</span>&#125;)</span><br><span class="line"><span class="comment"># &#123;55: &#x27;BRAZIL&#x27;, 62: &#x27;INDONESIA&#x27;, 7: &#x27;RUSSIA&#x27;, 1: &#x27;UNITED STATES&#x27;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>country_dial.items()</p>
+<p>-&gt; [(k1,v1),(k2,v2)….]</p>
+</blockquote>
+<h3 id="Unpacking-Mappings"><a href="#Unpacking-Mappings" class="headerlink" title="Unpacking Mappings"></a>Unpacking Mappings</h3><p>函数形参前缀<code>**</code>表示以字典的形式接收，实参前缀<code>**</code>表示解包</p>
+<p> This works when keys are all strings and unique across all arguments.要求键均为字符串且不重复</p>
+<blockquote>
+<p>TypeError: keywords must be strings</p>
+<p>TypeError: <code>__main__.dump()</code> got multiple values for keyword argument ‘x’</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">dump</span>(<span class="params">**kwargs</span>):</span><br><span class="line">    <span class="built_in">print</span>(kwargs)</span><br><span class="line"></span><br><span class="line">dump(**&#123;<span class="string">&#x27;x&#x27;</span>: <span class="number">1</span>&#125;, y=<span class="number">2</span>, **&#123;<span class="string">&#x27;z&#x27;</span>: <span class="number">3</span>&#125;) <span class="comment"># dump(x=1, y=2, z=3)</span></span><br><span class="line"><span class="comment"># &#123;&#x27;x&#x27;: 1, &#x27;y&#x27;: 2, &#x27;z&#x27;: 3&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>**</code>也可以用在字典字面量内部</p>
+<p>Later occurrences overwrite previous ones 允许键重复，但后面的键值会覆盖前面的键值</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(&#123;<span class="string">&#x27;a&#x27;</span>: <span class="number">0</span>, **&#123;<span class="string">&#x27;x&#x27;</span>: <span class="number">1</span>&#125;, <span class="string">&#x27;y&#x27;</span>: <span class="number">2</span>, **&#123;<span class="string">&#x27;z&#x27;</span>: <span class="number">3</span>, <span class="string">&#x27;x&#x27;</span>: <span class="number">4</span>&#125;&#125;)</span><br><span class="line"><span class="comment"># &#123;&#x27;a&#x27;: 0, &#x27;x&#x27;: 4, &#x27;y&#x27;: 2, &#x27;z&#x27;: 3&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Merging-Mappings-with"><a href="#Merging-Mappings-with" class="headerlink" title="Merging Mappings with |"></a>Merging Mappings with <code>|</code></h3><p>Python 3.9 supports using <code>|</code> and <code>|=</code> to merge mappings.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>d1 = &#123;<span class="string">&#x27;a&#x27;</span>:<span class="number">1</span>, <span class="string">&#x27;b&#x27;</span>:<span class="number">3</span>&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d2 = &#123;<span class="string">&#x27;a&#x27;</span>:<span class="number">2</span>, <span class="string">&#x27;b&#x27;</span>:<span class="number">4</span>, <span class="string">&#x27;c&#x27;</span>:<span class="number">6</span>&#125;</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d1 | d2</span><br><span class="line">&#123;<span class="string">&#x27;a&#x27;</span>: <span class="number">2</span>, <span class="string">&#x27;b&#x27;</span>: <span class="number">4</span>, <span class="string">&#x27;c&#x27;</span>: <span class="number">6</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x02-Pattern-Matching-with-Mappings"><a href="#0x02-Pattern-Matching-with-Mappings" class="headerlink" title="0x02 Pattern Matching with Mappings"></a>0x02 Pattern Matching with Mappings</h2><p>Thanks to destructuring, pattern matching is a powerful tool to process records structured like nested mappings and sequences, which we often need to read from JSON APIs and databases with semi-structured schemas, like MongoDB, EdgeDB, or PostgreSQL.</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">get_creators</span>(<span class="params">record: <span class="built_in">dict</span></span>) -&gt; <span class="built_in">list</span>:</span><br><span class="line">    <span class="keyword">match</span> record:</span><br><span class="line">        <span class="keyword">case</span> &#123;<span class="string">&#x27;type&#x27;</span>: <span class="string">&#x27;book&#x27;</span>, <span class="string">&#x27;api&#x27;</span>: <span class="number">2</span>, <span class="string">&#x27;authors&#x27;</span>: [*names]&#125;:</span><br><span class="line">            <span class="keyword">return</span> names</span><br><span class="line">        <span class="keyword">case</span> &#123;<span class="string">&#x27;type&#x27;</span>: <span class="string">&#x27;book&#x27;</span>, <span class="string">&#x27;api&#x27;</span>: <span class="number">1</span>, <span class="string">&#x27;author&#x27;</span>: name&#125;:</span><br><span class="line">            <span class="keyword">return</span> [name]</span><br><span class="line">        <span class="keyword">case</span> &#123;<span class="string">&#x27;type&#x27;</span>: <span class="string">&#x27;book&#x27;</span>&#125;:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">f&quot;Invalid &#x27;book&#x27; record: <span class="subst">&#123;record!r&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">case</span> &#123;<span class="string">&#x27;type&#x27;</span>: <span class="string">&#x27;movie&#x27;</span>, <span class="string">&#x27;director&#x27;</span>: name&#125;:</span><br><span class="line">            <span class="keyword">return</span> [name]</span><br><span class="line">        <span class="keyword">case</span> _:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">f&#x27;Invalid record: <span class="subst">&#123;record!r&#125;</span>&#x27;</span>)</span><br><span class="line">            </span><br><span class="line">b1 = <span class="built_in">dict</span>(api=<span class="number">1</span>, author=<span class="string">&#x27;Douglas Hofstadter&#x27;</span>, <span class="built_in">type</span>=<span class="string">&#x27;book&#x27;</span>, title=<span class="string">&#x27;Gödel, Escher, Bach&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(get_creators(b1))</span><br><span class="line">[<span class="string">&#x27;Douglas Hofstadter&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> OrderedDict</span><br><span class="line">b2 = OrderedDict(api=<span class="number">2</span>, <span class="built_in">type</span>=<span class="string">&#x27;book&#x27;</span>, title=<span class="string">&#x27;Python in a Nutshell&#x27;</span>, authors=<span class="string">&#x27;Martelli Ravenscroft Holden&#x27;</span>.split())</span><br><span class="line"><span class="built_in">print</span>(get_creators(b2))</span><br><span class="line">[<span class="string">&#x27;Martelli&#x27;</span>, <span class="string">&#x27;Ravenscroft&#x27;</span>, <span class="string">&#x27;Holden&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>The order of the keys in the patterns is irrelevant, even if the subject is an OrderedDict as b2. 键的顺序无关</li>
+<li>In contrast with sequence patterns, mapping patterns succeed on partial matches. 支持部分匹配（case中没有title字段）</li>
+<li>There is no need to use <code>**extra</code> to match extra key-value pairs. 由于支持部分匹配，就不需要<code>**extra</code>来接收多余的键值对，当然也可以这么做</li>
+</ul>
+<h2 id="0x03-Standard-API-of-Mapping-Types"><a href="#0x03-Standard-API-of-Mapping-Types" class="headerlink" title="0x03 Standard API of Mapping Types"></a>0x03 Standard API of Mapping Types</h2><h3 id="What-Is-Hashable"><a href="#What-Is-Hashable" class="headerlink" title="What Is Hashable"></a>What Is Hashable</h3><blockquote>
+<p>An object is hashable if it has a hash code which never changes during its lifetime (it needs a <code>__hash__()</code> method), and can be compared to other objects (it needs an <code>__eq__()</code> method). Hashable objects which compare equal must have the same hash code.</p>
+</blockquote>
+<ul>
+<li>Numeric types and flat immutable types <code>str</code> and <code>bytes</code> are all hashable</li>
+<li>Container types are hashable if they are immutable and all contained objects are also hashable.</li>
+<li>A <code>frozenset</code> is always hashable because every element it contains must be hashable</li>
+<li>User-defined types are hashable by default<ul>
+<li>their hash code is their <code>id()</code></li>
+<li><code>__eq__()</code> method inherited from the object class simply compares the object IDs</li>
+</ul>
+</li>
+</ul>
+<h3 id="Inserting-or-Updating-Mutable-Values"><a href="#Inserting-or-Updating-Mutable-Values" class="headerlink" title="Inserting or Updating Mutable Values"></a>Inserting or Updating Mutable Values</h3><p>dict access with <code>d[k]</code> raises an error when k is not an existing key</p>
+<p>以中括号形式访问，若key不存在会抛出异常</p>
+<p><code>d.get(k, default)</code>可以避免这个问题，找不到key时返回默认值</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">WORD_RE = re.<span class="built_in">compile</span>(<span class="string">r&#x27;\w+&#x27;</span>)</span><br><span class="line">index = &#123;&#125;</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;zen.txt&#x27;</span>, <span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> fp:</span><br><span class="line">    <span class="keyword">for</span> line_no, line <span class="keyword">in</span> <span class="built_in">enumerate</span>(fp, <span class="number">1</span>):</span><br><span class="line">        <span class="keyword">for</span> <span class="keyword">match</span> <span class="keyword">in</span> WORD_RE.finditer(line):</span><br><span class="line">            word = <span class="keyword">match</span>.group()</span><br><span class="line">            column_no = <span class="keyword">match</span>.start() + <span class="number">1</span></span><br><span class="line">            location = (line_no, column_no)</span><br><span class="line">            occurrences = index.get(word, [])</span><br><span class="line">            occurrences.append(location)</span><br><span class="line">            index[word] = occurrences</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> word <span class="keyword">in</span> <span class="built_in">sorted</span>(index, key=<span class="built_in">str</span>.upper):</span><br><span class="line">    <span class="built_in">print</span>(word, index[word])</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>输出</p>
+<p>a [(19, 48), (20, 53)]<br>Although [(11, 1), (16, 1), (18, 1)]<br>ambiguity [(14, 16)]<br>and [(15, 23)]<br>are [(21, 12)]<br>aren [(10, 15)]<br>at [(16, 38)]<br>bad [(19, 50)]<br>be [(15, 14), (16, 27), (20, 50)] …</p>
+</blockquote>
+<p>上面的代码统计了<code>Zen of Python</code>中每个单词出现的位置，列表中的每个元组表示(行号，列号)</p>
+<p>可以看到每次循环搜索了两次字典。对于更新字典中的可变类型的值，有更优雅的写法——<code>setdefault</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">WORD_RE = re.<span class="built_in">compile</span>(<span class="string">r&#x27;\w+&#x27;</span>)</span><br><span class="line">index = &#123;&#125;</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;zen.txt&#x27;</span>, <span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> fp:</span><br><span class="line">    <span class="keyword">for</span> line_no, line <span class="keyword">in</span> <span class="built_in">enumerate</span>(fp, <span class="number">1</span>):</span><br><span class="line">        <span class="keyword">for</span> <span class="keyword">match</span> <span class="keyword">in</span> WORD_RE.finditer(line):</span><br><span class="line">            word = <span class="keyword">match</span>.group()</span><br><span class="line">            column_no = <span class="keyword">match</span>.start() + <span class="number">1</span></span><br><span class="line">            location = (line_no, column_no)</span><br><span class="line">            index.setdefault(word, []).append(location)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> word <span class="keyword">in</span> <span class="built_in">sorted</span>(index, key=<span class="built_in">str</span>.upper):</span><br><span class="line">    <span class="built_in">print</span>(word, index[word])</span><br></pre></td></tr></table></figure>
+
+<p><code>setdefault</code> returns the value, so it can be updated without requiring a second search.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">my_dict.setdefault(key, []).append(new_value)</span><br><span class="line">等价于</span><br><span class="line"><span class="keyword">if</span> key <span class="keyword">not</span> <span class="keyword">in</span> my_dict:</span><br><span class="line"> my_dict[key] = []</span><br><span class="line">my_dict[key].append(new_value)</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x04-Automatic-Handling-of-Missing-Keys"><a href="#0x04-Automatic-Handling-of-Missing-Keys" class="headerlink" title="0x04 Automatic Handling of Missing Keys"></a>0x04 Automatic Handling of Missing Keys</h2><p>Sometimes it is convenient to have mappings that return some made-up value when a missing key is searched.</p>
+<p>two approaches to this:</p>
+<ul>
+<li>use <code>defaultdict</code> instead of a plain <code>dict</code></li>
+<li>subclass <code>dict</code> and add a <code>__missing__</code> method</li>
+</ul>
+<h3 id="defaultdict"><a href="#defaultdict" class="headerlink" title="defaultdict"></a>defaultdict</h3><p>A <code>collections.defaultdict</code> instance creates items with a default value on demand whenever a missing key is searched using <code>d[k]</code> syntax.</p>
+<blockquote>
+<p>when instantiating a defaultdict, you provide a callable to produce a default value whenever <code>__getitem__</code> is passed a nonexistent key argument.</p>
+<p>given a defaultdict created as <code>dd = defaultdict(list)</code>, if ‘new-key’ is not in dd, the expression <code>dd[&#39;new-key&#39;]</code> does the following steps: </p>
+<ol>
+<li>Calls list() to create a new list.</li>
+<li>Inserts the list into dd using ‘new-key’ as key.</li>
+<li>Returns a reference to that list.</li>
+</ol>
+</blockquote>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> collections</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">WORD_RE = re.<span class="built_in">compile</span>(<span class="string">r&#x27;\w+&#x27;</span>)</span><br><span class="line">index = collections.defaultdict(<span class="built_in">list</span>)</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;zen.txt&#x27;</span>, <span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> fp:</span><br><span class="line">    <span class="keyword">for</span> line_no, line <span class="keyword">in</span> <span class="built_in">enumerate</span>(fp, <span class="number">1</span>):</span><br><span class="line">        <span class="keyword">for</span> <span class="keyword">match</span> <span class="keyword">in</span> WORD_RE.finditer(line):</span><br><span class="line">            word = <span class="keyword">match</span>.group()</span><br><span class="line">            column_no = <span class="keyword">match</span>.start() + <span class="number">1</span></span><br><span class="line">            location = (line_no, column_no)</span><br><span class="line">            index[word].append(location)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> word <span class="keyword">in</span> <span class="built_in">sorted</span>(index, key=<span class="built_in">str</span>.upper):</span><br><span class="line">    <span class="built_in">print</span>(word, index[word])</span><br></pre></td></tr></table></figure>
+
+<h3 id="missing-method"><a href="#missing-method" class="headerlink" title="__missing__ method"></a><code>__missing__</code> method</h3><p>if you subclass dict and provide a <code>__missing__</code> method, the standard dict.<code>__getitem__</code> will call it whenever a key is not found, instead of raising KeyError.</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2023/07/01/fluent-py-02/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime mr-10" title="Update time"></i>
+              2023-07-08 14:39:36
+            </span>
+            
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags mr-10" title="Tags"></i>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/python/" title="python">
+                        #python
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag mr-8">
+                      <a href="/tags/code/" title="code">
+                        #code
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2023/07/31/ysomap-1/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Chap3-Dictionaries-and-Sets"><span class="toc-text">Chap3. Dictionaries and Sets</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-Modern-dict-Syntax"><span class="toc-text">0x01 Modern dict Syntax</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Dict-Comprehension"><span class="toc-text">Dict Comprehension</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Unpacking-Mappings"><span class="toc-text">Unpacking Mappings</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Merging-Mappings-with"><span class="toc-text">Merging Mappings with |</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-Pattern-Matching-with-Mappings"><span class="toc-text">0x02 Pattern Matching with Mappings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-Standard-API-of-Mapping-Types"><span class="toc-text">0x03 Standard API of Mapping Types</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#What-Is-Hashable"><span class="toc-text">What Is Hashable</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Inserting-or-Updating-Mutable-Values"><span class="toc-text">Inserting or Updating Mutable Values</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-Automatic-Handling-of-Missing-Keys"><span class="toc-text">0x04 Automatic Handling of Missing Keys</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#defaultdict"><span class="toc-text">defaultdict</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#missing-method"><span class="toc-text">__missing__ method</span></a></li></ol></li></ol></li></ol>
+      
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        
+<div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          
+              <a title="github" target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">
+                <i class="iconfont icon-github"></i>
+              </a>
+              
+        </li>
+        
+    </ul>
+  </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Copyright © 2024 Oranges</a>
+        
+    </div>
+  
+    
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+  
+</div>
+
+      </div>
+
+      <div class="tools-bar">
+        <div class="back-to-top tools-bar-item hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+        
+  <div class="search-icon tools-bar-item" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+        
+  <div class="tools-bar-item theme-icon" id="switch-color-scheme">
+    <a href="javascript: void(0)">
+      <i id="theme-icon" class="iconfont icon-moon"></i>
+    </a>
+  </div>
+
+  
+<script src="/js/colorscheme.js"></script>
+
+
+
+
+
+        
+  
+    <div class="share-icon tools-bar-item">
+      <a href="javascript: void(0)" id="share-icon">
+        <i class="iconfont iconshare"></i>
+      </a>
+      <div class="share-content hidden">
+        
+          <a class="share-item" href="https://twitter.com/intent/tweet?text=' + %E6%B5%81%E7%95%85%E7%9A%84Python-3 + '&url=' + http%3A%2F%2Fexample.com%2F2023%2F07%2F04%2Ffluent-py-03%2F + '" target="_blank" title="Twitter">
+            <i class="iconfont icon-twitter"></i>
+          </a>
+        
+        
+          <a class="share-item" href="https://www.facebook.com/sharer.php?u=http://example.com/2023/07/04/fluent-py-03/" target="_blank" title="Facebook">
+            <i class="iconfont icon-facebooksquare"></i>
+          </a>
+        
+      </div>
+    </div>
+  
+  
+<script src="/js/shares.js"></script>
+
+
+
+      </div>
+    </div>
+  
+        <style>
+            [bg-lazy] {
+                background-image: none !important;
+                background-color: #eee !important;
+            }
+        </style>
+        <script>
+            window.imageLazyLoadSetting = {
+                isSPA: false,
+                preloadRatio: 1,
+                processImages: null,
+            };
+        </script><script>window.addEventListener("load",function(){var t=/\.(gif|jpg|jpeg|tiff|png)$/i,r=/^data:image\/[a-z]+;base64,/;Array.prototype.slice.call(document.querySelectorAll("img[data-original]")).forEach(function(a){var e=a.parentNode;"A"===e.tagName&&(e.href.match(t)||e.href.match(r))&&(e.href=a.dataset.original)})});</script><script>!function(r){r.imageLazyLoadSetting.processImages=t;var a=r.imageLazyLoadSetting.isSPA,n=r.imageLazyLoadSetting.preloadRatio||1,d=o();function o(){var t=Array.prototype.slice.call(document.querySelectorAll("img[data-original]")),e=Array.prototype.slice.call(document.querySelectorAll("[bg-lazy]"));return t.concat(e)}function t(t){(a||t)&&(d=o());for(var e,i=0;i<d.length;i++)0<=(e=(e=d[i]).getBoundingClientRect()).bottom&&0<=e.left&&e.top<=(r.innerHeight*n||document.documentElement.clientHeight*n)&&function(){var t,e,a,n,o=d[i];e=function(){d=d.filter(function(t){return o!==t}),r.imageLazyLoadSetting.onImageLoaded&&r.imageLazyLoadSetting.onImageLoaded(o)},(t=o).dataset.loaded||(t.hasAttribute("bg-lazy")?(t.removeAttribute("bg-lazy"),e&&e()):(a=new Image,n=t.getAttribute("data-original"),a.onload=function(){t.src=n,t.removeAttribute("data-original"),t.setAttribute("data-loaded",!0),e&&e()},a.onerror=function(){t.removeAttribute("data-original"),t.setAttribute("data-loaded",!1),t.src=n},t.src!==n&&(a.src=n)))}()}function e(){clearTimeout(t.tId),t.tId=setTimeout(t,500)}t(),document.addEventListener("scroll",e),r.addEventListener("resize",e),r.addEventListener("orientationchange",e)}(this);</script></body>
+</html>
